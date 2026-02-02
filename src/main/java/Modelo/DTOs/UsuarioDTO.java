@@ -16,9 +16,8 @@ public class UsuarioDTO {
     private LocalDate fechaRegistro;
     private String avatar;
     private double saldoCartera = 0.00;
-    private UsuarioEstadoCuenta estadoCuenta;
 
-    public UsuarioDTO(long id, String nombreUsuario, String email, String contrasena, String nombreReal, String pais, LocalDate fechaNaci, LocalDate fechaRegistro, String avatar, double saldoCartera, UsuarioEstadoCuenta estadoCuenta) {
+    public UsuarioDTO(long id, String nombreUsuario, String email, String contrasena, String nombreReal, String pais, LocalDate fechaNaci, LocalDate fechaRegistro, String avatar, double saldoCartera) {
 
         this.id = id;
         this.nombreUsuario = nombreUsuario;
@@ -30,7 +29,6 @@ public class UsuarioDTO {
         this.fechaRegistro = fechaRegistro;
         this.avatar = avatar;
         this.saldoCartera = saldoCartera;
-        this.estadoCuenta = estadoCuenta;
     }
 
     public long getId() {
@@ -111,13 +109,5 @@ public class UsuarioDTO {
 
     public void setSaldoCartera(double saldoCartera) {
         this.saldoCartera = saldoCartera;
-    }
-
-    public UsuarioEstadoCuenta getEstadoCuenta() {
-        return estadoCuenta;
-    }
-
-    public void setEstadoCuenta(UsuarioEstadoCuenta estadoCuenta) {
-        this.estadoCuenta = estadoCuenta;
     }
 }

@@ -13,34 +13,14 @@ public class CompraEntidad {
     private LocalDate fechaCompra;
     private double precioSinDes;
     private double descuento;
-    private CompraEstadoEnum estadoCompra;
-    private CompraMetodoPagoEnum metodoPago;
 
-    public CompraEntidad(long id, int usuarioId, int juegoId, LocalDate fechaCompra, double precioSinDes, double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
+    public CompraEntidad(long id, int usuarioId, int juegoId, LocalDate fechaCompra, double precioSinDes, double descuento) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
         this.fechaCompra = fechaCompra;
         this.precioSinDes = precioSinDes;
         this.descuento = descuento;
-        this.estadoCompra = estadoCompra;
-        this.metodoPago = metodoPago;
-    }
-
-    public CompraMetodoPagoEnum getMetodoPago() {
-        return metodoPago;
-    }
-
-    public void setMetodoPago(CompraMetodoPagoEnum metodoPago) {
-        this.metodoPago = metodoPago;
-    }
-
-    public CompraEstadoEnum getEstadoCompra() {
-        return estadoCompra;
-    }
-
-    public void setEstadoCompra(CompraEstadoEnum estadoCompra) {
-        this.estadoCompra = estadoCompra;
     }
 
     public long getId() {
