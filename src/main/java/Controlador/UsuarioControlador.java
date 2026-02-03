@@ -1,6 +1,5 @@
 package Controlador;
 
-import Excepciones.CreacionIncorrectaExcepcion;
 import Modelo.Form.UsuarioForm;
 import Repositorio.ImplementacionMemoria.UsuarioRepo;
 import Repositorio.Interfaz.IUsuarioRepo;

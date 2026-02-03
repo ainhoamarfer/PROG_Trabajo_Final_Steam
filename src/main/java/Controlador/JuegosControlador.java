@@ -1,8 +1,8 @@
 package Controlador;
 
-import Excepciones.CreacionIncorrectaExcepcion;
+import Excepciones.ValidacionExcepcion;
+import Modelo.DTOs.ErrorDto;
 import Modelo.Form.JuegoForm;
-import Repositorio.ImplementacionMemoria.JuegoRepo;
 import Repositorio.Interfaz.IJuegosRepo;
 
 import java.util.List;
@@ -15,19 +15,19 @@ public class JuegosControlador {
         this.repo = repo;
     }
 
-    public void aniadirJuego(JuegoForm juegoForm) throws CreacionIncorrectaExcepcion {
+    public void aniadirJuego(JuegoForm juegoForm) throws ValidacionExcepcion {
         // precondición
 
-        List<String> errores = validarJuego(juegoForm);
+        List<ErrorDto> errores = validarJuego(juegoForm);
 
         if (errores.size() != 0)
-            throw new CreacionIncorrectaExcepcion(errores);
+            throw new ValidacionExcepcion(errores);
 
         // cuerpo
         repo.create(juegoForm);
 
     }
 
-    private List<String> validarJuego(JuegoForm juegoForm) {
+    private List<ErrorDto> validarJuego(JuegoForm juegoForm) {
     }
 }
