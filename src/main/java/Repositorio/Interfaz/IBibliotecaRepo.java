@@ -1,20 +1,29 @@
 package Repositorio.Interfaz;
 
-import Modelo.DTOs.BibliotecaDTO;
+import Modelo.Entidad.BibliotecaEntidad;
+import Modelo.Form.BibliotecaForm;
+
+import java.util.List;
 
 public interface IBibliotecaRepo {
 
     //CRUD
 
     //create
-    BibliotecaDTO crear();
+    BibliotecaEntidad crear(BibliotecaForm form);
+
     //readAll
+    List<BibliotecaEntidad> obtenerTodos();
 
     //readId
+    BibliotecaEntidad obtenerPorId(int id);
 
-    //readBy
+    //readByTitulo
+    BibliotecaEntidad obtenerPorTitulo(String titulo);
 
     //update
+    BibliotecaEntidad actualizar(int id, BibliotecaForm form);
 
-    boolean delete(int id);
+    //delete
+    boolean eliminar(int id);
 }

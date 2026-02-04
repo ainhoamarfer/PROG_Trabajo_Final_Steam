@@ -10,20 +10,21 @@ public interface IJuegosRepo {
     //CRUD
 
     //create
-    JuegoEntidad create(JuegoForm form);
+    JuegoEntidad crear(JuegoForm form);
 
     //readAll
-    List<JuegoEntidad> readAll();
+    List<JuegoEntidad> obtenerTodos();
 
     //readId
-    JuegoEntidad readById(int id);
+    JuegoEntidad obtenerPorId(int id);
 
     //readByTitulo
-    JuegoEntidad readByTitulo(String titulo);
+    JuegoEntidad obtenerPorTitulo(String titulo);
 
     //update
-    JuegoEntidad update(int id, JuegoForm form);
+    JuegoEntidad actualizar(int id, JuegoForm form);
 
     //delete
-    boolean delete(int id);
+    boolean eliminar(int id);
 }
+

@@ -1,40 +1,45 @@
 package Repositorio.ImplementacionMemoria;
 
+import Modelo.Entidad.CompraEntidad;
 import Modelo.Entidad.JuegoEntidad;
 import Modelo.Form.JuegoForm;
 import Repositorio.Interfaz.IJuegosRepo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class JuegoRepo implements IJuegosRepo {
 
+    private static final List<JuegoEntidad> juegos = new ArrayList<>();
+    private static Long idContador = 1L;
+
     @Override
-    public JuegoEntidad create(JuegoForm form) {
+    public JuegoEntidad crear(JuegoForm form) {
         return null;
     }
 
     @Override
-    public List<JuegoEntidad> readAll() {
+    public List<JuegoEntidad> obtenerTodos() {
         return List.of();
     }
 
     @Override
-    public JuegoEntidad readById(int id) {
+    public JuegoEntidad obtenerPorId(int id) {
         return null;
     }
 
     @Override
-    public JuegoEntidad readByTitulo(String titulo) {
+    public JuegoEntidad obtenerPorTitulo(String titulo) {
         return null;
     }
 
     @Override
-    public JuegoEntidad update(int id, JuegoForm form) {
+    public JuegoEntidad actualizar(int id, JuegoForm form) {
         return null;
     }
 
     @Override
-    public boolean delete(int id) {
+    public boolean eliminar(int id) {
         return false;
     }
 }

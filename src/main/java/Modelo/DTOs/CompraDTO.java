@@ -1,5 +1,8 @@
 package Modelo.DTOs;
 
+import Modelo.Enums.CompraEstadoEnum;
+import Modelo.Enums.CompraMetodoPagoEnum;
+
 import java.time.LocalDate;
 
 public class CompraDTO {
@@ -10,14 +13,35 @@ public class CompraDTO {
     private LocalDate fechaCompra;
     private double precioSinDes;
     private double descuento;
+    private CompraEstadoEnum estado;
+    private CompraMetodoPagoEnum metodoPago;
 
-    public CompraDTO(long id, UsuarioDTO usuario, JuegoDTO juego, LocalDate fechaCompra, double precioSinDes, double descuento) {
+    public CompraDTO(long id, UsuarioDTO usuario, JuegoDTO juego, LocalDate fechaCompra, double precioSinDes, double descuento, CompraEstadoEnum estado, CompraMetodoPagoEnum metodoPago) {
+
         this.id = id;
         this.usuario = usuario;
         this.juego = juego;
         this.fechaCompra = fechaCompra;
         this.precioSinDes = precioSinDes;
         this.descuento = descuento;
+        this.estado = estado;
+        this.metodoPago = metodoPago;
+    }
+
+    public CompraEstadoEnum getEstado() {
+        return estado;
+    }
+
+    public void setEstado(CompraEstadoEnum estado) {
+        this.estado = estado;
+    }
+
+    public CompraMetodoPagoEnum getMetodoPago() {
+        return metodoPago;
+    }
+
+    public void setMetodoPago(CompraMetodoPagoEnum metodoPago) {
+        this.metodoPago = metodoPago;
     }
 
     public long getId() {

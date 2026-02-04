@@ -1,6 +1,10 @@
 package Modelo.Form;
 
+import Modelo.DTOs.ErrorDto;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BibliotecaForm {
 
@@ -13,6 +17,7 @@ public class BibliotecaForm {
         this.juegoId = juegoId;
         this.fechaAdquisicion = fechaAdquisicion;
     }
+
 
     public int getUsuarioId() {
         return usuarioId;

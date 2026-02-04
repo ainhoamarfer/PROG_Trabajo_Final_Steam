@@ -4,36 +4,36 @@ import Modelo.Entidad.CompraEntidad;
 import Modelo.Form.CompraForm;
 import Repositorio.Interfaz.ICompraRepo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CompraRepo implements ICompraRepo {
+
+    private static final List<CompraEntidad> compras = new ArrayList<>();
+    private static Long idContador = 1L;
+
     @Override
-    public CompraEntidad create(CompraForm form) {
+    public CompraEntidad crear(CompraForm form) {
         return null;
     }
 
     @Override
-    public List<CompraEntidad> readAll() {
+    public List<CompraEntidad> obtenerTodos() {
         return List.of();
     }
 
     @Override
-    public CompraEntidad readById(int id) {
+    public CompraEntidad obtenerPorId(int id) {
         return null;
     }
 
     @Override
-    public CompraEntidad readByTitulo(String titulo) {
+    public CompraEntidad actualizar(int id, CompraForm form) {
         return null;
     }
 
     @Override
-    public CompraEntidad update(int id, CompraForm form) {
-        return null;
-    }
-
-    @Override
-    public boolean delete(int id) {
+    public boolean eliminar(int id) {
         return false;
     }
 }

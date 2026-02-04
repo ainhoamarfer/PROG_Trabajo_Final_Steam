@@ -1,17 +1,31 @@
 package Modelo.Form;
 
+import Modelo.Enums.ResenaEstado;
+
 public class ResenaForm {
 
     private int usuarioId;
     private int juegoId;
     private boolean recomendado;
     private String texto;
+    private ResenaEstado estado;
 
-    public ResenaForm(int usuarioId, int juegoId, boolean recomendado, String texto) {
+    public ResenaForm(int usuarioId, int juegoId, boolean recomendado, String texto, ResenaEstado estado) {
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
         this.recomendado = recomendado;
         this.texto = texto;
+        this.estado = estado;
+    }
+
+
+
+    public ResenaEstado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(ResenaEstado estado) {
+        this.estado = estado;
     }
 
     public int getUsuarioId() {

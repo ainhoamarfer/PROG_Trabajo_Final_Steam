@@ -1,5 +1,7 @@
 package Modelo.DTOs;
 
+import Modelo.Enums.ResenaEstado;
+
 import java.time.LocalDate;
 
 public class ResenaDTO {
@@ -12,8 +14,10 @@ public class ResenaDTO {
     private double horasJugadas;
     private LocalDate fechaPublicacion;
     private LocalDate fechaUltEdicion;
+    private ResenaEstado estado;
 
-    public ResenaDTO(long id, UsuarioDTO usuario, JuegoDTO juego, boolean recomendado, String texto, double horasJugadas, LocalDate fechaPublicacion, LocalDate fechaUltEdicion) {
+    public ResenaDTO(long id, UsuarioDTO usuario, JuegoDTO juego, boolean recomendado, String texto, double horasJugadas, LocalDate fechaPublicacion, LocalDate fechaUltEdicion, ResenaEstado estado) {
+
         this.id = id;
         this.usuario = usuario;
         this.juego = juego;
@@ -22,6 +26,15 @@ public class ResenaDTO {
         this.horasJugadas = horasJugadas;
         this.fechaPublicacion = fechaPublicacion;
         this.fechaUltEdicion = fechaUltEdicion;
+        this.estado = estado;
+    }
+
+    public ResenaEstado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(ResenaEstado estado) {
+        this.estado = estado;
     }
 
     public long getId() {

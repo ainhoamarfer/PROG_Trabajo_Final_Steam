@@ -24,7 +24,7 @@ public class JuegosControlador {
             throw new ValidacionExcepcion(errores);
 
         // cuerpo
-        repo.create(juegoForm);
+        repo.crear(juegoForm);
 
     }
 

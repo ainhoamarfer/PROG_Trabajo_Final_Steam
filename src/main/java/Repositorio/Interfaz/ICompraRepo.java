@@ -10,20 +10,18 @@ public interface ICompraRepo {
     //CRUD
 
     //create
-    CompraEntidad create(CompraForm form);
+    CompraEntidad crear(CompraForm form);
 
     //readAll
-    List<CompraEntidad> readAll();
+    List<CompraEntidad> obtenerTodos();
 
     //readId
-    CompraEntidad readById(int id);
-
-    //readByTitulo
-    CompraEntidad readByTitulo(String titulo);
+    CompraEntidad obtenerPorId(int id);
 
     //update
-    CompraEntidad update(int id, CompraForm form);
+    CompraEntidad actualizar(int id, CompraForm form);
 
     //delete
-    boolean delete(int id);
+    boolean eliminar(int id);
+
 }
