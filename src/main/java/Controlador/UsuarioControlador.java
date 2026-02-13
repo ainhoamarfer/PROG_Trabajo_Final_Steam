@@ -1,76 +1,57 @@
 package Controlador;
 
-import Excepciones.ValidacionExcepcion;
-import Modelo.DTOs.ErrorDto;
+import Excepciones.ValidationException;
+import Mapper.Mapper;
+import Modelo.DTOs.ErrorDTO;
+import Modelo.DTOs.UsuarioDTO;
+import Modelo.Entidad.UsuarioEntidad;
+import Modelo.Form.ErrorType;
 import Modelo.Form.UsuarioForm;
-import Repositorio.ImplementacionMemoria.UsuarioRepo;
 import Repositorio.Interfaz.IUsuarioRepo;
+import Vista.SteamVista;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-import static Controlador.Util.validarStringLongitud;
-import static Controlador.Util.validarStringNoVacia;
+import java.util.Optional;
 
 public class UsuarioControlador {
 
-    private IUsuarioRepo repo;
-
-    public UsuarioControlador(IUsuarioRepo repo) {
-        this.repo = repo;
-    }
-
-    /**
-     * Registrar nuevo usuario
-     * Descripción: Crear una nueva cuenta de usuario en la plataforma
-     * Entrada: Datos del formulario de registro (nombre de usuario, email, contraseña, nombre real,
-     * país, fecha de nacimiento)
-     * Salida: Usuario creado exitosamente o lista de errores de validación
-     * Validaciones: Aplicar todas las restricciones definidas en la sección de validación de Usuario*/
-
-    private UsuarioRepo registrarNuevoUsuario(UsuarioForm form) throws ValidacionExcepcion {
-
-        //private String nombreUsuario; //único
-        //private String email;
-        //private String contrasena;
-        //private String nombreReal;
-        //private String pais;
-        //private LocalDate fechaNaci;
-        List<ErrorDto> errores = form.validar();
-
-        }
-
-    }
-
-    /**
-     * Consultar perfil
-     * Descripción: Mostrar la información de un usuario específico
-     * Entrada: ID o nombre del usuario a consultar
-     * Salida: Información del perfil del usuario o mensaje de acceso denegado
-     * Información mostrada: Nombre de usuario, avatar, país, fecha de registro, biblioteca y estadísticas de juego*/
-    /**
-     * Añadir saldo a cartera
-     * Descripción: Recargar dinero en la cartera virtual de Steam del usuario
-     * Entrada: ID del usuario, cantidad a añadir
-     * Salida: Nuevo saldo de la cartera o mensaje de error
-     * Validaciones: Cantidad > 0, cuenta activa, rango entre 5.00 y 500.00*/
-
-    /**
-     * Consultar saldo
-     * Descripción: Mostrar el saldo disponible en la cartera Steam de un usuario
-     * Entrada: ID del usuario
-     * Salida: Saldo actual de la cartera (ejemplo: "45.67 €")
-     * Validaciones: Usuario debe existir en el sistema
+    /*
+    Registrar nuevo usuario
+    Consultar perfil
+    Añadir saldo a cartera
+    Consultar saldo
      */
 
-    private void validarUsuarioForm (UsuarioForm form) throws ValidacionExcepcion {
+    private IUsuarioRepo usuarioRepo;
+    private SteamVista vista;
 
-        List<ErrorDto> errores = new ArrayList<>();
+    public UsuarioControlador(IUsuarioRepo repo, SteamVista vista) {
+        this.usuarioRepo = repo;
+        this.vista = vista;
+    }
 
-        if(!validarStringNoVacia(form.getNombreUsuario())){
-            throw new ValidacionExcepcion(errores);
+    /*
+    Registrar nuevo usuario
+
+    Descripción: Crear una nueva cuenta de usuario en la plataforma
+    Entrada: Datos del formulario de registro (nombre de usuario, email, contraseña, nombre real, país, fecha de nacimiento)
+    Salida: Usuario creado exitosamente o lista de errores de validación
+    Validaciones: Aplicar todas las restricciones definidas en la sección de validación de Usuario
+     */
+    public UsuarioDTO registrarNuevoUsuario(UsuarioForm form) throws ValidationException {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        usuarioRepo.obtenerPorNombreUsuario(form.getNombreUsuario())
+                .ifPresent(u -> errores.add(new ErrorDTO("nombre", ErrorType.DUPLICADO)));
+
+        if (!errores.isEmpty()) {
+            throw new ValidationException(errores);
         }
 
+        Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.crear(form);
+        UsuarioEntidad usuario = usuarioOpt.orElse(null);
+
+        return Mapper.mapDe(usuario);
     }
 }

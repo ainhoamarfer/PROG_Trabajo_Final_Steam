@@ -1,12 +1,29 @@
 package Controlador;
 
 import Repositorio.Interfaz.IBibliotecaRepo;
+import Vista.SteamVista;
 
 public class BibliotecaControlador {
 
-    IBibliotecaRepo repo;
+    /*
+    Ver biblioteca personal
+    Añadir juego a biblioteca
+    Eliminar juego de biblioteca
+    Actualizar tiempo de juego
+    Consultar última sesión
+    Filtrar biblioteca (Ficheros)
+    Ver estadísticas de biblioteca
+     */
 
-    public BibliotecaControlador(IBibliotecaRepo repo) {
+    private IBibliotecaRepo repo;
+    private SteamVista vista;
+
+    public BibliotecaControlador(IBibliotecaRepo repo, SteamVista vista) {
         this.repo = repo;
+        this.vista = vista;
     }
+
+    /*
+    Ver biblioteca personal
+     */
 }

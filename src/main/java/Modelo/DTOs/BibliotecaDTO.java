@@ -5,21 +5,33 @@ import java.time.LocalDate;
 public class BibliotecaDTO {
 
     private long id;
+    private long idUsuario;
     private UsuarioDTO usuario;
+    private long idJuego;
     private JuegoDTO juego;
     private LocalDate fechaAdquisicion;
     private double tiempoJuego;
     private LocalDate fechaUltimaJugado;
     public boolean instalado = false;
 
-    public BibliotecaDTO(long id, UsuarioDTO usuario, JuegoDTO juego, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado, boolean instalado) {
+    public BibliotecaDTO(long id, long idUsuario, UsuarioDTO usuario, long idJuego, JuegoDTO juego, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado, boolean instalado) {
         this.id = id;
+        this.idUsuario = idUsuario;
         this.usuario = usuario;
+        this.idJuego = idJuego;
         this.juego = juego;
         this.fechaAdquisicion = fechaAdquisicion;
         this.tiempoJuego = tiempoJuego;
         this.fechaUltimaJugado = fechaUltimaJugado;
         this.instalado = instalado;
+    }
+
+    public long getIdUsuario() {
+        return idUsuario;
+    }
+
+    public long getIdJuego() {
+        return idJuego;
     }
 
     public long getId() {

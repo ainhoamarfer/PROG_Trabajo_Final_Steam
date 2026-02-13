@@ -8,87 +8,66 @@ import java.time.LocalDate;
 public class CompraDTO {
 
     private long id;
+    private long idUsuario;
     private UsuarioDTO usuario;
+    private long idJuego;
     private JuegoDTO juego;
     private LocalDate fechaCompra;
     private double precioSinDes;
     private double descuento;
-    private CompraEstadoEnum estado;
+    private CompraEstadoEnum estadoCompra;
     private CompraMetodoPagoEnum metodoPago;
 
-    public CompraDTO(long id, UsuarioDTO usuario, JuegoDTO juego, LocalDate fechaCompra, double precioSinDes, double descuento, CompraEstadoEnum estado, CompraMetodoPagoEnum metodoPago) {
-
+    public CompraDTO(long id, long idUsuario, UsuarioDTO usuario, long idJuego, JuegoDTO juego, LocalDate fechaCompra, double precioSinDes, double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
         this.id = id;
+        this.idUsuario = idUsuario;
         this.usuario = usuario;
+        this.idJuego = idJuego;
         this.juego = juego;
         this.fechaCompra = fechaCompra;
         this.precioSinDes = precioSinDes;
         this.descuento = descuento;
-        this.estado = estado;
+        this.estadoCompra = estadoCompra;
         this.metodoPago = metodoPago;
     }
 
-    public CompraEstadoEnum getEstado() {
-        return estado;
+    public long getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setEstado(CompraEstadoEnum estado) {
-        this.estado = estado;
-    }
-
-    public CompraMetodoPagoEnum getMetodoPago() {
-        return metodoPago;
-    }
-
-    public void setMetodoPago(CompraMetodoPagoEnum metodoPago) {
-        this.metodoPago = metodoPago;
+    public long getIdJuego() {
+        return idJuego;
     }
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public UsuarioDTO getUsuario() {
         return usuario;
-    }
-
-    public void setUsuario(UsuarioDTO usuario) {
-        this.usuario = usuario;
     }
 
     public JuegoDTO getJuego() {
         return juego;
     }
 
-    public void setJuego(JuegoDTO juego) {
-        this.juego = juego;
-    }
-
     public LocalDate getFechaCompra() {
         return fechaCompra;
-    }
-
-    public void setFechaCompra(LocalDate fechaCompra) {
-        this.fechaCompra = fechaCompra;
     }
 
     public double getPrecioSinDes() {
         return precioSinDes;
     }
 
-    public void setPrecioSinDes(double precioSinDes) {
-        this.precioSinDes = precioSinDes;
-    }
-
     public double getDescuento() {
         return descuento;
     }
 
-    public void setDescuento(double descuento) {
-        this.descuento = descuento;
+    public CompraEstadoEnum getEstadoCompra() {
+        return estadoCompra;
+    }
+
+    public CompraMetodoPagoEnum getMetodoPago() {
+        return metodoPago;
     }
 }

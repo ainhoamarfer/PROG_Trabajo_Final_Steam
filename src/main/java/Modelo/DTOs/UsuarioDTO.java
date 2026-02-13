@@ -5,39 +5,29 @@ import Modelo.Enums.UsuarioEstadoCuenta;
 import java.time.LocalDate;
 
 public class UsuarioDTO {
-
+    //sin contraseña
     private long id; //único
     private String nombreUsuario; //único
     private String email;
-    private String contrasena;
     private String nombreReal;
     private String pais;
     private LocalDate fechaNaci;
     private LocalDate fechaRegistro;
     private String avatar;
-    private double saldoCartera;
+    private double saldoCartera = 0.00;
     private UsuarioEstadoCuenta estadoCuenta;
 
-    public UsuarioDTO(long id, String nombreUsuario, String email, String contrasena, String nombreReal, String pais, LocalDate fechaNaci, LocalDate fechaRegistro, String avatar, double saldoCartera, UsuarioEstadoCuenta estadoCuenta) {
+    public UsuarioDTO(long id, String nombreUsuario, String email, String contrasena, String nombreReal, LocalDate fechaNaci, LocalDate fechaRegistro, String avatar, double saldoCartera, UsuarioEstadoCuenta estadoCuenta) {
 
         this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.email = email;
-        this.contrasena = contrasena;
         this.nombreReal = nombreReal;
         this.pais = pais;
         this.fechaNaci = fechaNaci;
         this.fechaRegistro = fechaRegistro;
         this.avatar = avatar;
-        this.saldoCartera = 0.00;
-        this.estadoCuenta = estadoCuenta;
-    }
-
-    public UsuarioEstadoCuenta getEstadoCuenta() {
-        return estadoCuenta;
-    }
-
-    public void setEstadoCuenta(UsuarioEstadoCuenta estadoCuenta) {
+        this.saldoCartera = saldoCartera;
         this.estadoCuenta = estadoCuenta;
     }
 
@@ -63,14 +53,6 @@ public class UsuarioDTO {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getContrasena() {
-        return contrasena;
-    }
-
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
     }
 
     public String getNombreReal() {
@@ -119,5 +101,13 @@ public class UsuarioDTO {
 
     public void setSaldoCartera(double saldoCartera) {
         this.saldoCartera = saldoCartera;
+    }
+
+    public UsuarioEstadoCuenta getEstadoCuenta() {
+        return estadoCuenta;
+    }
+
+    public void setEstadoCuenta(UsuarioEstadoCuenta estadoCuenta) {
+        this.estadoCuenta = estadoCuenta;
     }
 }

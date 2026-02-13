@@ -1,8 +1,5 @@
 package Modelo.DTOs;
 
-import Modelo.Enums.JuegoClasificacionEdad;
-import Modelo.Enums.JuegoEstado;
-
 import java.time.LocalDate;
 
 public class JuegoDTO {
@@ -16,11 +13,8 @@ public class JuegoDTO {
     private double descuentoActual;
     private String categoria;
     private String idiomas;
-    private JuegoClasificacionEdad clasificacionEdad;
-    private JuegoEstado estadoActual;
 
-    public JuegoDTO(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad, JuegoEstado estadoActual) {
-
+    public JuegoDTO(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -30,24 +24,6 @@ public class JuegoDTO {
         this.descuentoActual = descuentoActual;
         this.categoria = categoria;
         this.idiomas = idiomas;
-        this.clasificacionEdad = clasificacionEdad;
-        this.estadoActual = estadoActual;
-    }
-
-    public JuegoClasificacionEdad getClasificacionEdad() {
-        return clasificacionEdad;
-    }
-
-    public void setClasificacionEdad(JuegoClasificacionEdad clasificacionEdad) {
-        this.clasificacionEdad = clasificacionEdad;
-    }
-
-    public JuegoEstado getEstadoActual() {
-        return estadoActual;
-    }
-
-    public void setEstadoActual(JuegoEstado estadoActual) {
-        this.estadoActual = estadoActual;
     }
 
     public long getId() {

@@ -1,12 +1,12 @@
 package Repositorio.ImplementacionMemoria;
 
-import Modelo.Entidad.CompraEntidad;
 import Modelo.Entidad.ResenaEntidad;
 import Modelo.Form.ResenaForm;
 import Repositorio.Interfaz.IResenaRepo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ResenaRepo implements IResenaRepo {
 
@@ -14,27 +14,45 @@ public class ResenaRepo implements IResenaRepo {
     private static Long idContador = 1L;
 
     @Override
-    public ResenaEntidad crear(ResenaForm form) {
-        return null;
+    public Optional<ResenaEntidad> crear(ResenaForm form) {
+        Long id = idContador;
+        idContador = id + 1L;
+        ResenaEntidad resena = new ResenaEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.isRecomendado(), form.getTexto(), form.getHorasJugadas(),
+                form.getFechaPublicacion(), form.getFechaUltEdicion());
+        resenas.add(resena);
+
+        return Optional.of(resena);
+    }
+
+    @Override
+    public Optional<ResenaEntidad> obtenerPorId(Long id) {
+        return resenas.stream()
+                .filter(u -> id.equals(u.getId()))
+                .findFirst();
     }
 
     @Override
     public List<ResenaEntidad> obtenerTodos() {
-        return List.of();
+        return new ArrayList<>(resenas);
     }
 
     @Override
-    public ResenaEntidad obtenerPorId(int id) {
-        return null;
+    public Optional<ResenaEntidad> actualizar(Long id, ResenaForm form) {
+        Optional<ResenaEntidad> resenaOpt = this.obtenerPorId(id);
+
+        if (resenaOpt.isEmpty()) {
+            throw new IllegalArgumentException("Reseña no encontrada");
+        } else {
+            ResenaEntidad resenaActualizada = new ResenaEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.isRecomendado(), form.getTexto(), form.getHorasJugadas(),
+                    form.getFechaPublicacion(), form.getFechaUltEdicion());
+            resenas.removeIf((u) -> id.equals(u.getId()));
+            resenas.add(resenaActualizada);
+            return Optional.of(resenaActualizada);
+        }
     }
 
     @Override
-    public ResenaEntidad actualizar(int id, ResenaForm form) {
-        return null;
-    }
-
-    @Override
-    public boolean eliminar(int id) {
-        return false;
+    public boolean eliminar(Long id) {
+        return resenas.removeIf((u) -> id.equals(u.getId()));
     }
 }

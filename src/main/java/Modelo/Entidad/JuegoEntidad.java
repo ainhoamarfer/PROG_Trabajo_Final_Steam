@@ -1,8 +1,5 @@
 package Modelo.Entidad;
 
-import Modelo.Enums.JuegoClasificacionEdad;
-import Modelo.Enums.JuegoEstado;
-
 import java.time.LocalDate;
 
 public class JuegoEntidad {
@@ -16,10 +13,8 @@ public class JuegoEntidad {
     private double descuentoActual;
     private String categoria;
     private String idiomas;
-    private JuegoClasificacionEdad clasificacionEdad;
-    private JuegoEstado estadoActual;
 
-    public JuegoEntidad(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad, JuegoEstado estadoActual) {
+    public JuegoEntidad(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas) {
 
         this.id = id;
         this.titulo = titulo;
@@ -30,24 +25,6 @@ public class JuegoEntidad {
         this.descuentoActual = descuentoActual;
         this.categoria = categoria;
         this.idiomas = idiomas;
-        this.clasificacionEdad = clasificacionEdad;
-        this.estadoActual = estadoActual;
-    }
-
-    public JuegoClasificacionEdad getClasificacionEdad() {
-        return clasificacionEdad;
-    }
-
-    public void setClasificacionEdad(JuegoClasificacionEdad clasificacionEdad) {
-        this.clasificacionEdad = clasificacionEdad;
-    }
-
-    public JuegoEstado getEstadoActual() {
-        return estadoActual;
-    }
-
-    public void setEstadoActual(JuegoEstado estadoActual) {
-        this.estadoActual = estadoActual;
     }
 
     public long getId() {

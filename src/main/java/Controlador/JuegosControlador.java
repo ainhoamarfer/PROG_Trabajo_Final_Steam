@@ -1,33 +1,24 @@
 package Controlador;
 
-import Excepciones.ValidacionExcepcion;
-import Modelo.DTOs.ErrorDto;
-import Modelo.Form.JuegoForm;
 import Repositorio.Interfaz.IJuegosRepo;
-
-import java.util.List;
+import Vista.SteamVista;
 
 public class JuegosControlador {
 
+    /*
+    Añadir juego al catálogo
+    Buscar juegos
+    Consultar catálogo completo
+    Consultar detalles de juego
+    Aplicar descuento
+    Cambiar estado del juego
+     */
+
     private IJuegosRepo repo;
+    private SteamVista vista;
 
-    public JuegosControlador(IJuegosRepo repo) {
+    public JuegosControlador(IJuegosRepo repo, SteamVista vista) {
         this.repo = repo;
-    }
-
-    public void aniadirJuego(JuegoForm juegoForm) throws ValidacionExcepcion {
-        // precondición
-
-        List<ErrorDto> errores = validarJuego(juegoForm);
-
-        if (errores.size() != 0)
-            throw new ValidacionExcepcion(errores);
-
-        // cuerpo
-        repo.crear(juegoForm);
-
-    }
-
-    private List<ErrorDto> validarJuego(JuegoForm juegoForm) {
+        this.vista = vista;
     }
 }

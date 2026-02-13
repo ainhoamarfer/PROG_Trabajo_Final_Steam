@@ -3,24 +3,10 @@ package Repositorio.Interfaz;
 import Modelo.Entidad.UsuarioEntidad;
 import Modelo.Form.UsuarioForm;
 
-import java.util.List;
+import java.util.Optional;
 
-public interface IUsuarioRepo {
+public interface IUsuarioRepo extends ICrud<UsuarioEntidad, UsuarioForm, Long> {
 
-    //CRUD
+    public Optional<UsuarioEntidad> obtenerPorNombreUsuario(String nombreUsuario);
 
-    //create
-    UsuarioEntidad crear(UsuarioForm form);
-
-    //readAll
-    List<UsuarioEntidad> obtenerTodos();
-
-    //readId
-    UsuarioEntidad obtenerPorId(int id);
-
-    //update
-    UsuarioEntidad actualizar(int id, UsuarioForm form);
-
-    //delete
-    boolean eliminar(int id);
 }

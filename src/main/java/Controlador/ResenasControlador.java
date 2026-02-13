@@ -1,12 +1,24 @@
 package Controlador;
 
 import Repositorio.Interfaz.IResenaRepo;
+import Vista.SteamVista;
 
 public class ResenasControlador {
 
-    private IResenaRepo repo;
+    /*
+    Escribir reseña
+    Eliminar reseña
+    Ver reseñas de un juego
+    Ocultar reseña
+    Consultar estadísticas de reseñas (Ficheros)
+    Ver reseñas de un usuario
+     */
 
-    public ResenasControlador(IResenaRepo repo) {
+    private IResenaRepo repo;
+    private SteamVista vista;
+
+    public ResenasControlador(IResenaRepo repo, SteamVista vista) {
         this.repo = repo;
+        this.vista = vista;
     }
 }

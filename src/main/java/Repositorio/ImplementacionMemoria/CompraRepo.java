@@ -6,6 +6,7 @@ import Repositorio.Interfaz.ICompraRepo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CompraRepo implements ICompraRepo {
 
@@ -13,27 +14,45 @@ public class CompraRepo implements ICompraRepo {
     private static Long idContador = 1L;
 
     @Override
-    public CompraEntidad crear(CompraForm form) {
-        return null;
+    public Optional<CompraEntidad> crear(CompraForm form) {
+        Long id = idContador;
+        idContador = id + 1L;
+        CompraEntidad compra = new CompraEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.getFechaCompra(), form.getPrecioSinDes(), form.getDescuento(),
+                form.getEstadoCompra(), form.getMetodoPago());
+        compras.add(compra);
+
+        return Optional.of(compra);
+    }
+
+    @Override
+    public Optional<CompraEntidad> obtenerPorId(Long id) {
+        return compras.stream()
+                .filter(u -> id.equals(u.getId()))
+                .findFirst();
     }
 
     @Override
     public List<CompraEntidad> obtenerTodos() {
-        return List.of();
+        return new ArrayList<>(compras);
     }
 
     @Override
-    public CompraEntidad obtenerPorId(int id) {
-        return null;
+    public Optional<CompraEntidad> actualizar(Long id, CompraForm form) {
+        Optional<CompraEntidad> compraOpt = this.obtenerPorId(id);
+
+        if (compraOpt.isEmpty()) {
+            throw new IllegalArgumentException("Compra no encontrada");
+        } else {
+            CompraEntidad CompraActualizada = new CompraEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.getFechaCompra(), form.getPrecioSinDes(), form.getDescuento(),
+                    form.getEstadoCompra(), form.getMetodoPago());
+            compras.removeIf((u) -> id.equals(u.getId()));
+            compras.add(CompraActualizada);
+            return Optional.of(CompraActualizada);
+        }
     }
 
     @Override
-    public CompraEntidad actualizar(int id, CompraForm form) {
-        return null;
-    }
-
-    @Override
-    public boolean eliminar(int id) {
-        return false;
+    public boolean eliminar(Long id) {
+        return compras.removeIf((u) -> id.equals(u.getId()));
     }
 }

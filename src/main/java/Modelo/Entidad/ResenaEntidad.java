@@ -1,7 +1,5 @@
 package Modelo.Entidad;
 
-import Modelo.Enums.ResenaEstado;
-
 import java.time.LocalDate;
 
 public class ResenaEntidad {
@@ -14,10 +12,8 @@ public class ResenaEntidad {
     private double horasJugadas;
     private LocalDate fechaPublicacion;
     private LocalDate fechaUltEdicion;
-    private ResenaEstado estado;
 
-    public ResenaEntidad(long id, int usuarioId, int juegoId, boolean recomendado, String texto, double horasJugadas, LocalDate fechaPublicacion, LocalDate fechaUltEdicion, ResenaEstado estado) {
-
+    public ResenaEntidad(long id, int usuarioId, int juegoId, boolean recomendado, String texto, double horasJugadas, LocalDate fechaPublicacion, LocalDate fechaUltEdicion) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
@@ -26,15 +22,6 @@ public class ResenaEntidad {
         this.horasJugadas = horasJugadas;
         this.fechaPublicacion = fechaPublicacion;
         this.fechaUltEdicion = fechaUltEdicion;
-        this.estado = estado;
-    }
-
-    public ResenaEstado getEstado() {
-        return estado;
-    }
-
-    public void setEstado(ResenaEstado estado) {
-        this.estado = estado;
     }
 
     public long getId() {
