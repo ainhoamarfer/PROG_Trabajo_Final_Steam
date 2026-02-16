@@ -3,10 +3,11 @@ package org.ainhoamarfer.Modelo.Form;
 public enum ErrorType {
     REQUERIDO("El campo es obligatorio"),
     FORMATO_INVALIDO("El formato es inválido"),
-    VALOR_DEMASIADO_ALTO("El valor es demasiado alto"),
-    VALOR_DEMASIADO_BAJO("El valor es demasiado bajo"),
+    VALOR_NO_VALIDO("El valor no es valido"),
     NO_ENCONTRADO("No se encontró el elemento"),
-    DUPLICADO("El elemento está duplicado");
+    DUPLICADO("El elemento está duplicado"),
+    ESTADO_CUENTA("Esta cuentas esta suspendida o baneada"),
+    USUARIO_INVALIDO("Este usuario no es valido");
 
     private final String mensaje;
 
