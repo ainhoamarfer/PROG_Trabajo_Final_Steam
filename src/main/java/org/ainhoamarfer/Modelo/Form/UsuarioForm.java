@@ -1,6 +1,7 @@
 package org.ainhoamarfer.Modelo.Form;
 
 import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
+import org.ainhoamarfer.Modelo.Enums.ErrorType;
 import org.ainhoamarfer.Modelo.Enums.UsuarioEstadoCuenta;
 
 import java.time.LocalDate;

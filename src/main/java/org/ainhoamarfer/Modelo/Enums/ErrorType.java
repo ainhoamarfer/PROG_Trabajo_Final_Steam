@@ -1,4 +1,4 @@
-package org.ainhoamarfer.Modelo.Form;
+package org.ainhoamarfer.Modelo.Enums;
 
 public enum ErrorType {
     REQUERIDO("El campo es obligatorio"),

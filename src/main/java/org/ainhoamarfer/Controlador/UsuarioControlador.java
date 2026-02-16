@@ -5,7 +5,7 @@ import org.ainhoamarfer.Mapper.Mapper;
 import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
 import org.ainhoamarfer.Modelo.DTOs.UsuarioDTO;
 import org.ainhoamarfer.Modelo.Entidad.UsuarioEntidad;
-import org.ainhoamarfer.Modelo.Form.ErrorType;
+import org.ainhoamarfer.Modelo.Enums.ErrorType;
 import org.ainhoamarfer.Modelo.Form.UsuarioForm;
 import org.ainhoamarfer.Repositorio.Interfaz.IUsuarioRepo;
 import org.ainhoamarfer.Vista.SteamVista;
@@ -15,14 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class UsuarioControlador {
-
-    /*
-    Registrar nuevo usuario
-    Consultar perfil
-    Añadir saldo a cartera
-    Consultar saldo
-     */
-
+    
     private IUsuarioRepo usuarioRepo;
     private SteamVista vista;
     private Util util;
@@ -32,13 +25,14 @@ public class UsuarioControlador {
         this.vista = vista;
     }
 
-    /*
-    Registrar nuevo usuario
-
-    Descripción: Crear una nueva cuenta de usuario en la plataforma
-    Entrada: Datos del formulario de registro (nombre de usuario, email, contraseña, nombre real, país, fecha de nacimiento)
-    Salida: Usuario creado exitosamente o lista de errores de validación
-    Validaciones: Aplicar todas las restricciones definidas en la sección de validación de Usuario
+    /**
+     * Registra un nuevo usuario en el sistema.
+     * Crear una nueva cuenta de usuario en la plataforma
+     *
+     * @param form formulario con los datos del nuevo usuario
+     * @return UsuarioDTO mapeado desde la entidad creada (puede ser {@code null}
+     * si la entidad no fue creada por el repositorio)
+     * @throws ExcepcionValidacion cuando el formulario no es válido o existen errores
      */
     public UsuarioDTO registrarNuevoUsuario(UsuarioForm form) throws ExcepcionValidacion {
         List<ErrorDTO> errores = form.validar(form);
@@ -56,37 +50,36 @@ public class UsuarioControlador {
         return Mapper.mapDe(usuario);
     }
 
-    /*
-    Consultar perfil
-
-    Descripción: Mostrar la información de un usuario específico
-    Entrada: ID o nombre del usuario a consultar
-    Salida: Información del perfil del usuario o mensaje de acceso denegado
-    Información mostrada: Nombre de usuario, avatar, país, fecha de registro, biblioteca y
-    estadísticas de juego
+    /**
+     * Consulta el perfil de un usuario.
+     *
+     * @param idUsuario identificador del usuario
+     * @return UsuarioDTO con la información del usuario (Nombre de usuario, avatar, país, fecha de registro, biblioteca y
+     *     estadísticas de juego)
+     * @throws ExcepcionValidacion cuando el formulario no pasa las validaciones
      */
-    public UsuarioDTO consultarPerfil(UsuarioForm form) throws ExcepcionValidacion {
-        List<ErrorDTO> errores = form.validar(form);
+    public UsuarioDTO consultarPerfil(long idUsuario) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
 
-        if (!errores.isEmpty()) {
-            throw new ExcepcionValidacion(errores);
-        }
-
-        Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorNombreUsuario(form.getNombreUsuario());
+        Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorId(idUsuario);
         UsuarioEntidad usuario = usuarioOpt.orElse(null);
+        UsuarioEntidad usuarioValido = usuarioValido(idUsuario);
 
-        return Mapper.mapDe(usuario);
+        return Mapper.mapDe(usuarioValido);
     }
 
-    /*
-    Añadir saldo a cartera
-
-    Descripción: Recargar dinero en la cartera virtual de Steam del usuario
-    Entrada: ID del usuario, cantidad a añadir
-    Salida: Nuevo saldo de la cartera o mensaje de error
-    Validaciones: Cantidad > 0, cuenta activa, rango entre 5.00 y 500.00
+    /**
+     * Añade saldo a la cartera de un usuario identificado por su id.
+     * <p>
+     * Comprueba que el usuario exista, que la cuenta no esté bloqueada y que la
+     * cantidad de recarga sea válida según las reglas del sistema.
+     *
+     * @param recarga cantidad a añadir
+     * @param idUsuario identificador del usuario que recibirá la recarga
+     * @return Double Nuevo saldo de la cartera o mensaje de error
+     * @throws ExcepcionValidacion cuando el usuario no existe, la cuenta está bloqueada o la recarga no es válida
      */
-    public UsuarioDTO anadirSaldoCartera(Double recarga, long idUsuario) throws ExcepcionValidacion {
+    public Double anadirSaldoCartera(Double recarga, long idUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
         UsuarioEntidad usuario = usuarioValido(idUsuario);
@@ -100,16 +93,23 @@ public class UsuarioControlador {
             errores.add(new ErrorDTO("Dinero recarga", ErrorType.VALOR_NO_VALIDO));
             throw new ExcepcionValidacion(errores);
         }
-        return Mapper.mapDe(usuario);
+
+        double nuevoSaldo = usuario.getSaldoCartera() + recarga;
+
+        UsuarioForm form = new UsuarioForm(usuario.getNombreUsuario(), usuario.getEmail(), usuario.getContrasena(), usuario.getNombreReal(),
+                usuario.getPais(), usuario.getFechaNaci(), usuario.getFechaRegistro(), usuario.getAvatar(), nuevoSaldo, usuario.getEstadoCuenta());
+
+        Optional<UsuarioEntidad> usuarioSaldoActualizado = usuarioRepo.actualizar(idUsuario,form);
+
+        return nuevoSaldo;
     }
 
-    /*
-    Añadir saldo a cartera
-
-    Descripción: Mostrar el saldo disponible en la cartera Steam de un usuario
-    Entrada: ID del usuario
-    Salida: Saldo actual de la cartera (ejemplo: "45.67 €")
-    Validaciones: Usuario debe existir en el sistema
+    /**
+     * Consulta el saldo disponible en la cartera de un usuario.
+     *
+     * @param idUsuario identificador del usuario a consultar
+     * @return saldo actual de la cartera como Double
+     * @throws ExcepcionValidacion si el usuario no existe
      */
     public Double consultarSaldoCartera(long idUsuario) throws ExcepcionValidacion {
 
@@ -118,6 +118,13 @@ public class UsuarioControlador {
         return usuario.getSaldoCartera();
     }
 
+    /**
+     * Obtiene la entidad de usuario por su id y valida que exista.
+     *
+     * @param idUsuario identificador del usuario a buscar
+     * @return UsuarioEntidad encontrado
+     * @throws ExcepcionValidacion si no se encuentra el usuario
+     */
     private UsuarioEntidad usuarioValido(long idUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
