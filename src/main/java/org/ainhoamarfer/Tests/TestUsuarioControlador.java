@@ -29,14 +29,11 @@ public class TestUsuarioControlador {
 	@Mock
 	private IUsuarioRepo usuarioRepo;
 
-	@Mock
-	private SteamVista vista;
-
 	private UsuarioControlador controlador;
 
 	@BeforeEach
 	void setUp() {
-		controlador = new UsuarioControlador(usuarioRepo, vista);
+		controlador = new UsuarioControlador(usuarioRepo);
 	}
 
 	@Test

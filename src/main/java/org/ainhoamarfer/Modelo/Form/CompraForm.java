@@ -1,9 +1,12 @@
 package org.ainhoamarfer.Modelo.Form;
 
+import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
 import org.ainhoamarfer.Modelo.Enums.CompraEstadoEnum;
 import org.ainhoamarfer.Modelo.Enums.CompraMetodoPagoEnum;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CompraForm {
 
@@ -51,5 +54,10 @@ public class CompraForm {
 
     public CompraMetodoPagoEnum getMetodoPago() {
         return metodoPago;
+    }
+
+    public List<ErrorDTO> validar (CompraForm form){
+        List<ErrorDTO> errores = new ArrayList<>();
+        return errores;
     }
 }

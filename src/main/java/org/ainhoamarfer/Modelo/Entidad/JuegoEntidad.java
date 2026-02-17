@@ -1,5 +1,8 @@
 package org.ainhoamarfer.Modelo.Entidad;
 
+import org.ainhoamarfer.Modelo.Enums.JuegoClasificacionEdad;
+import org.ainhoamarfer.Modelo.Enums.JuegoEstado;
+
 import java.time.LocalDate;
 
 public class JuegoEntidad {
@@ -13,9 +16,10 @@ public class JuegoEntidad {
     private double descuentoActual;
     private String categoria;
     private String idiomas;
+    private JuegoClasificacionEdad clasificacionEdad;
+    private JuegoEstado estado;
 
-    public JuegoEntidad(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas) {
-
+    public JuegoEntidad(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad, JuegoEstado estado) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -25,77 +29,51 @@ public class JuegoEntidad {
         this.descuentoActual = descuentoActual;
         this.categoria = categoria;
         this.idiomas = idiomas;
+        this.clasificacionEdad = clasificacionEdad;
+        this.estado = estado;
     }
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public String getTitulo() {
         return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
     }
 
     public String getDescripcion() {
         return descripcion;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
     public String getDesarrollador() {
         return desarrollador;
-    }
-
-    public void setDesarrollador(String desarrollador) {
-        this.desarrollador = desarrollador;
     }
 
     public LocalDate getFechaLanzamiento() {
         return fechaLanzamiento;
     }
 
-    public void setFechaLanzamiento(LocalDate fechaLanzamiento) {
-        this.fechaLanzamiento = fechaLanzamiento;
-    }
-
     public double getPrecioBase() {
         return precioBase;
-    }
-
-    public void setPrecioBase(double precioBase) {
-        this.precioBase = precioBase;
     }
 
     public double getDescuentoActual() {
         return descuentoActual;
     }
 
-    public void setDescuentoActual(double descuentoActual) {
-        this.descuentoActual = descuentoActual;
-    }
-
     public String getCategoria() {
         return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
     }
 
     public String getIdiomas() {
         return idiomas;
     }
 
-    public void setIdiomas(String idiomas) {
-        this.idiomas = idiomas;
+    public JuegoClasificacionEdad getClasificacionEdad() {
+        return clasificacionEdad;
+    }
+
+    public JuegoEstado getEstado() {
+        return estado;
     }
 }

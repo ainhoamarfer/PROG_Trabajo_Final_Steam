@@ -17,12 +17,11 @@ import java.util.Optional;
 public class UsuarioControlador {
     
     private IUsuarioRepo usuarioRepo;
-    private SteamVista vista;
+    //private SteamVista vista;
     private Util util;
 
-    public UsuarioControlador(IUsuarioRepo repo, SteamVista vista) {
+    public UsuarioControlador(IUsuarioRepo repo) {
         this.usuarioRepo = repo;
-        this.vista = vista;
     }
 
     /**

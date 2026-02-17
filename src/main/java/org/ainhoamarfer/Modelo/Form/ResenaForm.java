@@ -1,6 +1,10 @@
 package org.ainhoamarfer.Modelo.Form;
 
+import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResenaForm {
 
@@ -48,5 +52,10 @@ public class ResenaForm {
 
     public LocalDate getFechaUltEdicion() {
         return fechaUltEdicion;
+    }
+
+    public List<ErrorDTO> validar (ResenaForm form){
+        List<ErrorDTO> errores = new ArrayList<>();
+        return errores;
     }
 }

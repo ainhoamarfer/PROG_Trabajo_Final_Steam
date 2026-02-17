@@ -1,6 +1,10 @@
 package org.ainhoamarfer.Modelo.Form;
 
+import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BibliotecaForm {
 
@@ -42,5 +46,10 @@ public class BibliotecaForm {
 
     public boolean isInstalado() {
         return instalado;
+    }
+
+    public List<ErrorDTO> validar (BibliotecaForm form){
+        List<ErrorDTO> errores = new ArrayList<>();
+        return errores;
     }
 }

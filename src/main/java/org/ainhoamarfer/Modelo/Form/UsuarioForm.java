@@ -8,8 +8,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class UsuarioForm {
+
+    private static final Set<String> PAISES_VALIDOS = Set.of(
+        "españa", "francia", "alemania", "italia", "reino unido", "estados unidos", "canadá", "méxico", "brasil", "argentina",
+        "japón", "china", "india", "australia", "sudáfrica", "egipto", "rusia", "turquía", "corea del sur", "países bajos"
+    );
 
     private String nombreUsuario; //único
     private String email;
@@ -93,7 +99,6 @@ public class UsuarioForm {
             errores.add(new ErrorDTO("nombreUsuario", ErrorType.FORMATO_INVALIDO));
         }
 
-
         //Email - TODO validar que el email es único en el sistema
         if (email == null || email.isBlank()) {
             errores.add(new ErrorDTO("email", ErrorType.REQUERIDO));
@@ -121,9 +126,14 @@ public class UsuarioForm {
             errores.add(new ErrorDTO("nombreUsuario", ErrorType.LONGITUD_INVALIDA));
         }
 
-        //Pais - TODO Debe ser un país válido de una lista predefinida
+        //Pais - Debe ser uno de los países válidos: España, Francia, Alemania, Italia, Reino Unido, Estados Unidos, Canadá, México, Brasil,
+        // Argentina, Japón, China, India, Australia, Sudáfrica, Egipto, Rusia, Turquía, Corea del Sur, Países Bajos
         if(pais == null || pais.isBlank()) {
-            errores.add(new ErrorDTO("nombreUsuario", ErrorType.REQUERIDO));
+            errores.add(new ErrorDTO("pais", ErrorType.REQUERIDO));
+        } else {
+            if (!PAISES_VALIDOS.contains(pais.toLowerCase())) {
+                errores.add(new ErrorDTO("pais", ErrorType.VALOR_NO_VALIDO));
+            }
         }
 
         //Fecha nacimient
