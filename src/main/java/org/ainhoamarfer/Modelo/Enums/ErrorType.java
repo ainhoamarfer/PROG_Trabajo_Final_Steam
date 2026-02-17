@@ -7,7 +7,9 @@ public enum ErrorType {
     NO_ENCONTRADO("No se encontró el elemento"),
     DUPLICADO("El elemento está duplicado"),
     ESTADO_CUENTA("Esta cuentas esta suspendida o baneada"),
-    USUARIO_INVALIDO("Este usuario no es valido");
+    USUARIO_INVALIDO("Este usuario no es valido"),
+    LONGITUD_INVALIDA("La longitud es incorrecta");
+
 
     private final String mensaje;
 

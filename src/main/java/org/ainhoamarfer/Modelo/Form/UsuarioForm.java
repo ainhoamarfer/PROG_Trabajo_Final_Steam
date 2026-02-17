@@ -4,7 +4,9 @@ import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
 import org.ainhoamarfer.Modelo.Enums.ErrorType;
 import org.ainhoamarfer.Modelo.Enums.UsuarioEstadoCuenta;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UsuarioForm {
@@ -17,20 +19,21 @@ public class UsuarioForm {
     private LocalDate fechaNaci;
     private LocalDate fechaRegistro;
     private String avatar;
-    private double saldoCartera;
+    private Double saldoCartera;
     private UsuarioEstadoCuenta estadoCuenta;
 
-    public UsuarioForm(String nombreUsuario, String email, String contrasena, String nombreReal, String pais, LocalDate fechaNaci, LocalDate fechaRegistro, String avatar, double saldoCartera, UsuarioEstadoCuenta estadoCuenta) {
+    public UsuarioForm(String nombreUsuario, String email, String contrasena, String nombreReal, String pais, LocalDate fechaNaci, LocalDate fechaRegistro,
+                       String avatar, Double saldoCartera, UsuarioEstadoCuenta estadoCuenta) {
         this.nombreUsuario = nombreUsuario;
         this.email = email;
         this.contrasena = contrasena;
         this.nombreReal = nombreReal;
         this.pais = pais;
         this.fechaNaci = fechaNaci;
-        this.fechaRegistro = fechaRegistro;
+        this.fechaRegistro = LocalDate.now();
         this.avatar = avatar;
         this.saldoCartera = saldoCartera;
-        this.estadoCuenta = estadoCuenta;
+        this.estadoCuenta = UsuarioEstadoCuenta.ACTIVA;
     }
 
     public UsuarioEstadoCuenta getEstadoCuenta() {
@@ -77,20 +80,92 @@ public class UsuarioForm {
 
     public List<ErrorDTO> validar (UsuarioForm form){
 
-        List<ErrorDTO> errores = form.validar(form);
+        List<ErrorDTO> errores = new ArrayList<>();
 
+        //Nombre usuario
         if (nombreUsuario == null || nombreUsuario.isBlank()) {
-            errores.add(new ErrorDTO("nombre", ErrorType.REQUERIDO));
+            errores.add(new ErrorDTO("nombreUsuario", ErrorType.REQUERIDO));
+        }
+        if (nombreUsuario.length() < 3 || nombreUsuario.length() > 20) {
+            errores.add(new ErrorDTO("nombreUsuario", ErrorType.LONGITUD_INVALIDA));
+        }
+        if (!nombreUsuario.matches("^[a-zA-Z_][a-zA-Z0-9_-]*$")) {
+            errores.add(new ErrorDTO("nombreUsuario", ErrorType.FORMATO_INVALIDO));
         }
 
-        if (email == null || email.isBlank() || !email.contains("@")) {
+
+        //Email - TODO validar que el email es único en el sistema
+        if (email == null || email.isBlank()) {
+            errores.add(new ErrorDTO("email", ErrorType.REQUERIDO));
+        }
+        if (!email.contains("@")) {
             errores.add(new ErrorDTO("email", ErrorType.FORMATO_INVALIDO));
         }
 
-        if (contrasena == null || contrasena.length() < 6) {
+        //Contraseña
+        if (contrasena == null || contrasena.isBlank()) {
+            errores.add(new ErrorDTO("contrasena", ErrorType.REQUERIDO));
+        }
+        if (contrasena.length() < 8) {
+            errores.add(new ErrorDTO("contrasena", ErrorType.LONGITUD_INVALIDA));
+        }
+        if (!contrasena.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+")) {
             errores.add(new ErrorDTO("contrasena", ErrorType.FORMATO_INVALIDO));
+        }
+
+        //Nombre real
+        if(nombreReal== null || nombreUsuario.isBlank()) {
+            errores.add(new ErrorDTO("nombreUsuario", ErrorType.REQUERIDO));
+        }
+        if (nombreReal.length() < 2 || nombreReal.length() > 50) {
+            errores.add(new ErrorDTO("nombreUsuario", ErrorType.LONGITUD_INVALIDA));
+        }
+
+        //Pais - TODO Debe ser un país válido de una lista predefinida
+        if(pais == null || pais.isBlank()) {
+            errores.add(new ErrorDTO("nombreUsuario", ErrorType.REQUERIDO));
+        }
+
+        //Fecha nacimient
+        if (fechaNaci == null) {
+            errores.add(new ErrorDTO("fechaNaci", ErrorType.REQUERIDO));
+        }
+        LocalDate hoy = LocalDate.now();
+        if (fechaNaci.isAfter(hoy)) {
+            errores.add(new ErrorDTO("fechaNaci", ErrorType.VALOR_NO_VALIDO));
+        }
+        int edad = hoy.getYear() - fechaNaci.getYear();
+        if (edad < 13) {
+            errores.add(new ErrorDTO("fechaNaci", ErrorType.VALOR_NO_VALIDO));
+        }
+
+        //Fecha registro
+        if (fechaRegistro != null) {
+            errores.add(new ErrorDTO("fechaRegistro", ErrorType.VALOR_NO_VALIDO));
+        }
+
+        //Avatar
+        if(avatar != null || !avatar.isBlank()) {
+            if(avatar.length() > 100){
+                errores.add(new ErrorDTO("avatar", ErrorType.LONGITUD_INVALIDA));
+            }
+        }
+
+        //Saldo
+        if (saldoCartera < 0) {
+            errores.add(new ErrorDTO("saldoCartera", ErrorType.VALOR_NO_VALIDO));
+        }
+        BigDecimal numeroDecimal = BigDecimal.valueOf(saldoCartera);
+        if (numeroDecimal.scale() > 2) {
+            errores.add(new ErrorDTO("saldoCartera", ErrorType.FORMATO_INVALIDO));
+        }
+
+        //Estado cuenta
+        if (estadoCuenta == null) {
+            errores.add(new ErrorDTO("estadoCuenta", ErrorType.REQUERIDO));
         }
 
         return errores;
     }
+
 }
