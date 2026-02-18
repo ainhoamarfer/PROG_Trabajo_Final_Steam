@@ -39,7 +39,7 @@ public class UsuarioForm {
         this.fechaRegistro = LocalDate.now();
         this.avatar = avatar;
         this.saldoCartera = saldoCartera;
-        this.estadoCuenta = UsuarioEstadoCuenta.ACTIVA;
+        this.estadoCuenta = estadoCuenta;
     }
 
     public UsuarioEstadoCuenta getEstadoCuenta() {
@@ -172,7 +172,7 @@ public class UsuarioForm {
 
         //Estado cuenta
         if (estadoCuenta == null) {
-            errores.add(new ErrorDTO("estadoCuenta", ErrorType.REQUERIDO));
+            this.estadoCuenta = UsuarioEstadoCuenta.ACTIVA;
         }
 
         return errores;
