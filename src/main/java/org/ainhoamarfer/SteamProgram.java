@@ -6,31 +6,22 @@ import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
 import org.ainhoamarfer.Modelo.DTOs.UsuarioDTO;
 import org.ainhoamarfer.Modelo.Form.UsuarioForm;
 import org.ainhoamarfer.Repositorio.ImplementacionMemoria.UsuarioRepo;
-import org.ainhoamarfer.Repositorio.Interfaz.IJuegosRepo;
+
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SteamProgram {
 
     public static void main(String[] args) {
 
+        List<ErrorDTO> errores = new ArrayList<>();
         UsuarioRepo usuarioRepo = new UsuarioRepo();
         UsuarioControlador controlador = new UsuarioControlador(usuarioRepo);
 
-
-        // Crear un formulario de usuario de ejemplo
-        UsuarioForm form = new UsuarioForm(
-                "usuarioEjemplo",  // nombreUsuario
-                "usuario@example.com",  // email
-                "password123",  // contrasena
-                "Nombre Real",  // nombreReal
-                "españa",  // pais (en minúsculas, como en la validación)
-                LocalDate.of(2000, 1, 1),  // fechaNaci
-                null,  // fechaRegistro (se setea automáticamente)
-                "avatar.png",  // avatar
-                50.00,  // saldoCartera
-                null  // estadoCuenta (se setea a ACTIVA por defecto)
-        );
+        UsuarioForm form = new UsuarioForm("usuarioEjemplo", "usuario@example.com", "password123", "Nombre Real", "españa",
+                LocalDate.of(2000, 1, 1), null, "avatar.png", 50.00, null);
 
         try {
             // Registrar nuevo usuario
