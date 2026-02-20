@@ -18,7 +18,7 @@ public class UsuarioRepo implements IUsuarioRepo {
         Long id = idContador;
         idContador = id + 1L;
         UsuarioEntidad usuario = new UsuarioEntidad(id, form.getNombreUsuario(), form.getEmail(), form.getContrasena(), form.getNombreReal(),
-                form.getPais(), form.getFechaNaci(), form.getFechaRegistro(), form.getAvatar(), form.getSaldoCartera(),form.getEstadoCuenta());
+                form.getPais(), form.getFechaNaci(), form.getAvatar(), form.getSaldoCartera());
         usuarios.add(usuario);
 
         return Optional.of(usuario);
@@ -50,7 +50,7 @@ public class UsuarioRepo implements IUsuarioRepo {
             throw new IllegalArgumentException("Usuario no encontrado");
         } else {
             UsuarioEntidad usuarioActualizado = new UsuarioEntidad(id, form.getNombreUsuario(), form.getEmail(), form.getContrasena(), form.getNombreReal(),
-                    form.getPais(), form.getFechaNaci(), form.getFechaRegistro(), form.getAvatar(), form.getSaldoCartera(), form.getEstadoCuenta());
+                    form.getPais(), form.getFechaNaci(), form.getAvatar(), form.getSaldoCartera());
             usuarios.removeIf((u) -> id.equals(u.getId()));
             usuarios.add(usuarioActualizado);
             return Optional.of(usuarioActualizado);

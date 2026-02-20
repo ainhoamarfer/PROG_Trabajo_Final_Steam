@@ -36,7 +36,7 @@ public class UsuarioForm {
         this.nombreReal = nombreReal;
         this.pais = pais;
         this.fechaNaci = fechaNaci;
-        this.fechaRegistro = LocalDate.now();
+        this.fechaRegistro = fechaRegistro;
         this.avatar = avatar;
         this.saldoCartera = saldoCartera;
         this.estadoCuenta = estadoCuenta;
@@ -168,11 +168,6 @@ public class UsuarioForm {
         BigDecimal numeroDecimal = BigDecimal.valueOf(saldoCartera);
         if (numeroDecimal.scale() > 2) {
             errores.add(new ErrorDTO("saldoCartera", ErrorType.FORMATO_INVALIDO));
-        }
-
-        //Estado cuenta
-        if (estadoCuenta == null) {
-            this.estadoCuenta = UsuarioEstadoCuenta.ACTIVA;
         }
 
         return errores;

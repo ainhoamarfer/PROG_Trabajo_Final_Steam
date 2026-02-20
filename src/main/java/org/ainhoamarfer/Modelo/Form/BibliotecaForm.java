@@ -100,11 +100,6 @@ public class BibliotecaForm {
         }
 
         // Estado de instalación: por defecto NO_INSTALADO (false); debe ser INSTALADO o NO_INSTALADO
-        if (instalado == null) {
-            this.instalado = false;
-        } else {
-            this.instalado = instalado;
-        }
 
         return errores;
     }

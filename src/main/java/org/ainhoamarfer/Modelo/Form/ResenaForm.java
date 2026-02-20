@@ -26,7 +26,7 @@ public class ResenaForm {
         this.recomendado = recomendado;
         this.texto = texto;
         this.horasJugadas = horasJugadas;
-        this.fechaPublicacion = LocalDate.now();
+        this.fechaPublicacion = fechaPublicacion;
         this.fechaUltEdicion = fechaUltEdicion;
         this.estado = estado;
     }

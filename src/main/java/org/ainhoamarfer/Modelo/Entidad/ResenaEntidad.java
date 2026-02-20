@@ -21,7 +21,7 @@ public class ResenaEntidad {
         this.texto = texto;
         this.horasJugadas = horasJugadas;
         this.fechaPublicacion = fechaPublicacion;
-        this.fechaUltEdicion = fechaUltEdicion;
+        this.fechaUltEdicion = LocalDate.now();
     }
 
     public long getId() {

@@ -23,8 +23,7 @@ public class CompraForm {
     public CompraForm(int usuarioId, int juegoId, LocalDate fechaCompra, Double precioSinDes, Double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
-        // Fecha de compra se genera automáticamente al crear la compra
-        this.fechaCompra = LocalDate.now();
+        this.fechaCompra = fechaCompra;
         this.precioSinDes = precioSinDes;
         this.descuento = descuento;
         this.estadoCompra = estadoCompra;
@@ -105,9 +104,6 @@ public class CompraForm {
         }
 
         // Estado de la compra: por defecto PENDIENTE (asignado en constructor)
-        if (estadoCompra == null) {
-            this.estadoCompra = CompraEstadoEnum.PENDIENTE;
-        }
 
         return errores;
     }

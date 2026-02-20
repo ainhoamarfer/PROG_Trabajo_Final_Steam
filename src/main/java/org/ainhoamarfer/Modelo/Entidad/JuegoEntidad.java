@@ -19,7 +19,7 @@ public class JuegoEntidad {
     private JuegoClasificacionEdad clasificacionEdad;
     private JuegoEstado estado;
 
-    public JuegoEntidad(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad, JuegoEstado estado) {
+    public JuegoEntidad(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -30,7 +30,7 @@ public class JuegoEntidad {
         this.categoria = categoria;
         this.idiomas = idiomas;
         this.clasificacionEdad = clasificacionEdad;
-        this.estado = estado;
+        this.estado = JuegoEstado.DISPONIBLE;
     }
 
     public long getId() {

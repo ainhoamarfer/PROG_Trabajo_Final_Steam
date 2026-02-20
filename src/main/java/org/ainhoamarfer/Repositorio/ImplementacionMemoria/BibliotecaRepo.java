@@ -18,7 +18,7 @@ public class BibliotecaRepo implements IBibliotecaRepo {
         Long id = idContador;
         idContador = id + 1L;
         BibliotecaEntidad biblioteca = new BibliotecaEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.getFechaAdquisicion(), form.getTiempoJuego(),
-                form.getFechaUltimaJugado(), form.isInstalado());
+                form.getFechaUltimaJugado());
         bibliotecas.add(biblioteca);
 
         return Optional.of(biblioteca);
@@ -44,7 +44,7 @@ public class BibliotecaRepo implements IBibliotecaRepo {
             throw new IllegalArgumentException("Biblioteca no encontrada");
         } else {
             BibliotecaEntidad bibliotecaActualizado = new BibliotecaEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.getFechaAdquisicion(), form.getTiempoJuego(),
-                    form.getFechaUltimaJugado(), form.isInstalado());
+                    form.getFechaUltimaJugado());
             bibliotecas.removeIf((u) -> id.equals(u.getId()));
             bibliotecas.add(bibliotecaActualizado);
             return Optional.of(bibliotecaActualizado);

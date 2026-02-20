@@ -143,11 +143,6 @@ public class JuegoForm {
             }
         }
 
-        // Estado: por defecto DISPONIBLE; debe ser un valor válido
-        if (estado == null) {
-            this.estado = JuegoEstado.DISPONIBLE;
-        }
-
         return errores;
     }
 }

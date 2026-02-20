@@ -1,10 +1,19 @@
 package org.ainhoamarfer.Controlador;
 
-import org.ainhoamarfer.Modelo.DTOs.CriteriosBusqueda;
+import org.ainhoamarfer.Mapper.Mapper;
+import org.ainhoamarfer.Modelo.Form.CriteriosBusquedaForm;
+import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
+import org.ainhoamarfer.Modelo.Entidad.JuegoEntidad;
+import org.ainhoamarfer.Modelo.Enums.ErrorType;
 import org.ainhoamarfer.Modelo.Form.JuegoForm;
 import org.ainhoamarfer.Repositorio.Interfaz.IJuegosRepo;
 import org.ainhoamarfer.Vista.SteamVista;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.ainhoamarfer.Modelo.DTOs.JuegoDTO;
 import org.ainhoamarfer.Excepciones.ExcepcionValidacion;
 
@@ -20,6 +29,7 @@ public class JuegosControlador {
      */
 
     private IJuegosRepo repo;
+    private CriteriosBusquedaForm criteriosBusqueda;
     private SteamVista vista;
 
     public JuegosControlador(IJuegosRepo repo, SteamVista vista) {
@@ -32,11 +42,22 @@ public class JuegosControlador {
      * Registrar un nuevo videojuego en el catálogo de Steam.
      *
      * @param form Datos del juego a crear
-     * @return JuegoDTO con los datos persistidos y su ID asignado.
+     * @return JuegoDTO con los datos y su ID.
      * @throws ExcepcionValidacion restricciones definidas en la sección de validación de Juego.
      */
     public JuegoDTO anadirJuego(JuegoForm form) throws ExcepcionValidacion {
-        throw new UnsupportedOperationException("Not implemented");
+        List<ErrorDTO> errores = form.validar(form);
+
+        repo.obtenerPorTitulo(form.getTitulo()).ifPresent(u -> errores.add(new ErrorDTO("nombre", ErrorType.DUPLICADO)));
+
+        if (!errores.isEmpty()) {
+            throw new ExcepcionValidacion(errores);
+        }
+
+        Optional<JuegoEntidad> juegoOpt = repo.crear(form);
+        JuegoEntidad juego = juegoOpt.orElse(null);
+
+        return Mapper.mapDeJuego(juego);
     }
 
 
@@ -47,8 +68,29 @@ public class JuegosControlador {
      * @param criterios criterios de filtro para la busqueda. Parámetros opcionales pueden ser null.
      * @return Lista de JuegoDTO con información resumida que cumplen los criterios.
      */
-    public List<JuegoDTO> buscarJuegos(CriteriosBusqueda criterios) {
-        throw new UnsupportedOperationException("Not implemented");
+    public List<JuegoDTO> buscarJuegos(CriteriosBusquedaForm criterios) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = criteriosBusqueda.validar(criterios);
+
+        if (!errores.isEmpty()) {
+            throw new ExcepcionValidacion(errores);
+        }
+
+        List<JuegoEntidad> juegos = repo.obtenerTodos();
+
+        List<JuegoEntidad> juegosCumplenCriterios = new ArrayList<>();
+        for (JuegoEntidad juego : juegos) {
+            if(Objects.equals(criterios.getCategoria(), juego.getCategoria()) || Objects.equals(criterios.getDescripcion(), juego.getDescripcion()) || Objects.equals(criterios.getDesarrollador(), juego.getDesarrollador())
+            || criterios.getFechaLanzamiento() == juego.getFechaLanzamiento() || Objects.equals(criterios.getPrecioBase(), juego.getPrecioBase()) || Objects.equals(criterios.getTitulo(), juego.getTitulo())) {
+                juegosCumplenCriterios.add(juego);
+            }
+        }
+
+        List<JuegoDTO> juegosEncontrados = new ArrayList<>();
+        for (JuegoEntidad juego : juegosCumplenCriterios) {
+            juegosEncontrados.add(Mapper.mapDeJuego(juego));
+        }
+
+        return juegosEncontrados;
     }
 
     /**

@@ -18,7 +18,7 @@ public class UsuarioEntidad {
     private double saldoCartera;
     private UsuarioEstadoCuenta estadoCuenta;
 
-    public UsuarioEntidad(long id, String nombreUsuario, String email, String contrasena, String nombreReal, String pais, LocalDate fechaNaci, LocalDate fechaRegistro, String avatar, double saldoCartera, UsuarioEstadoCuenta estadoCuenta) {
+    public UsuarioEntidad(long id, String nombreUsuario, String email, String contrasena, String nombreReal, String pais, LocalDate fechaNaci, String avatar, double saldoCartera) {
         this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.email = email;
@@ -26,10 +26,10 @@ public class UsuarioEntidad {
         this.nombreReal = nombreReal;
         this.pais = pais;
         this.fechaNaci = fechaNaci;
-        this.fechaRegistro = fechaRegistro;
+        this.fechaRegistro = LocalDate.now();
         this.avatar = avatar;
         this.saldoCartera = saldoCartera;
-        this.estadoCuenta = estadoCuenta;
+        this.estadoCuenta = UsuarioEstadoCuenta.ACTIVA;
     }
 
     public UsuarioEstadoCuenta getEstadoCuenta() {

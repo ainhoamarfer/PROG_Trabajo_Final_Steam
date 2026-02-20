@@ -19,7 +19,7 @@ public class JuegoRepo implements IJuegosRepo {
         Long id = idContador;
         idContador = id + 1L;
         JuegoEntidad juego = new JuegoEntidad(id, form.getTitulo(), form.getDescripcion(), form.getDesarrollador(), form.getFechaLanzamiento(), form.getPrecioBase(),
-                form.getDescuentoActual(), form.getCategoria(), form.getIdiomas(), form.getClasificacionEdad(), form.getEstado());
+                form.getDescuentoActual(), form.getCategoria(), form.getIdiomas(), form.getClasificacionEdad());
         juegos.add(juego);
 
         return Optional.of(juego);
@@ -30,6 +30,10 @@ public class JuegoRepo implements IJuegosRepo {
         return juegos.stream()
                 .filter(u -> id.equals(u.getId()))
                 .findFirst();
+    }
+
+    public Optional<JuegoEntidad> obtenerPorTitulo(String titulo) {
+        return juegos.stream().filter(u -> titulo.equals(u.getTitulo())).findFirst();
     }
 
     @Override
@@ -45,7 +49,7 @@ public class JuegoRepo implements IJuegosRepo {
             throw new IllegalArgumentException("Juego no encontrado");
         } else {
             JuegoEntidad juegoActualizado = new JuegoEntidad(id, form.getTitulo(), form.getDescripcion(), form.getDesarrollador(), form.getFechaLanzamiento(), form.getPrecioBase(),
-                    form.getDescuentoActual(), form.getCategoria(), form.getIdiomas(), form.getClasificacionEdad(), form.getEstado());
+                    form.getDescuentoActual(), form.getCategoria(), form.getIdiomas(), form.getClasificacionEdad());
             juegos.removeIf((u) -> id.equals(u.getId()));
             juegos.add(juegoActualizado);
             return Optional.of(juegoActualizado);
