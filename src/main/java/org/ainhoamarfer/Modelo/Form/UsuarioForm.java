@@ -82,7 +82,9 @@ public class UsuarioForm {
         return saldoCartera;
     }
 
-
+    public void setFechaRegistro(LocalDate fechaRegistro) {
+        this.fechaRegistro = LocalDate.now();
+    }
 
     public List<ErrorDTO> validar (UsuarioForm form){
 
@@ -150,9 +152,7 @@ public class UsuarioForm {
         }
 
         //Fecha registro
-        if (fechaRegistro != null) {
-            errores.add(new ErrorDTO("fechaRegistro", ErrorType.VALOR_NO_VALIDO));
-        }
+
 
         //Avatar
         if(avatar != null || !avatar.isBlank()) {

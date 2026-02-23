@@ -20,7 +20,7 @@ public class SteamProgram {
         UsuarioRepo usuarioRepo = new UsuarioRepo();
         UsuarioControlador controlador = new UsuarioControlador(usuarioRepo);
 
-        UsuarioForm form = new UsuarioForm("usuarioEjemplo", "usuario@example.com", "password123", "Nombre Real", "españa",
+        UsuarioForm form = new UsuarioForm("usuarioEjemplo", "usuario@example.com", "pAssword123", "Nombre Real", "españa",
                 LocalDate.of(2000, 1, 1), null, "avatar.png", 50.00, null);
 
         try {

@@ -8,6 +8,7 @@ import org.ainhoamarfer.Modelo.Entidad.UsuarioEntidad;
 import org.ainhoamarfer.Modelo.Enums.ErrorType;
 import org.ainhoamarfer.Modelo.Form.UsuarioForm;
 import org.ainhoamarfer.Repositorio.Interfaz.IUsuarioRepo;
+import org.ainhoamarfer.Vista.SteamVista;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class UsuarioControlador {
         Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.crear(form);
         UsuarioEntidad usuario = usuarioOpt.orElse(null);
 
-        return Mapper.mapDeUsuario(usuario);
+        return Mapper.mapDe(usuario);
     }
 
     /**
@@ -61,8 +62,9 @@ public class UsuarioControlador {
 
         Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorId(idUsuario);
         UsuarioEntidad usuario = usuarioOpt.orElse(null);
+        UsuarioEntidad usuarioValido = usuarioValido(idUsuario);
 
-        return Mapper.mapDeUsuario(usuario);
+        return Mapper.mapDe(usuarioValido);
     }
 
     /**
