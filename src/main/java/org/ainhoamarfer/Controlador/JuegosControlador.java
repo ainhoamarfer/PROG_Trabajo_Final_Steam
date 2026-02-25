@@ -3,6 +3,7 @@ package org.ainhoamarfer.Controlador;
 import org.ainhoamarfer.Mapper.Mapper;
 import org.ainhoamarfer.Modelo.Entidad.UsuarioEntidad;
 import org.ainhoamarfer.Modelo.Enums.CriterioOrdenacionJuegosEnum;
+import org.ainhoamarfer.Modelo.Enums.JuegoEstado;
 import org.ainhoamarfer.Modelo.Form.CriteriosBusquedaForm;
 import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
 import org.ainhoamarfer.Modelo.Entidad.JuegoEntidad;
@@ -122,7 +123,7 @@ public class JuegosControlador {
                     .toList();
         }
 
-        //De menor a mayor precio
+        //De menor a mayor precio - TODO ver si pillo el precio base o el precio con descuento
         if(opcion == CriterioOrdenacionJuegosEnum.PRECIO_MENOR_A_MAYOR){
             juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getPrecioBase))
                     .toList();
@@ -180,13 +181,37 @@ public class JuegosControlador {
      * Descripción: Establecer un porcentaje de descuento temporal a un juego.
      * Validaciones: Juego existe, descuento en rango válido (0-100).
      *
-     * @param id ID del juego al que aplicar el descuento.(0-100).
+     * @param id ID del juego al que aplicar el descuento.
      * @param porcentaje Porcentaje de descuento a aplicar (0-100).
      * @return `JuegoDTO` con el descuento aplicado y el precio final calculado.
      * @throws ExcepcionValidacion si el juego no existe o el porcentaje está fuera del rango permitido.
      */
     public JuegoDTO aplicarDescuento(Long id, double porcentaje) throws ExcepcionValidacion {
-        throw new UnsupportedOperationException("Not implemented");
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        Optional<JuegoEntidad> juegoOpt = repo.obtenerPorId(id);
+
+        if(juegoOpt.isEmpty()){
+            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }
+        JuegoEntidad juego = juegoOpt.orElse(null);
+
+        double precioConDescuento = (juego.getPrecioBase() * porcentaje) / 100;
+
+        JuegoForm formConDescuento = new JuegoForm(juego.getTitulo(), juego.getDescripcion(), juego.getDesarrollador(), juego.getFechaLanzamiento(), juego.getPrecioBase(),
+               precioConDescuento, juego.getCategoria(), juego.getIdiomas(), juego.getClasificacionEdad(), juego.getEstado());
+
+        Optional<JuegoEntidad> juegoConDescuentoOpt = repo.actualizar(id, formConDescuento);
+
+        //Seguramente esto no debería repetirse aquí y arriba de esta manera pero ya no me da el cerebro
+        if(juegoConDescuentoOpt.isEmpty()){
+            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }
+        JuegoEntidad juegoConDescuento = juegoConDescuentoOpt.orElse(null);
+
+        return Mapper.mapDeJuego(juegoConDescuento);
     }
 
     /**
@@ -200,6 +225,29 @@ public class JuegosControlador {
      * @throws ExcepcionValidacion si el juego no existe o el estado proporcionado no es válido.
      */
     public JuegoDTO cambiarEstadoJuego(Long id, String nuevoEstado) throws ExcepcionValidacion {
-        throw new UnsupportedOperationException("Not implemented");
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        Optional<JuegoEntidad> juegoOpt = repo.obtenerPorId(id);
+
+        if(juegoOpt.isEmpty()){
+            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }
+        JuegoEntidad juego = juegoOpt.orElse(null);
+
+        JuegoEstado estado = JuegoEstado.valueOf(nuevoEstado);
+
+        JuegoForm formConDescuento = new JuegoForm(juego.getTitulo(), juego.getDescripcion(), juego.getDesarrollador(), juego.getFechaLanzamiento(), juego.getPrecioBase(),
+                juego.getDescuentoActual(), juego.getCategoria(), juego.getIdiomas(), juego.getClasificacionEdad(), estado);
+
+        Optional<JuegoEntidad> juegoConDescuentoOpt = repo.actualizar(id, formConDescuento);
+
+        if(juegoConDescuentoOpt.isEmpty()){
+            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }
+        JuegoEntidad juegoConDescuento = juegoConDescuentoOpt.orElse(null);
+
+        return Mapper.mapDeJuego(juegoConDescuento);
     }
 }

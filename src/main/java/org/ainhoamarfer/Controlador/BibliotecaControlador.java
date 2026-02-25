@@ -1,9 +1,13 @@
 package org.ainhoamarfer.Controlador;
 
+import org.ainhoamarfer.Excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.Modelo.DTOs.BibliotecaDTO;
+import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
+import org.ainhoamarfer.Modelo.Enums.ErrorType;
 import org.ainhoamarfer.Repositorio.Interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.Vista.SteamVista;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BibliotecaControlador {
@@ -17,6 +21,8 @@ public class BibliotecaControlador {
     Filtrar biblioteca (Ficheros)
     Ver estadísticas de biblioteca
      */
+
+    //TODO estoy empezando a pensar que tendría que haber puesto como atributo la biblioteca  en el usuario, me cuesta entender como conectarla con el resto
 
     private IBibliotecaRepo repo;
     private SteamVista vista;
@@ -35,6 +41,8 @@ public class BibliotecaControlador {
      * Datos mostrados: Título del juego, tiempo jugado, última sesión, estado de instalación
      */
     public List<BibliotecaDTO> verBibliotecaPersonal(long idUsuario, String orden) {
+
+
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -46,7 +54,8 @@ public class BibliotecaControlador {
      * @return Confirmación de adición a biblioteca o mensaje de error
      * Validaciones: Usuario existe, juego existe, no duplicado, compra verificada
      */
-    public String anadirJuegoBiblioteca(long idUsuario, long idJuego) {
+    public String anadirJuegoBiblioteca(long idUsuario, long idJuego) throws ExcepcionValidacion {
+
         throw new UnsupportedOperationException("Not implemented");
     }
 

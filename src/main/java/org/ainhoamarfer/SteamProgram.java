@@ -18,27 +18,28 @@ public class SteamProgram {
 
         List<ErrorDTO> errores = new ArrayList<>();
         UsuarioRepo usuarioRepo = new UsuarioRepo();
-        UsuarioControlador controlador = new UsuarioControlador(usuarioRepo);
+        UsuarioControlador usuarioControlador = new UsuarioControlador(usuarioRepo);
 
-        UsuarioForm form = new UsuarioForm("usuarioEjemplo", "usuario@example.com", "pAssword123", "Nombre Real", "españa",
+        UsuarioForm form = new UsuarioForm("usuarioEjemplo", "ainhoa@gmail.com", "Contrasena123", "Ainhoa Martinez", "España",
                 LocalDate.of(2000, 1, 1), null, "avatar.png", 50.00, null);
 
         try {
             // Registrar nuevo usuario
-            UsuarioDTO usuarioRegistrado = controlador.registrarNuevoUsuario(form);
+            UsuarioDTO usuarioRegistrado = usuarioControlador.registrarNuevoUsuario(form);
             System.out.println("Usuario registrado exitosamente:");
             System.out.println("ID: " + usuarioRegistrado.getId());
             System.out.println("Nombre Usuario: " + usuarioRegistrado.getNombreUsuario());
             System.out.println("Email: " + usuarioRegistrado.getEmail());
             System.out.println("Saldo: " + usuarioRegistrado.getSaldoCartera());
 
-            // Consultar saldo
-            long idUsuario = usuarioRegistrado.getId();
-            Double saldo = controlador.consultarSaldoCartera(idUsuario);
+            // Consultar usuario y saldo
+            UsuarioDTO usu = usuarioControlador.consultarPerfil(1);
+            System.out.println("El email del usuario 1 es: " + usu.getEmail());
+            Double saldo = usuarioControlador.consultarSaldoCartera(usu.getId());
             System.out.println("Saldo consultado: " + saldo);
 
             // Añadir saldo
-            Double nuevoSaldo = controlador.anadirSaldoCartera(25.50, idUsuario);
+            Double nuevoSaldo = usuarioControlador.anadirSaldoCartera(25.50, 1);
             System.out.println("Nuevo saldo después de añadir: " + nuevoSaldo);
 
         } catch (ExcepcionValidacion e) {

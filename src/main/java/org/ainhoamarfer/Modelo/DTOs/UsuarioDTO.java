@@ -14,7 +14,7 @@ public class UsuarioDTO {
     private LocalDate fechaNaci;
     private LocalDate fechaRegistro;
     private String avatar;
-    private double saldoCartera;
+    private double saldoCartera = 0.00;
     private UsuarioEstadoCuenta estadoCuenta;
 
     public UsuarioDTO(long id, String nombreUsuario, String email, String contrasena, String nombreReal, LocalDate fechaNaci, LocalDate fechaRegistro, String avatar, double saldoCartera, UsuarioEstadoCuenta estadoCuenta) {
@@ -27,7 +27,7 @@ public class UsuarioDTO {
         this.fechaNaci = fechaNaci;
         this.fechaRegistro = fechaRegistro;
         this.avatar = avatar;
-        this.saldoCartera = 0.00;
+        this.saldoCartera = saldoCartera;
         this.estadoCuenta = estadoCuenta;
     }
 
@@ -43,71 +43,35 @@ public class UsuarioDTO {
         return nombreUsuario;
     }
 
-    public void setNombreUsuario(String nombreUsuario) {
-        this.nombreUsuario = nombreUsuario;
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getNombreReal() {
         return nombreReal;
     }
 
-    public void setNombreReal(String nombreReal) {
-        this.nombreReal = nombreReal;
-    }
-
     public String getPais() {
         return pais;
-    }
-
-    public void setPais(String pais) {
-        this.pais = pais;
     }
 
     public LocalDate getFechaNaci() {
         return fechaNaci;
     }
 
-    public void setFechaNaci(LocalDate fechaNaci) {
-        this.fechaNaci = fechaNaci;
-    }
-
     public LocalDate getFechaRegistro() {
         return fechaRegistro;
-    }
-
-    public void setFechaRegistro(LocalDate fechaRegistro) {
-        this.fechaRegistro = fechaRegistro;
     }
 
     public String getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
     public double getSaldoCartera() {
         return saldoCartera;
     }
 
-    public void setSaldoCartera(double saldoCartera) {
-        this.saldoCartera = saldoCartera;
-    }
-
     public UsuarioEstadoCuenta getEstadoCuenta() {
         return estadoCuenta;
-    }
-
-    public void setEstadoCuenta(UsuarioEstadoCuenta estadoCuenta) {
-        this.estadoCuenta = estadoCuenta;
     }
 }

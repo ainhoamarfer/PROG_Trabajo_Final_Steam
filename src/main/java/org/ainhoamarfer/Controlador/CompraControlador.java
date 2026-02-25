@@ -32,7 +32,7 @@ public class CompraControlador {
      *
      * @param idUsuario  ID del usuario
      * @param idJuego    ID del juego
-     * @param metodoPago método de pago
+     * @param metodoPago métod de pago
      * @return ID de compra creada o mensaje de error
      * Validaciones: Usuario activo, juego comprable, no duplicado, saldo suficiente si usa cartera
      */
@@ -42,10 +42,10 @@ public class CompraControlador {
 
     /**
      * Procesar pago
-     * Descripción: Completar la transacción con el método de pago seleccionado
+     * Descripción: Completar la transacción con el métod de pago seleccionado
      *
      * @param idCompra  ID de compra
-     * @param datosPago datos de pago según el método
+     * @param datosPago datos de pago según el métod
      * @return Confirmación de pago o mensaje de error
      * Validaciones: Compra existe, estado válido para procesar, pago válido
      */
@@ -62,7 +62,7 @@ public class CompraControlador {
      * @param fechaInicio  rango de fechas opcional
      * @param fechaFin     rango de fechas opcional
      * @return Lista de compras con información resumida y total gastado
-     * Datos mostrados: Fecha, juego, precio sin descuento, descuento aplicado, método de pago, estado
+     * Datos mostrados: Fecha, juego, precio sin descuento, descuento aplicado, métod de pago, estado
      */
     public List<CompraDTO> consultarHistorialCompras(long idUsuario, String filtroEstado, LocalDate fechaInicio, LocalDate fechaFin) {
         throw new UnsupportedOperationException("Not implemented");

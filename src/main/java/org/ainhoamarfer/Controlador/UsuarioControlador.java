@@ -46,7 +46,7 @@ public class UsuarioControlador {
         Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.crear(form);
         UsuarioEntidad usuario = usuarioOpt.orElse(null);
 
-        return Mapper.mapDe(usuario);
+        return Mapper.mapDeUsuario(usuario);
     }
 
     /**
@@ -64,7 +64,7 @@ public class UsuarioControlador {
         UsuarioEntidad usuario = usuarioOpt.orElse(null);
         UsuarioEntidad usuarioValido = usuarioValido(idUsuario);
 
-        return Mapper.mapDe(usuarioValido);
+        return Mapper.mapDeUsuario(usuarioValido);
     }
 
     /**
