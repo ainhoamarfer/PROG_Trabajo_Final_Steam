@@ -1,11 +1,11 @@
 package org.ainhoamarfer;
 
-import org.ainhoamarfer.Controlador.UsuarioControlador;
-import org.ainhoamarfer.Excepciones.ExcepcionValidacion;
-import org.ainhoamarfer.Modelo.DTOs.ErrorDTO;
-import org.ainhoamarfer.Modelo.DTOs.UsuarioDTO;
-import org.ainhoamarfer.Modelo.Form.UsuarioForm;
-import org.ainhoamarfer.Repositorio.ImplementacionMemoria.UsuarioRepo;
+import org.ainhoamarfer.controlador.UsuarioControlador;
+import org.ainhoamarfer.excepciones.ExcepcionValidacion;
+import org.ainhoamarfer.modelo.dtos.ErrorDTO;
+import org.ainhoamarfer.modelo.dtos.UsuarioDTO;
+import org.ainhoamarfer.modelo.form.UsuarioForm;
+import org.ainhoamarfer.repositorio.implementacionMemoria.UsuarioRepo;
 
 
 import java.time.LocalDate;
