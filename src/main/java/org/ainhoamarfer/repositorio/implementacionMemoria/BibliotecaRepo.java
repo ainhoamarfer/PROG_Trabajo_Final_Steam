@@ -12,7 +12,6 @@ import java.util.Optional;
 public class BibliotecaRepo implements IBibliotecaRepo {
 
     private static final List<BibliotecaEntidad> BIBLIOTECAS = new ArrayList<>();
-   // private static final List<BibliotecaEntidad> JUEGOSBIBLIO = new ArrayList<>();
     private static Long idContador = 1L;
 
 

@@ -62,24 +62,16 @@ public class CompraForm {
         List<ErrorDTO> errores = new ArrayList<>();
 
         // Usuario: obligatorio y debe existir; la cuenta debe estar ACTIVA TODO: comprobar existencia y estado ACTIVA del usuario en repositorio
-        if (usuarioId <= 0) {
-            errores.add(new ErrorDTO("usuarioId", ErrorType.REQUERIDO));
-        }
+        if (usuarioId <= 0) errores.add(new ErrorDTO("usuarioId", ErrorType.REQUERIDO));
 
         // Juego: obligatorio y debe existir; estado debe ser DISPONIBLE, PREVENTA o ACCESO_ANTICIPADO TODO: comprobar existencia y estado del juego en repositorio
-        if (juegoId <= 0) {
-            errores.add(new ErrorDTO("juegoId", ErrorType.REQUERIDO));
-        }
+        if (juegoId <= 0) errores.add(new ErrorDTO("juegoId", ErrorType.REQUERIDO));
 
         // Fecha de compra: generada automáticamente (ya asignada en constructor). No permitimos modificación por usuario.
-        if (fechaCompra == null) {
-            errores.add(new ErrorDTO("fechaCompra", ErrorType.VALOR_NO_VALIDO));
-        }
+        if (fechaCompra == null) errores.add(new ErrorDTO("fechaCompra", ErrorType.VALOR_NO_VALIDO));
 
         // Metodo de pago obligatorio
-        if (metodoPago == null) {
-            errores.add(new ErrorDTO("metodoPago", ErrorType.REQUERIDO));
-        }
+        if (metodoPago == null) errores.add(new ErrorDTO("metodoPago", ErrorType.REQUERIDO));
 
         // Precio sin descuento: obligatorio, debe ser positivo, máximo 2 decimales
         if (precioSinDes == null) {

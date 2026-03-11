@@ -1,4 +1,4 @@
-package org.ainhoamarfer.repositorio.implementacionMemoria;
+package org.ainhoamarfer.repositorio.implementacionmemoria;
 
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
 import org.ainhoamarfer.modelo.form.JuegoForm;

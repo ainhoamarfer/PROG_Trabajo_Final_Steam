@@ -6,6 +6,7 @@ import org.ainhoamarfer.modelo.dtos.BibliotecaDTO;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
+import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.vista.SteamVista;
@@ -29,11 +30,9 @@ public class BibliotecaControlador {
     //TODO estoy empezando a pensar que tendría que haber puesto como atributo la biblioteca  en el usuario, me cuesta entender como conectarla con el resto
 
     private IBibliotecaRepo repo;
-    private SteamVista vista;
 
-    public BibliotecaControlador(IBibliotecaRepo repo, SteamVista vista) {
+    public BibliotecaControlador(IBibliotecaRepo repo) {
         this.repo = repo;
-        this.vista = vista;
     }
 
     /**
@@ -44,28 +43,26 @@ public class BibliotecaControlador {
      * @return Lista de juegos en la biblioteca con sus datos de uso
      * Datos mostrados: Título del juego, tiempo jugado, última sesión, estado de instalación
      */
-    public List<BibliotecaDTO> verBibliotecaPersonal(long idUsuario, String orden) throws ExcepcionValidacion {
-        List<ErrorDTO> errores = new ArrayList<>();
-
-        Optional<BibliotecaEntidad> biblioteca = Optional.ofNullable(repo.obtenerPorIdUsuario(idUsuario)
-                .stream()
-                .filter(u -> idUsuario == u.getUsuarioId()).findFirst()
-                .orElseGet(() -> {
-                    errores.add(new ErrorDTO("idUsuario", ErrorType.NO_ENCONTRADO));
-                    return null;
-                }));
-
-
-
-        if (!errores.isEmpty()) {
-            throw new ExcepcionValidacion(errores);
-        }
-
-        Optional<JuegoEntidad> juegoOpt = repo.crear(form);
-        JuegoEntidad juego = juegoOpt.orElse(null);
-
-        return Mapper.mapDeJuego(juego);
-    }
+    //public List<BibliotecaDTO> verBibliotecaPersonal(long idUsuario, String orden) throws ExcepcionValidacion {
+    //    List<ErrorDTO> errores = new ArrayList<>();
+//
+    //    List<BibliotecaEntidad> bibliotecas = repo.obtenerPorIdUsuario(idUsuario)
+    //            .stream()
+    //            .toList(u -> idUsuario == u.getUsuarioId()).findFirst();
+//
+//
+//
+    //    if (!errores.isEmpty()) {
+    //        throw new ExcepcionValidacion(errores);
+    //    }
+//
+    //    for (int i = 0; i < bibliotecas.size(); i++) {
+    //        Mapper.mapDeJuego(bibliotecas)
+    //    }
+//
+//
+    //    return Mapper.mapDeJuego(bibliotecas);
+    //}
 
     /**
      * Añadir juego a biblioteca
@@ -75,7 +72,13 @@ public class BibliotecaControlador {
      * @return Confirmación de adición a biblioteca o mensaje de error
      * Validaciones: Usuario existe, juego existe, no duplicado, compra verificada
      */
-    public String anadirJuegoBiblioteca(long idUsuario, long idJuego) throws ExcepcionValidacion {
+    public boolean anadirJuegoBiblioteca(long idUsuario, long idJuego) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        repo.obtenerPorIdUsuario(idUsuario)
+                .stream()
+                .filter(b -> b.getId() == idUsuario);
+
 
         throw new UnsupportedOperationException("Not implemented");
     }

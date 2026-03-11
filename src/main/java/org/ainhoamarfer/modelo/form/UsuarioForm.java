@@ -91,40 +91,36 @@ public class UsuarioForm {
         List<ErrorDTO> errores = new ArrayList<>();
 
         //Nombre usuario
-        if (nombreUsuario == null || nombreUsuario.isBlank()) {
-            errores.add(new ErrorDTO("nombreUsuario", ErrorType.REQUERIDO));
-        }
-        if (nombreUsuario.length() < 3 || nombreUsuario.length() > 20) {
-            errores.add(new ErrorDTO("nombreUsuario", ErrorType.LONGITUD_INVALIDA));
-        }
-        if (!nombreUsuario.matches("^[a-zA-Z_][a-zA-Z0-9_-]*$")) {
-            errores.add(new ErrorDTO("nombreUsuario", ErrorType.FORMATO_INVALIDO));
-        }
+        if (nombreUsuario == null || nombreUsuario.isBlank()) errores.add(new ErrorDTO("nombreUsuario", ErrorType.REQUERIDO));
+
+        if (nombreUsuario.length() < 3 || nombreUsuario.length() > 20) errores.add(new ErrorDTO("nombreUsuario", ErrorType.LONGITUD_INVALIDA));
+
+        if (!nombreUsuario.matches("^[a-zA-Z_][a-zA-Z0-9_-]*$")) errores.add(new ErrorDTO("nombreUsuario", ErrorType.FORMATO_INVALIDO));
 
         //Email - TODO validar que el email es único en el sistema
         if (email == null || email.isBlank()) {
             errores.add(new ErrorDTO("email", ErrorType.REQUERIDO));
-        }
-        if (!email.contains("@")) {
+        }else if (!email.contains("@")) {
             errores.add(new ErrorDTO("email", ErrorType.FORMATO_INVALIDO));
         }
 
         //Contraseña
         if (contrasena == null || contrasena.isBlank()) {
             errores.add(new ErrorDTO("contrasena", ErrorType.REQUERIDO));
+        } else {
+            if (contrasena.length() < 8) {
+                errores.add(new ErrorDTO("contrasena", ErrorType.LONGITUD_INVALIDA));
+            }
+            if (!contrasena.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+")) {
+                errores.add(new ErrorDTO("contrasena", ErrorType.FORMATO_INVALIDO));
+            }
         }
-        if (contrasena.length() < 8) {
-            errores.add(new ErrorDTO("contrasena", ErrorType.LONGITUD_INVALIDA));
-        }
-        if (!contrasena.matches("(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+")) {
-            errores.add(new ErrorDTO("contrasena", ErrorType.FORMATO_INVALIDO));
-        }
+
 
         //Nombre real
         if(nombreReal== null || nombreUsuario.isBlank()) {
             errores.add(new ErrorDTO("nombreUsuario", ErrorType.REQUERIDO));
-        }
-        if (nombreReal.length() < 2 || nombreReal.length() > 50) {
+        } else if (nombreReal.length() < 2 || nombreReal.length() > 50) {
             errores.add(new ErrorDTO("nombreUsuario", ErrorType.LONGITUD_INVALIDA));
         }
 

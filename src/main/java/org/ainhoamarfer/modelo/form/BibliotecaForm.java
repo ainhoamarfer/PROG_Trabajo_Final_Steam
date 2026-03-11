@@ -54,14 +54,10 @@ public class BibliotecaForm {
         List<ErrorDTO> errores = new ArrayList<>();
 
         // Usuario: obligatorio y debe existir TODO: comprobar que el usuario existe en el sistema
-        if (usuarioId < 0) {
-            errores.add(new ErrorDTO("usuarioId", ErrorType.REQUERIDO));
-        }
+        if (usuarioId < 0) errores.add(new ErrorDTO("usuarioId", ErrorType.REQUERIDO));
 
         // Juego: obligatorio y debe existir TODO: comprobar que el juego existe en el sistema
-        if (juegoId < 0) {
-            errores.add(new ErrorDTO("juegoId", ErrorType.REQUERIDO));
-        }
+        if (juegoId < 0) errores.add(new ErrorDTO("juegoId", ErrorType.REQUERIDO));
 
         // Un usuario no puede tener el mismo juego dos veces en su biblioteca TODO: comprobar que fechaAdquisicion no es anterior a la fecha de registro del usuario
 
@@ -70,22 +66,18 @@ public class BibliotecaForm {
             errores.add(new ErrorDTO("fechaAdquisicion", ErrorType.REQUERIDO));
         } else {
             LocalDate hoy = LocalDate.now();
-            if (fechaAdquisicion.isAfter(hoy)) {
-                errores.add(new ErrorDTO("fechaAdquisicion", ErrorType.VALOR_NO_VALIDO));
-            }
+            if (fechaAdquisicion.isAfter(hoy)) errores.add(new ErrorDTO("fechaAdquisicion", ErrorType.VALOR_NO_VALIDO));
         }
 
         // Tiempo de juego total: por defecto 0.0; debe ser >=0; máximo 1 decimal
         if (tiempoJuego == null) {
             tiempoJuego = 0.0;
         } else {
-            if (tiempoJuego < 0) {
-                errores.add(new ErrorDTO("tiempoJuego", ErrorType.VALOR_NO_VALIDO));
-            }
+            if (tiempoJuego < 0) errores.add(new ErrorDTO("tiempoJuego", ErrorType.VALOR_NO_VALIDO));
+
             BigDecimal bd = BigDecimal.valueOf(tiempoJuego);
-            if (bd.scale() > 1) {
-                errores.add(new ErrorDTO("tiempoJuego", ErrorType.FORMATO_INVALIDO));
-            }
+            if (bd.scale() > 1) errores.add(new ErrorDTO("tiempoJuego", ErrorType.FORMATO_INVALIDO));
+
         }
 
         // Última fecha de juego: opcional; no puede ser futura; no puede ser anterior a fecha de adquisición
