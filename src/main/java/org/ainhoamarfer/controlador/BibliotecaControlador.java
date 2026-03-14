@@ -75,8 +75,7 @@ public class BibliotecaControlador {
     public boolean anadirJuegoBiblioteca(long idUsuario, long idJuego) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        repo.obtenerPorIdUsuario(idUsuario)
-                .stream()
+        Optional <BibliotecaEntidad> bibliotecaOpt = repo.obtenerPorIdUsuario(idUsuario)
                 .filter(b -> b.getId() == idUsuario);
 
 

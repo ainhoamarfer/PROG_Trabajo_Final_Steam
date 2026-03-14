@@ -12,34 +12,28 @@ import java.math.BigDecimal;
 
 public class CompraForm {
 
-    private int usuarioId;
-    private int juegoId;
-    private LocalDate fechaCompra;
+    private long usuarioId;
+    private long juegoId;
     private Double precioSinDes;
     private Double descuento;
     private CompraEstadoEnum estadoCompra;
     private CompraMetodoPagoEnum metodoPago;
 
-    public CompraForm(int usuarioId, int juegoId, LocalDate fechaCompra, Double precioSinDes, Double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
+    public CompraForm(long usuarioId, long juegoId, Double precioSinDes, Double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
-        this.fechaCompra = fechaCompra;
         this.precioSinDes = precioSinDes;
         this.descuento = descuento;
         this.estadoCompra = estadoCompra;
         this.metodoPago = metodoPago;
     }
 
-    public int getUsuarioId() {
+    public long getUsuarioId() {
         return usuarioId;
     }
 
-    public int getJuegoId() {
+    public long getJuegoId() {
         return juegoId;
-    }
-
-    public LocalDate getFechaCompra() {
-        return fechaCompra;
     }
 
     public Double getPrecioSinDes() {
@@ -66,9 +60,6 @@ public class CompraForm {
 
         // Juego: obligatorio y debe existir; estado debe ser DISPONIBLE, PREVENTA o ACCESO_ANTICIPADO TODO: comprobar existencia y estado del juego en repositorio
         if (juegoId <= 0) errores.add(new ErrorDTO("juegoId", ErrorType.REQUERIDO));
-
-        // Fecha de compra: generada automáticamente (ya asignada en constructor). No permitimos modificación por usuario.
-        if (fechaCompra == null) errores.add(new ErrorDTO("fechaCompra", ErrorType.VALOR_NO_VALIDO));
 
         // Metodo de pago obligatorio
         if (metodoPago == null) errores.add(new ErrorDTO("metodoPago", ErrorType.REQUERIDO));

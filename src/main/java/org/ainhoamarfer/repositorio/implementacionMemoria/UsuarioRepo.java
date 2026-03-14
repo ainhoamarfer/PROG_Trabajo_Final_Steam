@@ -38,6 +38,26 @@ public class UsuarioRepo implements IUsuarioRepo {
     }
 
     @Override
+    public boolean comprobarSiSaldoCarteraSuficiente(Long idUsuario, Double precioJuego) {
+        Optional<UsuarioEntidad> usuarioOpt = obtenerPorId(idUsuario);
+        UsuarioEntidad usuario = usuarioOpt.orElse(null);
+        if (usuario.getSaldoCartera() >= precioJuego) {
+            return true;
+        }
+        return false;
+    }
+
+    public void actualizarSaldoCartera(Long idUsuario, Double precioJuego) {
+        Optional<UsuarioEntidad> usuarioOpt = obtenerPorId(idUsuario);
+        UsuarioEntidad usuario = usuarioOpt.orElse(null);
+        double nuevoSaldo = usuario.getSaldoCartera() - precioJuego;
+
+        UsuarioForm form = new UsuarioForm(usuario.getNombreUsuario(), usuario.getEmail(), usuario.getContrasena(), usuario.getNombreReal(),
+                usuario.getPais(), usuario.getFechaNaci(), usuario.getFechaRegistro(), usuario.getAvatar(), nuevoSaldo, usuario.getEstadoCuenta());
+        actualizar(idUsuario, form);
+    }
+
+    @Override
     public List<UsuarioEntidad> obtenerTodos() {
         return new ArrayList<>(USUARIOS);
     }

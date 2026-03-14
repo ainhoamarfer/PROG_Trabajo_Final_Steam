@@ -9,4 +9,8 @@ public interface IUsuarioRepo extends ICrud<UsuarioEntidad, UsuarioForm, Long> {
 
     public Optional<UsuarioEntidad> obtenerPorNombreUsuario(String nombreUsuario);
 
+    boolean comprobarSiSaldoCarteraSuficiente(Long idUsuario, Double precioJuego);
+
+    void actualizarSaldoCartera(Long idUsuario, Double precioJuego);
+
 }

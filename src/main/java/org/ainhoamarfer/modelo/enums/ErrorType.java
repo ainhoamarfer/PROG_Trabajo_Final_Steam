@@ -8,7 +8,9 @@ public enum ErrorType {
     DUPLICADO("El elemento está duplicado"),
     ESTADO_CUENTA("Esta cuentas esta suspendida o baneada"),
     USUARIO_INVALIDO("Este usuario no es valido"),
-    LONGITUD_INVALIDA("La longitud es incorrecta");
+    LONGITUD_INVALIDA("La longitud es incorrecta"),
+    COMPRA_YA_EXISTENTE("El usuario ya ha comprado este juego"),
+    SALDO_INSUFICIENTE("El saldo en la cartera es insuficiente para realizar la compra");
 
 
     private final String mensaje;

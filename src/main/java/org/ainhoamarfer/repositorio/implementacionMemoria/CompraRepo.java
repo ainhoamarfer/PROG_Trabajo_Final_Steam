@@ -1,9 +1,11 @@
 package org.ainhoamarfer.repositorio.implementacionMemoria;
 
 import org.ainhoamarfer.modelo.entidad.CompraEntidad;
+import org.ainhoamarfer.modelo.enums.CompraEstadoEnum;
 import org.ainhoamarfer.modelo.form.CompraForm;
 import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +19,7 @@ public class CompraRepo implements ICompraRepo {
     public Optional<CompraEntidad> crear(CompraForm form) {
         Long id = idContador;
         idContador = id + 1L;
-        CompraEntidad compra = new CompraEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.getPrecioSinDes(), form.getDescuento(), form.getMetodoPago());
+        CompraEntidad compra = new CompraEntidad(id, form.getUsuarioId(), form.getJuegoId(), LocalDate.now(), form.getPrecioSinDes(), form.getDescuento(), form.getMetodoPago());
         COMPRAS.add(compra);
 
         return Optional.of(compra);
@@ -26,8 +28,19 @@ public class CompraRepo implements ICompraRepo {
     @Override
     public Optional<CompraEntidad> obtenerPorId(Long id) {
         return COMPRAS.stream()
-                .filter(u -> id.equals(u.getId()))
+                .filter(c -> id == c.getUsuarioId())
                 .findFirst();
+    }
+
+    public Optional<CompraEntidad> obtenerPorIdUsuario(Long id) {
+        return COMPRAS.stream()
+                .filter(u -> id == u.getUsuarioId())
+                .findFirst();
+    }
+
+    @Override
+    public void actualizarEstadoCompra(Long idCompra, CompraEstadoEnum estadoCompra) {
+
     }
 
     @Override

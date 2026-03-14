@@ -8,15 +8,15 @@ import java.time.LocalDate;
 public class CompraEntidad {
 
     private long id;
-    private int usuarioId;
-    private int juegoId;
+    private long usuarioId;
+    private long juegoId;
     private LocalDate fechaCompra;
     private double precioSinDes;
     private double descuento;
     private CompraEstadoEnum estadoCompra;
     private CompraMetodoPagoEnum metodoPago;
 
-    public CompraEntidad(long id, int usuarioId, int juegoId, double precioSinDes, double descuento, CompraMetodoPagoEnum metodoPago) {
+    public CompraEntidad(long id, long usuarioId, long juegoId, LocalDate fechaCompra, double precioSinDes, double descuento, CompraMetodoPagoEnum metodoPago) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
@@ -51,7 +51,7 @@ public class CompraEntidad {
         this.id = id;
     }
 
-    public int getUsuarioId() {
+    public long getUsuarioId() {
         return usuarioId;
     }
 
@@ -59,7 +59,7 @@ public class CompraEntidad {
         this.usuarioId = usuarioId;
     }
 
-    public int getJuegoId() {
+    public long getJuegoId() {
         return juegoId;
     }
 
