@@ -70,10 +70,10 @@ public class CompraControlador {
             errores.add(new ErrorDTO("juegoId", ErrorType.NO_ENCONTRADO));
 
             UsuarioEntidad usuario = usuarioRepo.obtenerPorId(idUsuario).orElse(null);
-            if (usuario == null || !usuario.getEstadoCuenta() == UsuarioEstadoCuenta.SUSPENDIDA) {
-                errores.add(new ErrorDTO("usuario", ErrorType.USUARIO_INVALIDO));
-                return errores.toString();
-            }
+            //if (usuario == null || !usuario.getEstadoCuenta() == UsuarioEstadoCuenta.SUSPENDIDA) {
+            //    errores.add(new ErrorDTO("usuario", ErrorType.USUARIO_INVALIDO));
+            //    return errores.toString();
+            //}
 
             if (!errores.isEmpty()) {
                 throw new ExcepcionValidacion(errores);
@@ -103,35 +103,35 @@ public class CompraControlador {
      */
     public String procesarPago (long idCompra, CompraMetodoPagoEnum metodoPago) {
 
-        List<ErrorDTO> errores = new ArrayList<>();
-
-        Optional<CompraEntidad> compraOpt = compraRepo.obtenerPorId(idCompra);
-        CompraEntidad compra = compraOpt.orElse(null);
-        JuegoEntidad juego = juegoRepo.obtenerPorId(compra.getJuegoId()).orElse(null);
-        boolean saldoSuficiente = usuarioRepo.comprobarSiSaldoCarteraSuficiente(compra.getUsuarioId(), compra.getPrecioSinDes());
-        if (compra == null) {
-            errores.add(new ErrorDTO("compraId", ErrorType.NO_ENCONTRADO));
-        } else if (compra.getEstado() != CompraEstadoEnum.PENDIENTE) {
-            errores.add(new ErrorDTO("compra", ErrorType.VALOR_NO_VALIDO));
-        }
-
-        if (!errores.isEmpty()) {
-            throw new ExcepcionValidacion(errores);
-        }
-
-        if (metodoPago == CompraMetodoPagoEnum.CARTERA_STEAM) {
-
-
-            usuarioRepo.actualizarSaldoCartera(compra.getUsuarioId(), juego.getPrecioBase());
-                compraRepo.actualizarEstadoCompra(idCompra, CompraEstadoEnum.COMPLETADA);
-
-        } else if (metodoPago == CompraMetodoPagoEnum.CARTERA_STEAM) {
-            errores.add(new ErrorDTO("saldoCartera", ErrorType.SALDO_INSUFICIENTE));
-            throw new ExcepcionValidacion(errores);
-        } else if (metodoPago == CompraMetodoPagoEnum.TARJETA_CREDITO) {
-            Optional<CompraEntidad> compraOpt = compraRepo.crear(form);
-            CompraEntidad compra = compraOpt.orElse(null);
-        }
+        //List<ErrorDTO> errores = new ArrayList<>();
+//
+        //Optional<CompraEntidad> compraOpt = compraRepo.obtenerPorId(idCompra);
+        //CompraEntidad compra = compraOpt.orElse(null);
+        //JuegoEntidad juego = juegoRepo.obtenerPorId(compra.getJuegoId()).orElse(null);
+        //boolean saldoSuficiente = usuarioRepo.comprobarSiSaldoCarteraSuficiente(compra.getUsuarioId(), compra.getPrecioSinDes());
+        //if (compra == null) {
+        //    errores.add(new ErrorDTO("compraId", ErrorType.NO_ENCONTRADO));
+        //} else if (compra.getEstado() != CompraEstadoEnum.PENDIENTE) {
+        //    errores.add(new ErrorDTO("compra", ErrorType.VALOR_NO_VALIDO));
+        //}
+//
+        //if (!errores.isEmpty()) {
+        //    throw new ExcepcionValidacion(errores);
+        //}
+//
+        //if (metodoPago == CompraMetodoPagoEnum.CARTERA_STEAM) {
+//
+//
+        //    usuarioRepo.actualizarSaldoCartera(compra.getUsuarioId(), juego.getPrecioBase());
+        //        compraRepo.actualizarEstadoCompra(idCompra, CompraEstadoEnum.COMPLETADA);
+//
+        //} else if (metodoPago == CompraMetodoPagoEnum.CARTERA_STEAM) {
+        //    errores.add(new ErrorDTO("saldoCartera", ErrorType.SALDO_INSUFICIENTE));
+        //    throw new ExcepcionValidacion(errores);
+        //} else if (metodoPago == CompraMetodoPagoEnum.TARJETA_CREDITO) {
+        //    Optional<CompraEntidad> compraOpt = compraRepo.crear(form);
+        //    CompraEntidad compra = compraOpt.orElse(null);
+        //}
 
         throw new UnsupportedOperationException("Not implemented");
     }

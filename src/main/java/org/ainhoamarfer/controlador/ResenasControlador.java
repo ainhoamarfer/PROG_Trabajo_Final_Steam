@@ -1,10 +1,17 @@
 package org.ainhoamarfer.controlador;
 
+import org.ainhoamarfer.excepciones.ExcepcionValidacion;
+import org.ainhoamarfer.mapper.Mapper;
+import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.dtos.ResenaDTO;
+import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
+import org.ainhoamarfer.modelo.enums.ErrorType;
 import org.ainhoamarfer.repositorio.interfaz.IResenaRepo;
 import org.ainhoamarfer.vista.SteamVista;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ResenasControlador {
 
@@ -18,11 +25,9 @@ public class ResenasControlador {
      */
 
     private IResenaRepo repo;
-    private SteamVista vista;
 
-    public ResenasControlador(IResenaRepo repo, SteamVista vista) {
+    public ResenasControlador(IResenaRepo repo) {
         this.repo = repo;
-        this.vista = vista;
     }
 
     /**
@@ -37,6 +42,8 @@ public class ResenasControlador {
      * Validaciones: Usuario propietario del juego, no duplicada, texto válido
      */
     public String escribirResena(long idUsuario, long idJuego, boolean recomendado, String texto) {
+
+
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -49,8 +56,26 @@ public class ResenasControlador {
      * @return Confirmación de eliminación
      * Validaciones: Reseña existe, pertenece al usuario
      */
-    public String eliminarResena(long idResena, long idUsuario) {
-        throw new UnsupportedOperationException("Not implemented");
+    public String eliminarResena(long idResena, long idUsuario) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        Optional<ResenaEntidad> resenaOpt = repo.obtenerPorId(idResena);
+
+        resenaOpt.filter(r -> idUsuario == r.getUsuarioId())
+                .ifPresentOrElse(r -> repo.eliminar(idResena), () -> {
+            if (resenaOpt.isEmpty()) {
+                errores.add(new ErrorDTO("reseña", ErrorType.NO_ENCONTRADO));
+
+            } else {
+                errores.add(new ErrorDTO("reseña", ErrorType.NO_PERTENECE_AL_USUARIO));
+            }
+        });
+
+        if (!errores.isEmpty()) {
+            throw new ExcepcionValidacion(errores);
+        } else {
+            return "Reseña eliminada exitosamente";
+        }
     }
 
     /**
@@ -58,12 +83,35 @@ public class ResenasControlador {
      * Descripción: Listar todas las reseñas publicadas de un juego específico
      *
      * @param idJuego ID del juego
-     * @param filtro  filtro opcional (positivas/negativas)
+     * @param filtroPosNeg  filtro opcional (positivas/negativas)
      * @param orden   orden (recientes/útiles)
      * @return Lista de reseñas con estadísticas generales
      * Datos mostrados: Autor, recomendado, texto, horas jugadas, fecha
      */
-    public List<ResenaDTO> verResenasJuego(long idJuego, String filtro, String orden) {
+    public List<ResenaDTO> verResenasJuego(long idJuego, String filtroPosNeg, String orden) {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        List<ResenaEntidad> resenas = repo.obtenerTodos().stream()
+                .filter(r -> idJuego == r.getJuegoId())
+                .toList();
+
+        //todo No entiendo lo de filtro de utiles
+        List<ResenaEntidad> resenasOrdenadas = resenas.stream()
+                .sorted( (r1, r2) -> "recientes".equalsIgnoreCase(orden) ? r2.getFechaPublicacion().compareTo(r1.getFechaPublicacion()) : 0) // Ordenar por fecha si se selecciona "recientes"
+                .toList();
+
+        if (!filtroPosNeg.isEmpty()){
+            List<ResenaEntidad> resenasFiltradasYOrdenadas = resenasOrdenadas.stream()
+                    .filter(r -> "positivas".equalsIgnoreCase(filtroPosNeg) == r.isRecomendado() || "negativas".equalsIgnoreCase(filtroPosNeg) == !r.isRecomendado())
+                    .toList();
+        } else {;
+            for (ResenaEntidad resena : resenasOrdenadas) {
+                Mapper.mapDeResena(resena);
+
+            }
+        }
+
+
         throw new UnsupportedOperationException("Not implemented");
     }
 

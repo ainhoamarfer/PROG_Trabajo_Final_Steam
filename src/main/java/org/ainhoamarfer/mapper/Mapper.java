@@ -1,8 +1,10 @@
 package org.ainhoamarfer.mapper;
 
 import org.ainhoamarfer.modelo.dtos.JuegoDTO;
+import org.ainhoamarfer.modelo.dtos.ResenaDTO;
 import org.ainhoamarfer.modelo.dtos.UsuarioDTO;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
+import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 
 public class Mapper {
@@ -44,5 +46,19 @@ public class Mapper {
     }
 
 
+    public static ResenaDTO mapDeResena(ResenaEntidad resena) {
+        if (resena == null)
+            return null;
 
+        return new ResenaDTO(
+                resena.getId(),
+                resena.getUsuarioId(),
+                resena.getJuegoId(),
+                resena.isRecomendado(),
+                resena.getTexto(),
+                resena.getHorasJugadas(),
+                resena.getFechaPublicacion(),
+                resena.getFechaUltEdicion()
+        );
+    }
 }
