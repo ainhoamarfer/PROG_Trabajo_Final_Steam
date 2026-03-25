@@ -58,7 +58,8 @@ public class Mapper {
                 resena.getTexto(),
                 resena.getHorasJugadas(),
                 resena.getFechaPublicacion(),
-                resena.getFechaUltEdicion()
+                resena.getFechaUltEdicion(),
+                resena.getEstado()
         );
     }
 }

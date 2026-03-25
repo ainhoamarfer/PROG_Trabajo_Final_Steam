@@ -11,8 +11,8 @@ import java.util.List;
 
 public class ResenaForm {
 
-    private int usuarioId;
-    private int juegoId;
+    private long usuarioId;
+    private long juegoId;
     private boolean recomendado;
     private String texto;
     private double horasJugadas;
@@ -20,7 +20,7 @@ public class ResenaForm {
     private LocalDate fechaUltEdicion;
     private ResenaEstado estado;
 
-    public ResenaForm(int usuarioId, int juegoId, boolean recomendado, String texto, double horasJugadas, LocalDate fechaPublicacion, LocalDate fechaUltEdicion, ResenaEstado estado) {
+    public ResenaForm(long usuarioId, long juegoId, boolean recomendado, String texto, double horasJugadas, LocalDate fechaPublicacion, LocalDate fechaUltEdicion, ResenaEstado estado) {
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
         this.recomendado = recomendado;
@@ -31,11 +31,11 @@ public class ResenaForm {
         this.estado = estado;
     }
 
-    public int getUsuarioId() {
+    public long getUsuarioId() {
         return usuarioId;
     }
 
-    public int getJuegoId() {
+    public long getJuegoId() {
         return juegoId;
     }
 

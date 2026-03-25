@@ -54,6 +54,13 @@ public class BibliotecaRepo implements IBibliotecaRepo {
     }
 
     @Override
+    public Optional<BibliotecaEntidad> obtenerPorIdUsuarioYIdJuego(Long idUsuario, Long idJuego) {
+        return BIBLIOTECAS.stream()
+                .filter(u -> idUsuario.equals(u.getUsuarioId()) && idJuego.equals(u.getJuegoId()))
+                .findFirst();
+    }
+
+    @Override
     public List<BibliotecaEntidad> obtenerTodos() {
         return new ArrayList<>(BIBLIOTECAS);
     }

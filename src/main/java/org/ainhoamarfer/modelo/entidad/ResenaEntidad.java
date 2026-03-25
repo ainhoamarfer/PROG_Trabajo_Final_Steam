@@ -1,19 +1,22 @@
 package org.ainhoamarfer.modelo.entidad;
 
+import org.ainhoamarfer.modelo.enums.ResenaEstado;
+
 import java.time.LocalDate;
 
 public class ResenaEntidad {
 
     private long id;
-    private int usuarioId;
-    private int juegoId;
+    private long usuarioId;
+    private long juegoId;
     private boolean recomendado;
     private String texto;
     private double horasJugadas;
     private LocalDate fechaPublicacion;
     private LocalDate fechaUltEdicion;
+    private ResenaEstado estado;
 
-    public ResenaEntidad(long id, int usuarioId, int juegoId, boolean recomendado, String texto, double horasJugadas, LocalDate fechaPublicacion, LocalDate fechaUltEdicion) {
+    public ResenaEntidad(long id, long usuarioId, long juegoId, boolean recomendado, String texto, double horasJugadas, LocalDate fechaPublicacion, LocalDate fechaUltEdicion, ResenaEstado estado) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
@@ -21,7 +24,12 @@ public class ResenaEntidad {
         this.texto = texto;
         this.horasJugadas = horasJugadas;
         this.fechaPublicacion = fechaPublicacion;
-        this.fechaUltEdicion = LocalDate.now();
+        this.fechaUltEdicion = fechaUltEdicion;
+        this.estado = estado;
+    }
+
+    public ResenaEstado getEstado() {
+        return estado;
     }
 
     public long getId() {
@@ -32,19 +40,19 @@ public class ResenaEntidad {
         this.id = id;
     }
 
-    public int getUsuarioId() {
+    public long getUsuarioId() {
         return usuarioId;
     }
 
-    public void setUsuarioId(int usuarioId) {
+    public void setUsuarioId(long usuarioId) {
         this.usuarioId = usuarioId;
     }
 
-    public int getJuegoId() {
+    public long getJuegoId() {
         return juegoId;
     }
 
-    public void setJuegoId(int juegoId) {
+    public void setJuegoId(long juegoId) {
         this.juegoId = juegoId;
     }
 

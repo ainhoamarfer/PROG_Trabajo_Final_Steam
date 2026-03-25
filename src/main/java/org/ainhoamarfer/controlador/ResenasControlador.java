@@ -4,11 +4,15 @@ import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.mapper.Mapper;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.dtos.ResenaDTO;
+import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
 import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
+import org.ainhoamarfer.modelo.enums.ResenaEstado;
+import org.ainhoamarfer.modelo.form.ResenaForm;
+import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.repositorio.interfaz.IResenaRepo;
-import org.ainhoamarfer.vista.SteamVista;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,10 +28,12 @@ public class ResenasControlador {
     Ver reseñas de un usuario
      */
 
-    private IResenaRepo repo;
+    private IResenaRepo repoResena;
+    private IBibliotecaRepo repoBiblioteca;
 
-    public ResenasControlador(IResenaRepo repo) {
-        this.repo = repo;
+
+    public ResenasControlador(IResenaRepo repoResena) {
+        this.repoResena = repoResena;
     }
 
     /**
@@ -41,10 +47,21 @@ public class ResenasControlador {
      * @return Reseña creada exitosamente o lista de errores
      * Validaciones: Usuario propietario del juego, no duplicada, texto válido
      */
-    public String escribirResena(long idUsuario, long idJuego, boolean recomendado, String texto) {
+    public ResenaDTO escribirResena(long idUsuario, long idJuego, boolean recomendado, String texto) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
 
+        //encontrar biblio
+        Optional<BibliotecaEntidad> BiblioOpt = repoBiblioteca.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
 
-        throw new UnsupportedOperationException("Not implemented");
+        if(BiblioOpt.isEmpty()){
+            errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }else {
+            BibliotecaEntidad Biblioteca = BiblioOpt.orElse(null);
+            Optional<ResenaEntidad> resenaOpt = repoResena.crear(new ResenaForm(idUsuario, idJuego, recomendado, texto, Biblioteca.getTiempoJuego(),LocalDate.now(), LocalDate.now(), ResenaEstado.PUBLICADA));
+            ResenaEntidad resena = resenaOpt.orElse(null);
+            return Mapper.mapDeResena(resena);
+        }
     }
 
     /**
@@ -57,12 +74,15 @@ public class ResenasControlador {
      * Validaciones: Reseña existe, pertenece al usuario
      */
     public String eliminarResena(long idResena, long idUsuario) throws ExcepcionValidacion {
+
+        //reviaser con funcion de actualizar estado
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<ResenaEntidad> resenaOpt = repo.obtenerPorId(idResena);
+        Optional<ResenaEntidad> resenaOpt = repoResena.obtenerPorId(idResena);
 
         resenaOpt.filter(r -> idUsuario == r.getUsuarioId())
-                .ifPresentOrElse(r -> repo.eliminar(idResena), () -> {
+                .ifPresentOrElse(r -> repoResena.eliminar(idResena), () -> {
+
             if (resenaOpt.isEmpty()) {
                 errores.add(new ErrorDTO("reseña", ErrorType.NO_ENCONTRADO));
 
@@ -91,7 +111,7 @@ public class ResenasControlador {
     public List<ResenaDTO> verResenasJuego(long idJuego, String filtroPosNeg, String orden) {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        List<ResenaEntidad> resenas = repo.obtenerTodos().stream()
+        List<ResenaEntidad> resenas = repoResena.obtenerTodos().stream()
                 .filter(r -> idJuego == r.getJuegoId())
                 .toList();
 
@@ -110,8 +130,6 @@ public class ResenasControlador {
 
             }
         }
-
-
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -124,8 +142,23 @@ public class ResenasControlador {
      * @return Confirmación de ocultación
      * Validaciones: Reseña existe, pertenece al usuario, está publicada
      */
-    public String ocultarResena(long idResena, long idUsuario) {
-        throw new UnsupportedOperationException("Not implemented");
+    public String ocultarResena(long idResena, long idUsuario) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        Optional<ResenaEntidad> resenaOpt = repoResena.obtenerPorId(idResena);
+
+        if(resenaOpt.isEmpty()){
+            errores.add(new ErrorDTO("Reseña", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }else {
+            repoResena.actualizarEstadoResena(idResena, ResenaEstado.OCULTA);
+        }
+
+        if (!errores.isEmpty()) {
+            throw new ExcepcionValidacion(errores);
+        } else {
+            return "Reseña cambiada a no visible";
+        }
     }
 
     /**
@@ -137,6 +170,8 @@ public class ResenasControlador {
      * Estadísticas: Total reseñas, % positivas, % negativas, promedio horas, tendencia reciente
      */
     public Object consultarEstadisticasResenas(long idJuego) {
+        List<ErrorDTO> errores = new ArrayList<>();
+
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -150,6 +185,8 @@ public class ResenasControlador {
      * Datos mostrados: Juego, recomendado, texto (extracto), fecha, horas jugadas al momento
      */
     public List<ResenaDTO> verResenasUsuario(long idUsuario, String filtroEstado) {
+        List<ErrorDTO> errores = new ArrayList<>();
+
         throw new UnsupportedOperationException("Not implemented");
     }
 }

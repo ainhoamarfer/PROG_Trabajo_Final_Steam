@@ -1,5 +1,8 @@
 package org.ainhoamarfer.modelo.dtos;
 
+import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
+import org.ainhoamarfer.modelo.enums.ResenaEstado;
+
 import java.time.LocalDate;
 
 public class ResenaDTO {
@@ -12,8 +15,10 @@ public class ResenaDTO {
     private double horasJugadas;
     private LocalDate fechaPublicacion;
     private LocalDate fechaUltEdicion;
+    private ResenaEstado estado;
 
-    public ResenaDTO(long id, long idUsuario, long idJuego, boolean recomendado, String texto, double horasJugadas, LocalDate fechaPublicacion, LocalDate fechaUltEdicion) {
+    public ResenaDTO(long id, long idUsuario, long idJuego, boolean recomendado, String texto, double horasJugadas, LocalDate fechaPublicacion,
+                     LocalDate fechaUltEdicion, ResenaEstado estado) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.idJuego = idJuego;
@@ -22,6 +27,11 @@ public class ResenaDTO {
         this.horasJugadas = horasJugadas;
         this.fechaPublicacion = fechaPublicacion;
         this.fechaUltEdicion = fechaUltEdicion;
+        this.estado = estado;
+    }
+
+    public ResenaEstado getEstado() {
+        return estado;
     }
 
     public long getId() {
