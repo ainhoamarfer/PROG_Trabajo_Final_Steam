@@ -170,8 +170,6 @@ public class ResenasControlador {
      * Estadísticas: Total reseñas, % positivas, % negativas, promedio horas, tendencia reciente
      */
     public Object consultarEstadisticasResenas(long idJuego) {
-        List<ErrorDTO> errores = new ArrayList<>();
-
         throw new UnsupportedOperationException("Not implemented");
     }
 
@@ -184,9 +182,34 @@ public class ResenasControlador {
      * @return Lista de reseñas del usuario con estadísticas
      * Datos mostrados: Juego, recomendado, texto (extracto), fecha, horas jugadas al momento
      */
-    public List<ResenaDTO> verResenasUsuario(long idUsuario, String filtroEstado) {
+    public List<ResenaDTO> verResenasUsuario(long idUsuario, String filtroEstado) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        throw new UnsupportedOperationException("Not implemented");
+        List<ResenaEntidad> resenas = repoResena.obtenerPorIdUsuario(idUsuario)
+                .stream()
+                .toList();
+
+        if (resenas.isEmpty()) {
+            errores.add(new ErrorDTO("Reseñas", ErrorType.NO_ENCONTRADO));
+        }
+
+        if (!errores.isEmpty()) {
+            throw new ExcepcionValidacion(errores);
+        }
+
+        List<ResenaEntidad> resenasFiltradas = new ArrayList<>();
+        for (ResenaEntidad resena : resenas) {
+            if (resena.getEstado().equals(filtroEstado)) {
+                resenasFiltradas.add(resena);
+            }
+        }
+
+        List<ResenaDTO> resenasEncontradasMap = new ArrayList<>();
+        for (ResenaEntidad resena : resenasFiltradas) {
+            ResenaDTO resenaDto = Mapper.mapDeResena(resena);
+            resenasEncontradasMap.add(resenaDto);
+        }
+        return resenasEncontradasMap;
     }
 }
+

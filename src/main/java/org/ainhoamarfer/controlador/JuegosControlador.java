@@ -8,7 +8,9 @@ import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
 import org.ainhoamarfer.modelo.form.JuegoForm;
+import org.ainhoamarfer.repositorio.implementacionmemoria.JuegoRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
+import org.ainhoamarfer.transaction.ITransactionManager;
 import org.ainhoamarfer.vista.SteamVista;
 
 import java.util.*;
@@ -29,11 +31,12 @@ public class JuegosControlador {
 
     private IJuegosRepo repo;
     private CriteriosBusquedaForm criteriosBusqueda;
-    private SteamVista vista;
+    private ITransactionManager tm;
 
-    public JuegosControlador(IJuegosRepo repo, SteamVista vista) {
+    public JuegosControlador(IJuegosRepo repo, ITransactionManager tm) {
         this.repo = repo;
-        this.vista = vista;
+        this.tm = tm;
+
     }
 
     /**
@@ -47,15 +50,22 @@ public class JuegosControlador {
     public JuegoDTO anadirJuego(JuegoForm form) throws ExcepcionValidacion {
         List<ErrorDTO> errores = form.validar(form);
 
-        repo.obtenerPorTitulo(form.getTitulo())
-                .ifPresent(u -> errores.add(new ErrorDTO("nombre", ErrorType.DUPLICADO)));
+        //comienza aquí la transacción porque antes no se necesita la base de datos
+        Optional<JuegoEntidad> juegoCreado = tm.inTransaction(() -> {
+            Optional<JuegoEntidad> juegoOpt = repo.obtenerPorTitulo(form.getTitulo());
+            if (juegoOpt.isPresent()) {
+                errores.add(new ErrorDTO("juego", ErrorType.DUPLICADO));
+                //necesario lanzar esta excepcion para que se haga el rollback, si ocurre no ejecuta la lambda pero sigue el resto del métod
+                throw new IllegalStateException();
+            }
+            return repo.crear(form);
+        });
 
         if (!errores.isEmpty()) {
             throw new ExcepcionValidacion(errores);
         }
 
-        Optional<JuegoEntidad> juegoOpt = repo.crear(form);
-        JuegoEntidad juego = juegoOpt.orElse(null);
+        JuegoEntidad juego = juegoCreado.orElse(null);
 
         return Mapper.mapDeJuego(juego);
     }
@@ -101,55 +111,55 @@ public class JuegosControlador {
      * @param criterioOrdenacion Criterio de ordenación opcional: alfabetico, precio, fecha (puede ser null).
      * @return Lista de `JuegoDTO` con información básica. Metadatos de paginación
      */
-    public List<JuegoDTO> consultarCatalogo(CriterioOrdenacionJuegosEnum criterioOrdenacion) {
-        int op;
-        op = vista.menu();
-        CriterioOrdenacionJuegosEnum opcion = CriterioOrdenacionJuegosEnum.values()[op];
-
-        List<JuegoEntidad> juegos = repo.obtenerTodos();
-
-        //De la A a la Z
-        if(opcion == CriterioOrdenacionJuegosEnum.ALFABETICO_A_Z){
-            juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getTitulo))
-                    .toList();
-        }
-
-        //De la Z a la A
-        if(opcion == CriterioOrdenacionJuegosEnum.ALFABETICO_Z_A){
-            juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getTitulo)
-                    .reversed())
-                    .toList();
-        }
-
-        //De menor a mayor precio - TODO ver si pillo el precio base o el precio con descuento
-        if(opcion == CriterioOrdenacionJuegosEnum.PRECIO_MENOR_A_MAYOR){
-            juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getPrecioBase))
-                    .toList();
-        }
-
-        //De mayor a menor precio
-        if(opcion == CriterioOrdenacionJuegosEnum.PRECIO_MAYOR_A_MENOR){
-            juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getPrecioBase)
-                    .reversed())
-                    .toList();
-        }
-
-        if(opcion == CriterioOrdenacionJuegosEnum.FECHA_MAS_RECIENTE){
-            juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getFechaLanzamiento))
-                    .toList();
-        }
-
-        if(opcion == CriterioOrdenacionJuegosEnum.FECHA_MAS_ANTIGUA){
-            juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getFechaLanzamiento).reversed())
-                    .toList();
-        }
-
-        List<JuegoDTO> juegosEncontrados = new ArrayList<>();
-        for (JuegoEntidad juego : juegos) {
-            juegosEncontrados.add(Mapper.mapDeJuego(juego));
-        }
-        return juegosEncontrados;
-    }
+    //public List<JuegoDTO> consultarCatalogo(CriterioOrdenacionJuegosEnum criterioOrdenacion) {
+        //int op;
+        //op = vista.menu();
+        //CriterioOrdenacionJuegosEnum opcion = CriterioOrdenacionJuegosEnum.values()[op];
+//
+        //List<JuegoEntidad> juegos = repo.obtenerTodos();
+//
+        ////De la A a la Z
+        //if(opcion == CriterioOrdenacionJuegosEnum.ALFABETICO_A_Z){
+        //    juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getTitulo))
+        //            .toList();
+        //}
+//
+        ////De la Z a la A
+        //if(opcion == CriterioOrdenacionJuegosEnum.ALFABETICO_Z_A){
+        //    juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getTitulo)
+        //            .reversed())
+        //            .toList();
+        //}
+//
+        ////De menor a mayor precio - TODO ver si pillo el precio base o el precio con descuento
+        //if(opcion == CriterioOrdenacionJuegosEnum.PRECIO_MENOR_A_MAYOR){
+        //    juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getPrecioBase))
+        //            .toList();
+        //}
+//
+        ////De mayor a menor precio
+        //if(opcion == CriterioOrdenacionJuegosEnum.PRECIO_MAYOR_A_MENOR){
+        //    juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getPrecioBase)
+        //            .reversed())
+        //            .toList();
+        //}
+//
+        //if(opcion == CriterioOrdenacionJuegosEnum.FECHA_MAS_RECIENTE){
+        //    juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getFechaLanzamiento))
+        //            .toList();
+        //}
+//
+        //if(opcion == CriterioOrdenacionJuegosEnum.FECHA_MAS_ANTIGUA){
+        //    juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getFechaLanzamiento).reversed())
+        //            .toList();
+        //}
+//
+        //List<JuegoDTO> juegosEncontrados = new ArrayList<>();
+        //for (JuegoEntidad juego : juegos) {
+        //    juegosEncontrados.add(Mapper.mapDeJuego(juego));
+        //}
+        //return juegosEncontrados;
+   // }
 
     /**
      * Consultar detalles de juego

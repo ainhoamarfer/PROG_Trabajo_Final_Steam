@@ -11,6 +11,8 @@ public interface IResenaRepo extends ICrud<ResenaEntidad, ResenaForm, Long> {
 
     Optional<ResenaEntidad> obtenerPorIdUsuarioYIdJuego(Long idUsuario,  Long idJuego);
 
+    Optional<ResenaEntidad> obtenerPorIdUsuario(Long idUsuario);
+
     public Optional<ResenaEntidad> actualizarEstadoResena(Long id, ResenaEstado estado);
 
 }
