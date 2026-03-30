@@ -6,6 +6,7 @@ import org.ainhoamarfer.modelo.dtos.BibliotecaDTO;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
+import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
@@ -27,7 +28,6 @@ public class BibliotecaControlador {
     Ver estadísticas de biblioteca
      */
 
-    //TODO estoy empezando a pensar que tendría que haber puesto como atributo la biblioteca  en el usuario, me cuesta entender como conectarla con el resto
 
     private IBibliotecaRepo repo;
 
@@ -43,26 +43,44 @@ public class BibliotecaControlador {
      * @return Lista de juegos en la biblioteca con sus datos de uso
      * Datos mostrados: Título del juego, tiempo jugado, última sesión, estado de instalación
      */
-    //public List<BibliotecaDTO> verBibliotecaPersonal(long idUsuario, String orden) throws ExcepcionValidacion {
-    //    List<ErrorDTO> errores = new ArrayList<>();
-//
-    //    List<BibliotecaEntidad> bibliotecas = repo.obtenerPorIdUsuario(idUsuario)
-    //            .stream()
-    //            .toList(u -> idUsuario == u.getUsuarioId()).findFirst();
-//
-//
-//
-    //    if (!errores.isEmpty()) {
-    //        throw new ExcepcionValidacion(errores);
-    //    }
-//
-    //    for (int i = 0; i < bibliotecas.size(); i++) {
-    //        Mapper.mapDeJuego(bibliotecas)
-    //    }
-//
-//
-    //    return Mapper.mapDeJuego(bibliotecas);
-    //}
+    public List<BibliotecaDTO> verBibliotecaPersonal(long idUsuario, String orden) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+      List<BibliotecaEntidad> bibliotecas = repo.obtenerPorIdUsuario(idUsuario)
+              .stream()
+              .filter(b -> b.getUsuarioId() == idUsuario)
+              .toList();
+
+      if (bibliotecas.isEmpty()) {
+          errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
+          throw new ExcepcionValidacion(errores);
+      }
+
+      // Ordenar la biblioteca según el criterio seleccionado TODO: implementar orden alfabético, tiempo de juego y última sesión
+      if (!orden.isEmpty()){
+          List<BibliotecaEntidad> bibliotecasOrdenadas = bibliotecas.stream()
+                  .sorted( (b1, b2) -> "fecha de adquisición".equalsIgnoreCase(orden) ? b2.getFechaAdquisicion().compareTo(b1.getFechaAdquisicion()) : 0) // Ordenar por fecha si se selecciona "recientes"
+                  .toList();
+
+          if (bibliotecasOrdenadas.isEmpty()) {
+              errores.add(new ErrorDTO("bibliotecasOrdenadas", ErrorType.NO_ENCONTRADO));
+              throw new ExcepcionValidacion(errores);
+          }
+
+          List<BibliotecaDTO> bibliotecasOrdMap = new ArrayList<>();
+          for (BibliotecaEntidad biblioteca : bibliotecasOrdenadas) {
+              bibliotecasOrdMap.add(Mapper.mapDeBiblioteca(biblioteca));
+          }
+          return bibliotecasOrdMap;
+
+      } else {
+          List<BibliotecaDTO> bibliotecasMap = new ArrayList<>();
+          for (BibliotecaEntidad biblioteca : bibliotecas) {
+              bibliotecasMap.add(Mapper.mapDeBiblioteca(biblioteca));
+          }
+          return bibliotecasMap;
+      }
+    }
 
     /**
      * Añadir juego a biblioteca
@@ -91,7 +109,16 @@ public class BibliotecaControlador {
      * Validaciones: Entrada existe en la biblioteca
      */
     public String eliminarJuegoBiblioteca(long idUsuario, long idJuego) {
-        throw new UnsupportedOperationException("Not implemented");
+
+        Optional <BibliotecaEntidad> bibliotecaOpt = repo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
+
+        if (bibliotecaOpt.isEmpty()) {
+            return "Juego no encontrado en la biblioteca";
+        } else {
+            BibliotecaDTO bibliotecaMap = Mapper.mapDeBiblioteca(bibliotecaOpt.get());
+            repo.eliminar(bibliotecaOpt.get().getId());
+            return "Juego eliminado de la biblioteca";
+        }
     }
 
     /**

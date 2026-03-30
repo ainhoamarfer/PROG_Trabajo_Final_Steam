@@ -145,11 +145,11 @@ public class ResenasControlador {
     public String ocultarResena(long idResena, long idUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<ResenaEntidad> resenaOpt = repoResena.obtenerPorId(idResena);
+        Optional<ResenaEntidad> resenaOpt = repoResena.obtenerPorId(idResena)
+                .filter(u -> idUsuario == u.getUsuarioId() && u.getEstado() != ResenaEstado.OCULTA);
 
         if(resenaOpt.isEmpty()){
             errores.add(new ErrorDTO("Reseña", ErrorType.NO_ENCONTRADO));
-            throw new ExcepcionValidacion(errores);
         }else {
             repoResena.actualizarEstadoResena(idResena, ResenaEstado.OCULTA);
         }

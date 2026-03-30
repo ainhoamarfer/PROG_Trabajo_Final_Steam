@@ -1,8 +1,10 @@
 package org.ainhoamarfer.mapper;
 
+import org.ainhoamarfer.modelo.dtos.BibliotecaDTO;
 import org.ainhoamarfer.modelo.dtos.JuegoDTO;
 import org.ainhoamarfer.modelo.dtos.ResenaDTO;
 import org.ainhoamarfer.modelo.dtos.UsuarioDTO;
+import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
 import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
@@ -60,6 +62,23 @@ public class Mapper {
                 resena.getFechaPublicacion(),
                 resena.getFechaUltEdicion(),
                 resena.getEstado()
+        );
+    }
+
+    public static BibliotecaDTO mapDeBiblioteca(BibliotecaEntidad biblioteca) {
+        if (biblioteca == null)
+            return null;
+
+        return new BibliotecaDTO(
+                biblioteca.getId(),
+                biblioteca.getUsuarioId(),
+                null,
+                biblioteca.getJuegoId(),
+                null,
+                biblioteca.getFechaAdquisicion(),
+                biblioteca.getTiempoJuego(),
+                biblioteca.getFechaUltimaJugado(),
+                biblioteca.isInstalado()
         );
     }
 }
