@@ -39,6 +39,13 @@ public class CompraRepo implements ICompraRepo {
     }
 
     @Override
+    public Optional<CompraEntidad> obtenerPorIdUsuarioYIdCompra(Long idUsuario, Long idCompra) {
+        return COMPRAS.stream()
+                .filter(c -> idUsuario.equals(c.getUsuarioId()) && idCompra.equals(c.getId()))
+                .findFirst();
+    }
+
+    @Override
     public void actualizarEstadoCompra(Long idCompra, CompraEstadoEnum estadoCompra) {
 
     }

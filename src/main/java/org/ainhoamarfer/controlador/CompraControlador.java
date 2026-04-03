@@ -1,6 +1,7 @@
 package org.ainhoamarfer.controlador;
 
 import org.ainhoamarfer.excepciones.ExcepcionValidacion;
+import org.ainhoamarfer.mapper.Mapper;
 import org.ainhoamarfer.modelo.dtos.CompraDTO;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.entidad.CompraEntidad;
@@ -48,48 +49,49 @@ public class CompraControlador {
      * @param idUsuario  ID del usuario
      * @param idJuego    ID del juego
      * @param metodoPago métod de pago (Interfaz con diferentes metodos implementados: tarjeta, saldoCartera)
-     * @return ID de compra creada o mensaje de error
+     * @return CompraDTO
      * Validaciones: Usuario activo, juego comprable, no duplicado, saldo suficiente si usa cartera
      */
-    public String realizarCompra(long idUsuario, long idJuego, CompraMetodoPagoEnum metodoPago) throws ExcepcionValidacion {
+    public CompraDTO realizarCompra(long idUsuario, long idJuego, CompraMetodoPagoEnum metodoPago) throws ExcepcionValidacion {
 
         List<ErrorDTO> errores = new ArrayList<>();
 
-
-        Optional<CompraEntidad> compraExistente = compraRepo.obtenerPorIdUsuario(idUsuario)
+        // Validar que el usuario no haya comprado ya el juego
+        compraRepo.obtenerPorIdUsuario(idUsuario)
                 .stream()
-                .filter(compra -> compra.getJuegoId() == idJuego)
-                .findFirst();
+                .filter(compra -> compra.getJuegoId() == idJuego && compra.getUsuarioId() == idUsuario)
+                .findFirst()
+                .ifPresentOrElse(compra -> errores.add(new ErrorDTO("compra", ErrorType.COMPRA_YA_EXISTENTE)),
+                        () -> {
+                    JuegoEntidad juegoAAdquirir = juegoRepo.obtenerPorId(idJuego).orElse(null);
+                    UsuarioEntidad usuarioComprador = usuarioRepo.obtenerPorId(idUsuario).orElse(null);
 
-        compraExistente.ifPresent(compra ->
-                errores.add(new ErrorDTO("compra", ErrorType.COMPRA_YA_EXISTENTE))
-        );
+                    assert juegoAAdquirir != null;
+                    assert usuarioComprador != null;
 
-        JuegoEntidad juegoAAdquirir = juegoRepo.obtenerPorId(idJuego).orElse(null);
-        if (juegoAAdquirir == null) {
-            errores.add(new ErrorDTO("juegoId", ErrorType.NO_ENCONTRADO));
+                    if(juegoAAdquirir.getPrecioBase() > usuarioComprador.getSaldoCartera()){
+                        errores.add(new ErrorDTO("precioBase", ErrorType.VALOR_NO_VALIDO));
+                    } else if (usuarioComprador.getEstadoCuenta() != UsuarioEstadoCuenta.ACTIVA) {
+                        errores.add(new ErrorDTO("usuario", ErrorType.ESTADO_CUENTA));
+                    } else {
+                        CompraForm form = new CompraForm(idUsuario, idJuego, juegoAAdquirir.getPrecioBase(), juegoAAdquirir.getDescuentoActual(), CompraEstadoEnum.PENDIENTE, metodoPago);
+                        Optional <CompraEntidad> compra = compraRepo.crear(form);
+                    }
+                });
 
-            UsuarioEntidad usuario = usuarioRepo.obtenerPorId(idUsuario).orElse(null);
-            //if (usuario == null || !usuario.getEstadoCuenta() == UsuarioEstadoCuenta.SUSPENDIDA) {
-            //    errores.add(new ErrorDTO("usuario", ErrorType.USUARIO_INVALIDO));
-            //    return errores.toString();
-            //}
 
-            if (!errores.isEmpty()) {
-                throw new ExcepcionValidacion(errores);
-            } else {
+        if (!errores.isEmpty()) {
+            throw new ExcepcionValidacion(errores);
+        } else {
+            CompraEntidad nuevaCompra = compraRepo.obtenerPorIdUsuario(idUsuario)
+                    .stream()
+                    .filter(compra -> compra.getJuegoId() == idJuego && compra.getUsuarioId() == idUsuario)
+                    .findFirst()
+                    .orElse(null);
 
-                CompraForm form = new CompraForm(idUsuario, idJuego, juegoAAdquirir.getPrecioBase(), juegoAAdquirir.getDescuentoActual(), CompraEstadoEnum.PENDIENTE, metodoPago);
-                boolean saldoSuficiente = usuarioRepo.comprobarSiSaldoCarteraSuficiente(idUsuario, juegoAAdquirir.getPrecioBase() - juegoAAdquirir.getDescuentoActual());
-               if(saldoSuficiente){
-
-               }
-
-            }
-
-            throw new UnsupportedOperationException("Not implemented");
+            return Mapper.mapDeCompra(nuevaCompra);
         }
-        return "rrggrgrgr";
+
     }
 
     /**
@@ -158,11 +160,18 @@ public class CompraControlador {
      *
      * @param idCompra  ID de compra
      * @param idUsuario ID del usuario (para verificar pertenencia)
-     * @return Información detallada de la compra o compra no encontrada
-     * Datos mostrados: Todos los campos de compra, información del juego, factura/recibo
+     * @return CompraDTO
      */
-    public CompraDTO consultarDetallesCompra(long idCompra, long idUsuario) {
-        throw new UnsupportedOperationException("Not implemented");
+    public CompraDTO consultarDetallesCompra(long idCompra, long idUsuario) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        CompraEntidad compra = compraRepo.obtenerPorIdUsuarioYIdCompra(idUsuario, idCompra)
+                .orElseThrow(() -> {
+                    errores.add(new ErrorDTO("compra", ErrorType.NO_ENCONTRADO));
+                    return new ExcepcionValidacion(errores);
+                });
+
+        return Mapper.mapDeCompra(compra);
     }
 
     /**

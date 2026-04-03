@@ -5,14 +5,14 @@ import java.time.LocalDate;
 public class BibliotecaEntidad {
 
     private long id;
-    private int usuarioId;
-    private int juegoId;
+    private long usuarioId;
+    private long juegoId;
     private LocalDate fechaAdquisicion;
     private double tiempoJuego;
     private LocalDate fechaUltimaJugado;
     public boolean instalado;
 
-    public BibliotecaEntidad(long id, int usuarioId, int juegoId, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado) {
+    public BibliotecaEntidad(long id, long usuarioId, long juegoId, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
@@ -30,11 +30,11 @@ public class BibliotecaEntidad {
         this.id = id;
     }
 
-    public int getUsuarioId() {
+    public long getUsuarioId() {
         return usuarioId;
     }
 
-    public int getJuegoId() {
+    public long getJuegoId() {
         return juegoId;
     }
 

@@ -1,24 +1,27 @@
 package org.ainhoamarfer.modelo.dtos;
 
+import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
+import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.CompraEstadoEnum;
 import org.ainhoamarfer.modelo.enums.CompraMetodoPagoEnum;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class CompraDTO {
 
     private long id;
     private long idUsuario;
-    private UsuarioDTO usuario;
+    private Optional<UsuarioEntidad> usuario;
     private long idJuego;
-    private JuegoDTO juego;
+    private Optional<JuegoEntidad> juego;
     private LocalDate fechaCompra;
     private double precioSinDes;
     private double descuento;
     private CompraEstadoEnum estadoCompra;
     private CompraMetodoPagoEnum metodoPago;
 
-    public CompraDTO(long id, long idUsuario, UsuarioDTO usuario, long idJuego, JuegoDTO juego, LocalDate fechaCompra, double precioSinDes, double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
+    public CompraDTO(long id, long idUsuario, Optional<UsuarioEntidad> usuario, long idJuego, Optional<JuegoEntidad> juego, LocalDate fechaCompra, double precioSinDes, double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.usuario = usuario;
@@ -43,11 +46,11 @@ public class CompraDTO {
         return id;
     }
 
-    public UsuarioDTO getUsuario() {
+    public Optional<UsuarioEntidad> getUsuario() {
         return usuario;
     }
 
-    public JuegoDTO getJuego() {
+    public Optional<JuegoEntidad> getJuego() {
         return juego;
     }
 

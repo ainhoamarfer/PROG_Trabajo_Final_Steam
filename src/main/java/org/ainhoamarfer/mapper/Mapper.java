@@ -1,15 +1,20 @@
 package org.ainhoamarfer.mapper;
 
-import org.ainhoamarfer.modelo.dtos.BibliotecaDTO;
-import org.ainhoamarfer.modelo.dtos.JuegoDTO;
-import org.ainhoamarfer.modelo.dtos.ResenaDTO;
-import org.ainhoamarfer.modelo.dtos.UsuarioDTO;
-import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
-import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
-import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
-import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
+import org.ainhoamarfer.modelo.dtos.*;
+import org.ainhoamarfer.modelo.entidad.*;
+import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
+import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
+import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
+import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
+
+import java.util.Optional;
 
 public class Mapper {
+
+    private static ICompraRepo compraRepo;
+    private static IJuegosRepo juegoRepo;
+    private static IUsuarioRepo usuarioRepo;
+    private static IBibliotecaRepo bibliotecaRepo;
 
     public static UsuarioDTO mapDeUsuario(UsuarioEntidad entidad) {
         if (entidad == null)
@@ -72,13 +77,31 @@ public class Mapper {
         return new BibliotecaDTO(
                 biblioteca.getId(),
                 biblioteca.getUsuarioId(),
-                null,
+                usuarioRepo.obtenerPorId(biblioteca.getUsuarioId()),
                 biblioteca.getJuegoId(),
-                null,
+                juegoRepo.obtenerPorId(biblioteca.getJuegoId()),
                 biblioteca.getFechaAdquisicion(),
                 biblioteca.getTiempoJuego(),
                 biblioteca.getFechaUltimaJugado(),
                 biblioteca.isInstalado()
+        );
+    }
+
+    public static CompraDTO mapDeCompra(CompraEntidad compra) {
+        if (compra == null)
+            return null;
+
+        return new CompraDTO(
+                compra.getId(),
+                compra.getUsuarioId(),
+                usuarioRepo.obtenerPorId(compra.getUsuarioId()),
+                compra.getJuegoId(),
+                juegoRepo.obtenerPorId(compra.getJuegoId()),
+                compra.getFechaCompra(),
+                compra.getPrecioSinDes(),
+                compra.getDescuento(),
+                compra.getEstadoCompra(),
+                compra.getMetodoPago()
         );
     }
 }

@@ -9,6 +9,7 @@ import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
 import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
+import org.ainhoamarfer.modelo.form.BibliotecaForm;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.vista.SteamVista;
 
@@ -127,11 +128,30 @@ public class BibliotecaControlador {
      * @param idUsuario ID del usuario
      * @param idJuego ID del juego
      * @param horasAAnadir horas a añadir
-     * @return Nuevo tiempo total de juego
+     * @return BibliotecaDTO
      * Validaciones: Biblioteca existe, horas positivas
      */
-    public double actualizarTiempoJuego(long idUsuario, long idJuego, double horasAAnadir) {
-        throw new UnsupportedOperationException("Not implemented");
+    public BibliotecaDTO actualizarTiempoJuego(long idUsuario, long idJuego, double horasAAnadir) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        Optional <BibliotecaEntidad> bibliotecaOpt = repo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
+
+        if (bibliotecaOpt.isEmpty()) {
+            errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }
+
+        if (horasAAnadir <= 0) {
+            errores.add(new ErrorDTO("Horas a añadir", ErrorType.VALOR_NO_VALIDO));
+            throw new ExcepcionValidacion(errores);
+        } else { BibliotecaEntidad biblioteca = bibliotecaOpt.orElse(null);
+
+        double nuevoTiempoJuego = biblioteca.getTiempoJuego() + horasAAnadir;
+
+        BibliotecaForm form = new BibliotecaForm(biblioteca.getUsuarioId(), biblioteca.getJuegoId(), biblioteca.getFechaAdquisicion(), nuevoTiempoJuego, biblioteca.getFechaUltimaJugado(), biblioteca.isInstalado());
+        repo.actualizar(biblioteca.getId(), form);
+
+        return Mapper.mapDeBiblioteca(repo.obtenerPorId(biblioteca.getId()).orElse(null));}
     }
 
     /**
@@ -139,11 +159,21 @@ public class BibliotecaControlador {
      * Descripción: Ver la última vez que se jugó a un juego específico
      * @param idUsuario ID del usuario
      * @param idJuego ID del juego
-     * @return Fecha y hora de última sesión o mensaje "Nunca jugado"
-     * Formato: "Última sesión: hace 2 días (18/01/2026 15:30)"
+     * @return BibliotecaDTO
+     * Validaciones: Biblioteca existe, formato de fecha legible
      */
-    public String consultarUltimaSesion(long idUsuario, long idJuego) {
-        throw new UnsupportedOperationException("Not implemented");
+    public BibliotecaDTO consultarUltimaSesion(long idUsuario, long idJuego) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        Optional <BibliotecaEntidad> bibliotecaOpt = repo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
+
+        if (bibliotecaOpt.isEmpty()) {
+            errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        } else {
+            BibliotecaEntidad biblioteca = bibliotecaOpt.orElse(null);
+            return Mapper.mapDeBiblioteca(biblioteca);
+        }
     }
 
     /**
@@ -167,6 +197,8 @@ public class BibliotecaControlador {
      * Estadísticas: Total juegos, horas totales, juegos instalados, juego más jugado, valor total, juegos nunca jugados
      */
     public Object verEstadisticasBiblioteca(long idUsuario) {
+
+
         throw new UnsupportedOperationException("Not implemented");
     }
 }

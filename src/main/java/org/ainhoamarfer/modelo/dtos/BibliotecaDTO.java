@@ -1,20 +1,25 @@
 package org.ainhoamarfer.modelo.dtos;
 
+import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
+import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
+import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
+
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class BibliotecaDTO {
 
     private long id;
     private long idUsuario;
-    private UsuarioDTO usuario;
+    private Optional<UsuarioEntidad> usuario;
     private long idJuego;
-    private JuegoDTO juego;
+    private Optional<JuegoEntidad> juego;
     private LocalDate fechaAdquisicion;
     private double tiempoJuego;
     private LocalDate fechaUltimaJugado;
     public boolean instalado = false;
 
-    public BibliotecaDTO(long id, long idUsuario, UsuarioDTO usuario, long idJuego, JuegoDTO juego, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado, boolean instalado) {
+    public BibliotecaDTO(long id, long idUsuario, Optional<UsuarioEntidad> usuario, long idJuego, Optional<JuegoEntidad> juego, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado, boolean instalado) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.usuario = usuario;
@@ -26,67 +31,39 @@ public class BibliotecaDTO {
         this.instalado = instalado;
     }
 
+    public long getId() {
+        return id;
+    }
+
     public long getIdUsuario() {
         return idUsuario;
+    }
+
+    public UsuarioEntidad getUsuario() {
+        return usuario;
     }
 
     public long getIdJuego() {
         return idJuego;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public UsuarioDTO getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(UsuarioDTO usuario) {
-        this.usuario = usuario;
-    }
-
-    public JuegoDTO getJuego() {
+    public JuegoEntidad getJuego() {
         return juego;
-    }
-
-    public void setJuego(JuegoDTO juego) {
-        this.juego = juego;
     }
 
     public LocalDate getFechaAdquisicion() {
         return fechaAdquisicion;
     }
 
-    public void setFechaAdquisicion(LocalDate fechaAdquisicion) {
-        this.fechaAdquisicion = fechaAdquisicion;
-    }
-
     public double getTiempoJuego() {
         return tiempoJuego;
-    }
-
-    public void setTiempoJuego(double tiempoJuego) {
-        this.tiempoJuego = tiempoJuego;
     }
 
     public LocalDate getFechaUltimaJugado() {
         return fechaUltimaJugado;
     }
 
-    public void setFechaUltimaJugado(LocalDate fechaUltimaJugado) {
-        this.fechaUltimaJugado = fechaUltimaJugado;
-    }
-
     public boolean isInstalado() {
         return instalado;
-    }
-
-    public void setInstalado(boolean instalado) {
-        this.instalado = instalado;
     }
 }

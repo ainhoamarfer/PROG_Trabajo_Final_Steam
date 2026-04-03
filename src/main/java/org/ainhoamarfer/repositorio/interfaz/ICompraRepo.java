@@ -10,6 +10,8 @@ public interface ICompraRepo extends ICrud<CompraEntidad, CompraForm, Long> {
 
     Optional<CompraEntidad> obtenerPorIdUsuario(Long id);
 
+    Optional<CompraEntidad> obtenerPorIdUsuarioYIdCompra(Long idUsuario, Long idCompra);
+
     void actualizarEstadoCompra (Long idCompra, CompraEstadoEnum estadoCompra);
 
 }
