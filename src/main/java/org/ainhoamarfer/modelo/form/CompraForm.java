@@ -14,18 +14,24 @@ public class CompraForm {
 
     private long usuarioId;
     private long juegoId;
+    private LocalDate fechaCompra;
     private Double precioSinDes;
     private Double descuento;
     private CompraEstadoEnum estadoCompra;
     private CompraMetodoPagoEnum metodoPago;
 
-    public CompraForm(long usuarioId, long juegoId, Double precioSinDes, Double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
+    public CompraForm(long usuarioId, long juegoId, LocalDate fechaCompra, Double precioSinDes, Double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
         this.precioSinDes = precioSinDes;
         this.descuento = descuento;
         this.estadoCompra = estadoCompra;
         this.metodoPago = metodoPago;
+        this.fechaCompra = fechaCompra;
+    }
+
+    public LocalDate getFechaCompra() {
+        return fechaCompra;
     }
 
     public long getUsuarioId() {

@@ -37,15 +37,7 @@ public class UsuarioRepo implements IUsuarioRepo {
                 .findFirst();
     }
 
-    @Override
-    public boolean comprobarSiSaldoCarteraSuficiente(Long idUsuario, Double precioJuego) {
-        Optional<UsuarioEntidad> usuarioOpt = obtenerPorId(idUsuario);
-        UsuarioEntidad usuario = usuarioOpt.orElse(null);
-        if (usuario.getSaldoCartera() >= precioJuego) {
-            return true;
-        }
-        return false;
-    }
+
 
     public void actualizarSaldoCartera(Long idUsuario, Double precioJuego) {
         Optional<UsuarioEntidad> usuarioOpt = obtenerPorId(idUsuario);

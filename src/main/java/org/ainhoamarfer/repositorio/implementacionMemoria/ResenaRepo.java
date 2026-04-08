@@ -68,6 +68,13 @@ public class ResenaRepo implements IResenaRepo {
     }
 
     @Override
+    public Optional<ResenaEntidad> obtenerPorIdUsuario(Long idUsuario) {
+        return RESENAS.stream()
+                .filter(u -> idUsuario.equals(u.getUsuarioId()))
+                .findFirst();
+    }
+
+    @Override
     public Optional<ResenaEntidad> actualizarEstadoResena(Long id, ResenaEstado estado) {
         Optional<ResenaEntidad> resenaOpt = this.obtenerPorId(id);
 

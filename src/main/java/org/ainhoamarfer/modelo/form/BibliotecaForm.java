@@ -10,14 +10,14 @@ import java.math.BigDecimal;
 
 public class BibliotecaForm {
 
-    private int usuarioId;
-    private int juegoId;
+    private long usuarioId;
+    private long juegoId;
     private LocalDate fechaAdquisicion;
     private Double tiempoJuego;
     private LocalDate fechaUltimaJugado;
     public Boolean instalado;
 
-    public BibliotecaForm(int usuarioId, int juegoId, LocalDate fechaAdquisicion, Double tiempoJuego, LocalDate fechaUltimaJugado, Boolean instalado) {
+    public BibliotecaForm(long usuarioId, long juegoId, LocalDate fechaAdquisicion, Double tiempoJuego, LocalDate fechaUltimaJugado, Boolean instalado) {
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
         this.fechaAdquisicion = fechaAdquisicion;
@@ -26,11 +26,11 @@ public class BibliotecaForm {
         this.instalado = instalado;
     }
 
-    public int getUsuarioId() {
+    public long getUsuarioId() {
         return usuarioId;
     }
 
-    public int getJuegoId() {
+    public long getJuegoId() {
         return juegoId;
     }
 

@@ -62,7 +62,7 @@ public class CompraRepo implements ICompraRepo {
         if (compraOpt.isEmpty()) {
             throw new IllegalArgumentException("Compra no encontrada");
         } else {
-            CompraEntidad CompraActualizada = new CompraEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.getPrecioSinDes(), form.getDescuento(), form.getMetodoPago());
+            CompraEntidad CompraActualizada = new CompraEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.getFechaCompra(), form.getPrecioSinDes(), form.getDescuento(), form.getMetodoPago());
             COMPRAS.removeIf((u) -> id.equals(u.getId()));
             COMPRAS.add(CompraActualizada);
             return Optional.of(CompraActualizada);
