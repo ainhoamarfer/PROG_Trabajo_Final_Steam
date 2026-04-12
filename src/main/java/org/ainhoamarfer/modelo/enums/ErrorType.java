@@ -11,7 +11,8 @@ public enum ErrorType {
     LONGITUD_INVALIDA("La longitud es incorrecta"),
     COMPRA_YA_EXISTENTE("El usuario ya ha comprado este juego"),
     SALDO_INSUFICIENTE("El saldo en la cartera es insuficiente para realizar la compra"),
-    NO_PERTENECE_AL_USUARIO("El elemento no pertenece al usuario"),;
+    NO_PERTENECE_AL_USUARIO("El elemento no pertenece al usuario"),
+    PLAZO_REEMBOLSO_VENCIDO("El plazo de reenvolso expiro");
 
 
     private final String mensaje;

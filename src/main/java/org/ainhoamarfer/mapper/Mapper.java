@@ -74,12 +74,15 @@ public class Mapper {
         if (biblioteca == null)
             return null;
 
+        UsuarioEntidad usuario = usuarioRepo.obtenerPorId(biblioteca.getUsuarioId()).orElse(null);
+        JuegoEntidad juego = juegoRepo.obtenerPorId(biblioteca.getJuegoId()).orElse(null);
+
         return new BibliotecaDTO(
                 biblioteca.getId(),
                 biblioteca.getUsuarioId(),
-                usuarioRepo.obtenerPorId(biblioteca.getUsuarioId()),
+                usuario,
                 biblioteca.getJuegoId(),
-                juegoRepo.obtenerPorId(biblioteca.getJuegoId()),
+                juego,
                 biblioteca.getFechaAdquisicion(),
                 biblioteca.getTiempoJuego(),
                 biblioteca.getFechaUltimaJugado(),

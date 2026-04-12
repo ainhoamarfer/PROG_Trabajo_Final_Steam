@@ -28,71 +28,39 @@ public class ResenaEntidad {
         this.estado = estado;
     }
 
-    public ResenaEstado getEstado() {
-        return estado;
-    }
-
     public long getId() {
         return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public long getUsuarioId() {
         return usuarioId;
     }
 
-    public void setUsuarioId(long usuarioId) {
-        this.usuarioId = usuarioId;
-    }
-
     public long getJuegoId() {
         return juegoId;
-    }
-
-    public void setJuegoId(long juegoId) {
-        this.juegoId = juegoId;
     }
 
     public boolean isRecomendado() {
         return recomendado;
     }
 
-    public void setRecomendado(boolean recomendado) {
-        this.recomendado = recomendado;
-    }
-
     public String getTexto() {
         return texto;
-    }
-
-    public void setTexto(String texto) {
-        this.texto = texto;
     }
 
     public double getHorasJugadas() {
         return horasJugadas;
     }
 
-    public void setHorasJugadas(double horasJugadas) {
-        this.horasJugadas = horasJugadas;
-    }
-
     public LocalDate getFechaPublicacion() {
         return fechaPublicacion;
-    }
-
-    public void setFechaPublicacion(LocalDate fechaPublicacion) {
-        this.fechaPublicacion = fechaPublicacion;
     }
 
     public LocalDate getFechaUltEdicion() {
         return fechaUltEdicion;
     }
 
-    public void setFechaUltEdicion(LocalDate fechaUltEdicion) {
-        this.fechaUltEdicion = fechaUltEdicion;
+    public ResenaEstado getEstado() {
+        return estado;
     }
 }

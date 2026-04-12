@@ -11,15 +11,15 @@ public class BibliotecaDTO {
 
     private long id;
     private long idUsuario;
-    private Optional<UsuarioEntidad> usuario;
+    private UsuarioEntidad usuario;
     private long idJuego;
-    private Optional<JuegoEntidad> juego;
+    private JuegoEntidad juego;
     private LocalDate fechaAdquisicion;
     private double tiempoJuego;
     private LocalDate fechaUltimaJugado;
     public boolean instalado = false;
 
-    public BibliotecaDTO(long id, long idUsuario, Optional<UsuarioEntidad> usuario, long idJuego, Optional<JuegoEntidad> juego, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado, boolean instalado) {
+    public BibliotecaDTO(long id, long idUsuario, UsuarioEntidad usuario, long idJuego, JuegoEntidad juego, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado, boolean instalado) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.usuario = usuario;

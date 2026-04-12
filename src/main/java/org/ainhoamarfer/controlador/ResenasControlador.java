@@ -32,8 +32,9 @@ public class ResenasControlador {
     private IBibliotecaRepo repoBiblioteca;
 
 
-    public ResenasControlador(IResenaRepo repoResena) {
+    public ResenasControlador(IResenaRepo repoResena, IBibliotecaRepo repoBiblioteca) {
         this.repoResena = repoResena;
+        this.repoBiblioteca = repoBiblioteca;
     }
 
     /**
@@ -124,13 +125,19 @@ public class ResenasControlador {
             List<ResenaEntidad> resenasFiltradasYOrdenadas = resenasOrdenadas.stream()
                     .filter(r -> "positivas".equalsIgnoreCase(filtroPosNeg) == r.isRecomendado() || "negativas".equalsIgnoreCase(filtroPosNeg) == !r.isRecomendado())
                     .toList();
-        } else {;
-            for (ResenaEntidad resena : resenasOrdenadas) {
-                Mapper.mapDeResena(resena);
-
+            List<ResenaDTO> resenasEncontradasMap = new ArrayList<>();
+            for (ResenaEntidad resena : resenasFiltradasYOrdenadas) {
+                resenasEncontradasMap.add(Mapper.mapDeResena(resena));
             }
+            return resenasEncontradasMap;
+
+        } else {
+            List<ResenaDTO> resenasEncontradasMap = new ArrayList<>();
+            for (ResenaEntidad resena : resenasOrdenadas) {
+                resenasEncontradasMap.add(Mapper.mapDeResena(resena));
+            }
+            return resenasEncontradasMap;
         }
-        throw new UnsupportedOperationException("Not implemented");
     }
 
     /**

@@ -5,7 +5,6 @@ import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import java.util.List;
 
 public class ExcepcionValidacion extends Exception {
-    
 
     List<ErrorDTO> errores;
 
