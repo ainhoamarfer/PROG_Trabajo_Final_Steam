@@ -121,7 +121,7 @@ public class ResenasControlador {
                 .sorted( (r1, r2) -> "recientes".equalsIgnoreCase(orden) ? r2.getFechaPublicacion().compareTo(r1.getFechaPublicacion()) : 0) // Ordenar por fecha si se selecciona "recientes"
                 .toList();
 
-        if (!filtroPosNeg.isEmpty()){
+        if (!filtroPosNeg.isEmpty() || filtroPosNeg != null) {
             List<ResenaEntidad> resenasFiltradasYOrdenadas = resenasOrdenadas.stream()
                     .filter(r -> "positivas".equalsIgnoreCase(filtroPosNeg) == r.isRecomendado() || "negativas".equalsIgnoreCase(filtroPosNeg) == !r.isRecomendado())
                     .toList();
