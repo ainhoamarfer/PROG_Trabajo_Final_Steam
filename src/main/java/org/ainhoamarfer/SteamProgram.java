@@ -5,7 +5,7 @@ import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.dtos.UsuarioDTO;
 import org.ainhoamarfer.modelo.form.UsuarioForm;
-import org.ainhoamarfer.repositorio.implementacionMemoria.UsuarioRepo;
+import org.ainhoamarfer.repositorio.implementacionmemoria.UsuarioRepo;
 
 
 import java.time.LocalDate;

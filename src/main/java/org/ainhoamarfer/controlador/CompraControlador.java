@@ -2,8 +2,10 @@ package org.ainhoamarfer.controlador;
 
 import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.mapper.Mapper;
+import org.ainhoamarfer.modelo.dtos.BibliotecaDTO;
 import org.ainhoamarfer.modelo.dtos.CompraDTO;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
+import org.ainhoamarfer.modelo.dtos.JuegoDTO;
 import org.ainhoamarfer.modelo.entidad.CompraEntidad;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
@@ -12,12 +14,14 @@ import org.ainhoamarfer.modelo.enums.CompraMetodoPagoEnum;
 import org.ainhoamarfer.modelo.enums.ErrorType;
 import org.ainhoamarfer.modelo.enums.UsuarioEstadoCuenta;
 import org.ainhoamarfer.modelo.form.CompraForm;
+import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,11 +39,13 @@ public class CompraControlador {
     private ICompraRepo compraRepo;
     private IJuegosRepo juegoRepo;
     private IUsuarioRepo usuarioRepo;
+    private IBibliotecaRepo bibliotecaRepo;
 
-    public CompraControlador(ICompraRepo compraRepo, IJuegosRepo juegoRepo, IUsuarioRepo usuarioRepo) {
+    public CompraControlador(ICompraRepo compraRepo, IJuegosRepo juegoRepo, IUsuarioRepo usuarioRepo,  IBibliotecaRepo bibliotecaRepo) {
         this.compraRepo = compraRepo;
         this.juegoRepo = juegoRepo;
         this.usuarioRepo = usuarioRepo;
+        this.bibliotecaRepo = bibliotecaRepo;
     }
 
     /**
@@ -191,8 +197,37 @@ public class CompraControlador {
      * @return CompraDTO
      * Validaciones: Compra completada, dentro del plazo, pocas horas jugadas
      */
-    public CompraDTO solicitarReembolso(long idCompra, String motivo) {
+    public CompraDTO solicitarReembolso(long idCompra, String motivo) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
 
+        CompraEntidad compra = compraRepo.obtenerPorIdUsuario(idCompra)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> {
+            errores.add(new ErrorDTO("compra", ErrorType.NO_ENCONTRADO));
+            return new ExcepcionValidacion(errores);
+        });
+
+        //Compra completada
+        if (compra.getEstadoCompra() != CompraEstadoEnum.COMPLETADA) {
+            errores.add(new ErrorDTO("La compra aun no se completo, no puedes solicitar reenvolso", ErrorType.VALOR_NO_VALIDO));
+            throw  new ExcepcionValidacion(errores);
+        }
+        //dentro del plazo
+        var fechaCompra = compra.getFechaCompra();
+        //if (fechaCompra.getMonth() > fechaCompra.getMonth() + 2)
+
+        //pocas horas jugadas
+        //BibliotecaDTO biblioteca = bibliotecaRepo.obtenerPorIdUsuario(compra.getUsuarioId()).filter(b ->
+        //        b.getJuegoId() == compra.getJuegoId());
+        //
+        //if (biblioteca.getTiempoJuego() > 2){
+        //    errores.add(new ErrorDTO("Excediste tu tiempo de prueba", ErrorType.TIEMPO_EXPIRADO));
+        //    throw  new ExcepcionValidacion(errores);
+        //}
+
+        //Reintegrar dinero
+        //devolver compra con estado anulada
 
         throw new UnsupportedOperationException("Not implemented");
     }

@@ -7,8 +7,6 @@ import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 
-import java.util.Optional;
-
 public class Mapper {
 
     private static ICompraRepo compraRepo;
@@ -101,7 +99,7 @@ public class Mapper {
                 compra.getJuegoId(),
                 juegoRepo.obtenerPorId(compra.getJuegoId()),
                 compra.getFechaCompra(),
-                compra.getPrecioSinDes(),
+                compra.getPrecioBase(),
                 compra.getDescuento(),
                 compra.getEstadoCompra(),
                 compra.getMetodoPago()
