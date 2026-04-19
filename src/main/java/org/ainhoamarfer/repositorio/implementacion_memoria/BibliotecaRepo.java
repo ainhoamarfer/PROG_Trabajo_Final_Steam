@@ -1,4 +1,4 @@
-package org.ainhoamarfer.repositorio.implementacionMemoria;
+package org.ainhoamarfer.repositorio.implementacion_memoria;
 
 import org.ainhoamarfer.modelo.dtos.JuegoDTO;
 import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;

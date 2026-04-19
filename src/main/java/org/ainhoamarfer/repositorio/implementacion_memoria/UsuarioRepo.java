@@ -1,4 +1,4 @@
-package org.ainhoamarfer.repositorio.implementacionMemoria;
+package org.ainhoamarfer.repositorio.implementacion_memoria;
 
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.form.UsuarioForm;

@@ -51,7 +51,6 @@ public class ResenasControlador {
     public ResenaDTO escribirResena(long idUsuario, long idJuego, boolean recomendado, String texto) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        //encontrar biblio
         Optional<BibliotecaEntidad> BiblioOpt = repoBiblioteca.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
 
         if(BiblioOpt.isEmpty()){
