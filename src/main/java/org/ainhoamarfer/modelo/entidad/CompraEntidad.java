@@ -2,20 +2,47 @@ package org.ainhoamarfer.modelo.entidad;
 
 import org.ainhoamarfer.modelo.enums.CompraEstadoEnum;
 import org.ainhoamarfer.modelo.enums.CompraMetodoPagoEnum;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "compras")
 public class CompraEntidad {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column(name = "usuario_id", nullable = false)
     private long usuarioId;
+
+    @Column(name = "juego_id", nullable = false)
     private long juegoId;
+
+    @Column(name = "fecha_compra")
     private LocalDate fechaCompra;
+
+    @Column(name = "precio_original")
     private double precioOriginal;
+
+    @Column(name = "porcentaje_descuento")
     private double porcentajeDescuento;
+
+    @Column(name = "precio_final")
     private double precioFinal;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_compra")
     private CompraEstadoEnum estadoCompra;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "método_pago")
     private CompraMetodoPagoEnum metodoPago;
+
+
+    public CompraEntidad() {
+    }
 
     public CompraEntidad(long id, long usuarioId, long juegoId, LocalDate fechaCompra, double precioOriginal, double porcentajeDescuento, CompraMetodoPagoEnum metodoPago) {
         this.id = id;
@@ -71,6 +98,14 @@ public class CompraEntidad {
 
     public double getPrecioOriginal() {
         return precioOriginal;
+    }
+
+    public void setEstadoCompra(CompraEstadoEnum estadoCompra) {
+        this.estadoCompra = estadoCompra;
+    }
+
+    public void setMetodoPago(CompraMetodoPagoEnum metodoPago) {
+        this.metodoPago = metodoPago;
     }
 
 }

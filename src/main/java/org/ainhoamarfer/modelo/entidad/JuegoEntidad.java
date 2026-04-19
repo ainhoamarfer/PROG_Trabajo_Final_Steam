@@ -36,6 +36,9 @@ public class JuegoEntidad {
     @Column (name = "estado")
     private JuegoEstado estado;
 
+    public JuegoEntidad() {
+    }
+
     public JuegoEntidad(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad) {
         this.id = id;
         this.titulo = titulo;

@@ -1,22 +1,43 @@
 package org.ainhoamarfer.modelo.entidad;
 
+import jakarta.persistence.*;
 import org.ainhoamarfer.modelo.enums.UsuarioEstadoCuenta;
 
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "usuarios")
 public class UsuarioEntidad {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id; //único
+
+    @Column(name = "nombre_usuario", unique = true, nullable = false)
     private String nombreUsuario; //único
+    @Column(name = "email", nullable = false)
     private String email;
+    @Column(name = "contrasena", nullable = false)
     private String contrasena;
+    @Column(name = "nombre_real")
     private String nombreReal;
+    @Column(name = "pais")
     private String pais;
+    @Column(name = "fecha_nacimiento")
     private LocalDate fechaNaci;
+    @Column(name = "fecha_registro")
     private LocalDate fechaRegistro;
+    @Column(name = "avatar")
     private String avatar;
+    @Column(name = "saldo_cartera")
     private double saldoCartera;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_cuenta")
     private UsuarioEstadoCuenta estadoCuenta;
+
+    public UsuarioEntidad() {
+    }
 
     public UsuarioEntidad(long id, String nombreUsuario, String email, String contrasena, String nombreReal, String pais, LocalDate fechaNaci,LocalDate fechaRegistro,
                           String avatar, double saldoCartera) {

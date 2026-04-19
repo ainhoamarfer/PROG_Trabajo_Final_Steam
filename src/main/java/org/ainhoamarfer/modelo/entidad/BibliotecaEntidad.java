@@ -1,16 +1,37 @@
 package org.ainhoamarfer.modelo.entidad;
 
 import java.time.LocalDate;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "bibliotecas")
 public class BibliotecaEntidad {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Column(name = "usuario_id", nullable = false)
     private long usuarioId;
+
+    @Column(name = "juego_id", nullable = false)
     private long juegoId;
+
+    @Column(name = "fecha_adquisicion")
     private LocalDate fechaAdquisicion;
+
+    @Column(name = "tiempo_juego")
     private double tiempoJuego;
+
+    @Column(name = "fecha_ultima_jugado")
     private LocalDate fechaUltimaJugado;
-    public boolean instalado;
+
+    @Column(name = "instalado")
+    private boolean instalado;
+
+    // Constructor sin argumentos
+    public BibliotecaEntidad() {
+    }
 
     public BibliotecaEntidad(long id, long usuarioId, long juegoId, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado) {
         this.id = id;
