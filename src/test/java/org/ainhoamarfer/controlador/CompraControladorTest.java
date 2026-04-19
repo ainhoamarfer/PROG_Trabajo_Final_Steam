@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,8 +50,9 @@ public class CompraControladorTest {
     private final long idUsuario = 1L;
     private final long idJuego = 100L;
     private final long idCompra = 10L;
-    private final double precioBase = 49.99;
-    private final double descuento = 10.0;
+    private final double precioOriginal = 49.99;
+    private final double porcentajeDescuento = 10.0;
+    private final double precioFinal = precioOriginal * (1 - porcentajeDescuento / 100.0); // 44.99 aprox
     private final double saldoCartera = 100.0;
     private final LocalDate fecha = LocalDate.now();
 
@@ -71,6 +71,7 @@ public class CompraControladorTest {
                 "Nombre Real",
                 "España",
                 LocalDate.of(1990, 1, 1),
+                LocalDate.of(2020, 1, 1),
                 "avatar.jpg",
                 saldoCartera
         );
@@ -81,8 +82,8 @@ public class CompraControladorTest {
                 "Descripción del juego",
                 "Desarrollador Test",
                 LocalDate.of(2023, 5, 10),
-                precioBase,
-                descuento,
+                precioOriginal,
+                porcentajeDescuento,
                 "Aventura",
                 "Español, Inglés",
                 JuegoClasificacionEdad.PEGI_12
@@ -93,20 +94,21 @@ public class CompraControladorTest {
                 idUsuario,
                 idJuego,
                 fecha,
-                precioBase,
-                descuento,
+                precioOriginal,
+                porcentajeDescuento,
                 CompraMetodoPagoEnum.CARTERA_STEAM
         );
 
         compraDTO = new CompraDTO(
                 idCompra,
                 idUsuario,
-                Optional.of(usuario),
+                usuario,
                 idJuego,
-                Optional.of(juego),
+                juego,
                 fecha,
-                precioBase,
-                descuento,
+                precioFinal,
+                porcentajeDescuento,
+                precioOriginal,
                 CompraEstadoEnum.PENDIENTE,
                 CompraMetodoPagoEnum.CARTERA_STEAM
         );
@@ -118,12 +120,10 @@ public class CompraControladorTest {
 
     @Test
     void realizarCompra_CuandoUsuarioActivoYConSaldoSuficiente_DeberiaCrearCompraYRetornarDTO() throws ExcepcionValidacion {
-        // Arrange: no hay compra previa
         when(compraRepo.obtenerPorIdUsuario(idUsuario)).thenReturn(Optional.empty());
         when(juegoRepo.obtenerPorId(idJuego)).thenReturn(Optional.of(juego));
         when(usuarioRepo.obtenerPorId(idUsuario)).thenReturn(Optional.of(usuario));
         when(compraRepo.crear(any(CompraForm.class))).thenReturn(Optional.of(compraPendiente));
-        // Después de crear, se vuelve a llamar a obtenerPorIdUsuario
         when(compraRepo.obtenerPorIdUsuario(idUsuario)).thenReturn(Optional.of(compraPendiente));
 
         try (MockedStatic<Mapper> mockedMapper = mockStatic(Mapper.class)) {
@@ -133,15 +133,15 @@ public class CompraControladorTest {
 
             assertNotNull(resultado);
             assertEquals(idCompra, resultado.getId());
+            assertEquals(precioFinal, resultado.getPrecioFinal()); // Verificar precio con descuento
             verify(compraRepo).crear(any(CompraForm.class));
         }
     }
 
     @Test
     void realizarCompra_CuandoUsuarioYaComproElJuego_DeberiaLanzarExcepcionValidacion() {
-        // Arrange: ya existe una compra
         CompraEntidad existente = new CompraEntidad(
-                99L, idUsuario, idJuego, fecha, precioBase, descuento, CompraMetodoPagoEnum.CARTERA_STEAM
+                99L, idUsuario, idJuego, fecha, precioOriginal, porcentajeDescuento, CompraMetodoPagoEnum.CARTERA_STEAM
         );
         when(compraRepo.obtenerPorIdUsuario(idUsuario)).thenReturn(Optional.of(existente));
 
@@ -160,7 +160,7 @@ public class CompraControladorTest {
     void realizarCompra_CuandoSaldoInsuficienteYMetodoCartera_DeberiaLanzarExcepcionValidacion() {
         UsuarioEntidad usuarioPobre = new UsuarioEntidad(
                 idUsuario, "user", "test@mail.com", "Pass1", "Name", "España",
-                LocalDate.of(1990,1,1), "avatar.jpg", 10.0
+                LocalDate.of(1990,1,1), LocalDate.now(), "avatar.jpg", 10.0
         );
         when(compraRepo.obtenerPorIdUsuario(idUsuario)).thenReturn(Optional.empty());
         when(juegoRepo.obtenerPorId(idJuego)).thenReturn(Optional.of(juego));
@@ -218,7 +218,7 @@ public class CompraControladorTest {
         when(compraRepo.obtenerPorId(idCompra)).thenReturn(Optional.of(compraPendiente));
         when(juegoRepo.obtenerPorId(idJuego)).thenReturn(Optional.of(juego));
         when(usuarioRepo.obtenerPorId(idUsuario)).thenReturn(Optional.of(usuario));
-        doNothing().when(usuarioRepo).actualizarSaldoCartera(idUsuario, precioBase);
+        doNothing().when(usuarioRepo).restarSaldoCartera(idUsuario, precioFinal);
         doNothing().when(compraRepo).actualizarEstadoCompra(idCompra, CompraEstadoEnum.COMPLETADA);
 
         try (MockedStatic<Mapper> mockedMapper = mockStatic(Mapper.class)) {
@@ -227,7 +227,7 @@ public class CompraControladorTest {
             CompraDTO resultado = controlador.procesarPago(idCompra, CompraMetodoPagoEnum.CARTERA_STEAM);
 
             assertNotNull(resultado);
-            verify(usuarioRepo).actualizarSaldoCartera(idUsuario, precioBase);
+            verify(usuarioRepo).restarSaldoCartera(idUsuario, precioFinal);
             verify(compraRepo).actualizarEstadoCompra(idCompra, CompraEstadoEnum.COMPLETADA);
         }
     }
@@ -247,10 +247,15 @@ public class CompraControladorTest {
 
     @Test
     void procesarPago_CuandoCompraNoEstaPendiente_DeberiaLanzarExcepcionValidacion() {
-        CompraEntidad compraCompletada = new CompraEntidad(
-                idCompra, idUsuario, idJuego, fecha, precioBase, descuento, CompraMetodoPagoEnum.CARTERA_STEAM
-        );
-        compraCompletada.setEstadoCompra(CompraEstadoEnum.COMPLETADA);
+        // Crear un mock de CompraEntidad que simule una compra ya completada
+        CompraEntidad compraCompletada = mock(CompraEntidad.class);
+        when(compraCompletada.getEstadoCompra()).thenReturn(CompraEstadoEnum.COMPLETADA);
+        // El controlador también accede a estos campos antes de validar el estado
+        when(compraCompletada.getId()).thenReturn(idCompra);
+        when(compraCompletada.getUsuarioId()).thenReturn(idUsuario);
+        when(compraCompletada.getJuegoId()).thenReturn(idJuego);
+        // Si en tu controlador se usan más getters, añádelos aquí
+
         when(compraRepo.obtenerPorId(idCompra)).thenReturn(Optional.of(compraCompletada));
 
         ExcepcionValidacion ex = assertThrows(ExcepcionValidacion.class,
@@ -266,7 +271,7 @@ public class CompraControladorTest {
     void procesarPago_CuandoSaldoInsuficiente_DeberiaLanzarExcepcionValidacion() {
         UsuarioEntidad usuarioPobre = new UsuarioEntidad(
                 idUsuario, "user", "test@mail.com", "Pass1", "Name", "España",
-                LocalDate.of(1990,1,1), "avatar.jpg", 10.0
+                LocalDate.of(1990,1,1), LocalDate.now(), "avatar.jpg", 10.0
         );
         when(compraRepo.obtenerPorId(idCompra)).thenReturn(Optional.of(compraPendiente));
         when(juegoRepo.obtenerPorId(idJuego)).thenReturn(Optional.of(juego));
@@ -280,7 +285,7 @@ public class CompraControladorTest {
         assertEquals("Saldo insuficiente", errores.get(0).campo());
         assertEquals(ErrorType.SALDO_INSUFICIENTE, errores.get(0).mensaje());
 
-        verify(usuarioRepo, never()).actualizarSaldoCartera(anyLong(), anyDouble());
+        verify(usuarioRepo, never()).restarSaldoCartera(anyLong(), anyDouble());
         verify(compraRepo, never()).actualizarEstadoCompra(anyLong(), any());
     }
 

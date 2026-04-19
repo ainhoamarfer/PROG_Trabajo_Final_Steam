@@ -14,8 +14,10 @@ import org.ainhoamarfer.repositorio.interfaz.IResenaRepo;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ResenasControlador {
 
@@ -104,39 +106,43 @@ public class ResenasControlador {
      *
      * @param idJuego ID del juego
      * @param filtroPosNeg  filtro opcional (positivas/negativas)
-     * @param orden   orden (recientes/útiles)
+     * @param orden   orden (recientes/mas antiguas)
      * @return Lista de reseñas con estadísticas generales
      * Datos mostrados: Autor, recomendado, texto, horas jugadas, fecha
      */
     public List<ResenaDTO> verResenasJuego(long idJuego, String filtroPosNeg, String orden) {
         List<ErrorDTO> errores = new ArrayList<>();
 
+        // Comprobar si publicada
         List<ResenaEntidad> resenas = repoResena.obtenerTodos().stream()
-                .filter(r -> idJuego == r.getJuegoId())
-                .toList();
+                .filter(r -> r.getJuegoId() == idJuego && r.getEstado() == ResenaEstado.PUBLICADA)
+                .collect(Collectors.toCollection(ArrayList::new)); // al parecer si pongo to list me fallan los tests
 
-        //todo No entiendo lo de filtro de utiles
-        List<ResenaEntidad> resenasOrdenadas = resenas.stream()
-                .sorted( (r1, r2) -> "recientes".equalsIgnoreCase(orden) ? r2.getFechaPublicacion().compareTo(r1.getFechaPublicacion()) : 0) // Ordenar por fecha si se selecciona "recientes"
-                .toList();
-
-        if (!filtroPosNeg.isEmpty() || filtroPosNeg != null) {
-            List<ResenaEntidad> resenasFiltradasYOrdenadas = resenasOrdenadas.stream()
-                    .filter(r -> "positivas".equalsIgnoreCase(filtroPosNeg) == r.isRecomendado() || "negativas".equalsIgnoreCase(filtroPosNeg) == !r.isRecomendado())
-                    .toList();
-            List<ResenaDTO> resenasEncontradasMap = new ArrayList<>();
-            for (ResenaEntidad resena : resenasFiltradasYOrdenadas) {
-                resenasEncontradasMap.add(Mapper.mapDeResena(resena));
+        // Filtrar positivas negativas
+        if (filtroPosNeg != null && !filtroPosNeg.isEmpty()) {
+            if ("positivas".equalsIgnoreCase(filtroPosNeg)) {
+                resenas = resenas.stream()
+                        .filter(ResenaEntidad::isRecomendado)
+                        .collect(Collectors.toCollection(ArrayList::new)); // para el test
+            } else if ("negativas".equalsIgnoreCase(filtroPosNeg)) {
+                resenas = resenas.stream()
+                        .filter(r -> !r.isRecomendado())
+                        .collect(Collectors.toCollection(ArrayList::new)); // para el test
             }
-            return resenasEncontradasMap;
-
-        } else {
-            List<ResenaDTO> resenasEncontradasMap = new ArrayList<>();
-            for (ResenaEntidad resena : resenasOrdenadas) {
-                resenasEncontradasMap.add(Mapper.mapDeResena(resena));
-            }
-            return resenasEncontradasMap;
         }
+
+        // Ordenar según criterio
+        if ("recientes".equalsIgnoreCase(orden)) {
+            resenas.sort(Comparator.comparing(ResenaEntidad::getFechaPublicacion).reversed());
+        }
+
+        if ("mas antiguas".equalsIgnoreCase(orden)) {
+            resenas.sort(Comparator.comparing(ResenaEntidad::getFechaPublicacion));
+        }
+
+        return resenas.stream()
+                .map(Mapper::mapDeResena)
+                .toList();
     }
 
     /**

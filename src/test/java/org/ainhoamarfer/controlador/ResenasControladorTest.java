@@ -128,7 +128,7 @@ private IResenaRepo repoResena;
     @Test
     void eliminarResena_CuandoExisteYPertenece_DeberiaEliminarYRetornarMensaje() throws ExcepcionValidacion {
         when(repoResena.obtenerPorId(idResena)).thenReturn(Optional.of(resenaEntidad));
-        doNothing().when(repoResena).eliminar(idResena);
+        when(repoResena.eliminar(idResena)).thenReturn(true);
 
         String resultado = controlador.eliminarResena(idResena, idUsuario);
 
@@ -171,49 +171,158 @@ private IResenaRepo repoResena;
     // Tests para verResenasJuego
     // -----------------------------------------------------------------
     @Test
-    void verResenasJuego_SinFiltroYTodas_DeberiaRetornarListaOrdenadaPorFechaDescendente() {
-        ResenaEntidad antigua = crearResenaEntidad(1L, fecha.minusDays(5), true);
-        ResenaEntidad reciente = crearResenaEntidad(2L, fecha, true);
-        when(repoResena.obtenerTodos()).thenReturn(List.of(antigua, reciente));
+    void verResenasJuego_SinFiltroYSinOrden_RetornaTodasPublicadasOrdenNatural() {
+        // Arrange
+        LocalDate fecha1 = LocalDate.of(2024, 1, 10);
+        LocalDate fecha2 = LocalDate.of(2024, 2, 15);
+        LocalDate fecha3 = LocalDate.of(2024, 3, 20);
+
+        ResenaEntidad r1 = crearResena(1L, idJuego, true, fecha1);
+        ResenaEntidad r2 = crearResena(2L, idJuego, false, fecha2);
+        ResenaEntidad r3 = crearResena(3L, 999L, true, fecha3); // otro juego
+        when(repoResena.obtenerTodos()).thenReturn(List.of(r1, r2, r3));
 
         try (MockedStatic<Mapper> mockedMapper = mockStatic(Mapper.class)) {
-            mockedMapper.when(() -> Mapper.mapDeResena(any(ResenaEntidad.class)))
+            mockedMapper.when(() -> Mapper.mapDeResena(any()))
                     .thenAnswer(inv -> {
-                        ResenaEntidad ent = inv.getArgument(0);
-                        return new ResenaDTO(
-                                ent.getId(), 0, 0, false, "", 0,
-                                ent.getFechaPublicacion(), null, null
-                        );
+                        ResenaEntidad e = inv.getArgument(0);
+                        return new ResenaDTO(e.getId(), e.getUsuarioId(), e.getJuegoId(),
+                                e.isRecomendado(), e.getTexto(), e.getHorasJugadas(),
+                                e.getFechaPublicacion(), e.getFechaUltEdicion(), e.getEstado());
                     });
 
-            List<ResenaDTO> resultado = controlador.verResenasJuego(idJuego, "", "recientes");
+            List<ResenaDTO> resultado = controlador.verResenasJuego(idJuego, null, null);
 
             assertEquals(2, resultado.size());
-            assertEquals(2L, resultado.get(0).getId()); // más reciente primero
+            // El orden natural es el devuelto por el repositorio (r1, r2)
+            assertEquals(1L, resultado.get(0).getId());
+            assertEquals(2L, resultado.get(1).getId());
         }
     }
 
     @Test
-    void verResenasJuego_ConFiltroPositivas_DeberiaRetornarSoloRecomendadas() {
-        ResenaEntidad positiva = crearResenaEntidad(1L, fecha, true);
-        ResenaEntidad negativa = crearResenaEntidad(2L, fecha, false);
+    void verResenasJuego_FiltroPositivas_RetornaSoloRecomendadas() {
+        ResenaEntidad positiva = crearResena(1L, idJuego, true, LocalDate.now().minusDays(2));
+        ResenaEntidad negativa = crearResena(2L, idJuego, false, LocalDate.now().minusDays(1));
         when(repoResena.obtenerTodos()).thenReturn(List.of(positiva, negativa));
 
         try (MockedStatic<Mapper> mockedMapper = mockStatic(Mapper.class)) {
-            mockedMapper.when(() -> Mapper.mapDeResena(any(ResenaEntidad.class)))
+            mockedMapper.when(() -> Mapper.mapDeResena(any()))
                     .thenAnswer(inv -> {
-                        ResenaEntidad ent = inv.getArgument(0);
-                        return new ResenaDTO(
-                                ent.getId(), 0, 0, ent.isRecomendado(), "", 0,
-                                null, null, null
-                        );
+                        ResenaEntidad e = inv.getArgument(0);
+                        return new ResenaDTO(e.getId(), 0, 0, e.isRecomendado(), "", 0, null, null, null);
                     });
 
-            List<ResenaDTO> resultado = controlador.verResenasJuego(idJuego, "positivas", "");
+            List<ResenaDTO> resultado = controlador.verResenasJuego(idJuego, "positivas", null);
 
             assertEquals(1, resultado.size());
             assertTrue(resultado.get(0).isRecomendado());
+            assertEquals(1L, resultado.get(0).getId());
         }
+    }
+
+    @Test
+    void verResenasJuego_FiltroNegativas_RetornaSoloNoRecomendadas() {
+        ResenaEntidad positiva = crearResena(1L, idJuego, true, LocalDate.now().minusDays(2));
+        ResenaEntidad negativa = crearResena(2L, idJuego, false, LocalDate.now().minusDays(1));
+        when(repoResena.obtenerTodos()).thenReturn(List.of(positiva, negativa));
+
+        try (MockedStatic<Mapper> mockedMapper = mockStatic(Mapper.class)) {
+            mockedMapper.when(() -> Mapper.mapDeResena(any()))
+                    .thenAnswer(inv -> {
+                        ResenaEntidad e = inv.getArgument(0);
+                        return new ResenaDTO(e.getId(), 0, 0, e.isRecomendado(), "", 0, null, null, null);
+                    });
+
+            List<ResenaDTO> resultado = controlador.verResenasJuego(idJuego, "negativas", null);
+
+            assertEquals(1, resultado.size());
+            assertFalse(resultado.get(0).isRecomendado());
+            assertEquals(2L, resultado.get(0).getId());
+        }
+    }
+
+    @Test
+    void verResenasJuego_OrdenRecientes_RetornaOrdenadasPorFechaDescendente() {
+        LocalDate fechaAntigua = LocalDate.of(2024, 1, 1);
+        LocalDate fechaReciente = LocalDate.of(2024, 5, 10);
+        ResenaEntidad antigua = crearResena(1L, idJuego, true, fechaAntigua);
+        ResenaEntidad reciente = crearResena(2L, idJuego, true, fechaReciente);
+        when(repoResena.obtenerTodos()).thenReturn(List.of(antigua, reciente));
+
+        try (MockedStatic<Mapper> mockedMapper = mockStatic(Mapper.class)) {
+            mockedMapper.when(() -> Mapper.mapDeResena(any()))
+                    .thenAnswer(inv -> {
+                        ResenaEntidad e = inv.getArgument(0);
+                        return new ResenaDTO(e.getId(), 0, 0, true, "", 0,
+                                e.getFechaPublicacion(), null, null);
+                    });
+
+            List<ResenaDTO> resultado = controlador.verResenasJuego(idJuego, null, "recientes");
+
+            assertEquals(2, resultado.size());
+            assertEquals(fechaReciente, resultado.get(0).getFechaPublicacion());
+            assertEquals(fechaAntigua, resultado.get(1).getFechaPublicacion());
+        }
+    }
+
+    @Test
+    void verResenasJuego_OrdenMasAntiguas_RetornaOrdenadasPorFechaAscendente() {
+        LocalDate fechaAntigua = LocalDate.of(2024, 1, 1);
+        LocalDate fechaReciente = LocalDate.of(2024, 5, 10);
+        ResenaEntidad antigua = crearResena(1L, idJuego, true, fechaAntigua);
+        ResenaEntidad reciente = crearResena(2L, idJuego, true, fechaReciente);
+        when(repoResena.obtenerTodos()).thenReturn(List.of(antigua, reciente));
+
+        try (MockedStatic<Mapper> mockedMapper = mockStatic(Mapper.class)) {
+            mockedMapper.when(() -> Mapper.mapDeResena(any()))
+                    .thenAnswer(inv -> {
+                        ResenaEntidad e = inv.getArgument(0);
+                        return new ResenaDTO(e.getId(), 0, 0, true, "", 0,
+                                e.getFechaPublicacion(), null, null);
+                    });
+
+            List<ResenaDTO> resultado = controlador.verResenasJuego(idJuego, null, "mas antiguas");
+
+            assertEquals(2, resultado.size());
+            assertEquals(fechaAntigua, resultado.get(0).getFechaPublicacion());
+            assertEquals(fechaReciente, resultado.get(1).getFechaPublicacion());
+        }
+    }
+
+    @Test
+    void verResenasJuego_FiltroPositivasYOrdenRecientes_CombinaAmbos() {
+        LocalDate ayer = LocalDate.now().minusDays(1);
+        LocalDate hoy = LocalDate.now();
+        ResenaEntidad positivaAntigua = crearResena(1L, idJuego, true, ayer);
+        ResenaEntidad positivaReciente = crearResena(2L, idJuego, true, hoy);
+        ResenaEntidad negativa = crearResena(3L, idJuego, false, hoy);
+        when(repoResena.obtenerTodos()).thenReturn(List.of(positivaAntigua, positivaReciente, negativa));
+
+        try (MockedStatic<Mapper> mockedMapper = mockStatic(Mapper.class)) {
+            mockedMapper.when(() -> Mapper.mapDeResena(any()))
+                    .thenAnswer(inv -> {
+                        ResenaEntidad e = inv.getArgument(0);
+                        return new ResenaDTO(e.getId(), 0, 0, e.isRecomendado(), "", 0,
+                                e.getFechaPublicacion(), null, null);
+                    });
+
+            List<ResenaDTO> resultado = controlador.verResenasJuego(idJuego, "positivas", "recientes");
+
+            assertEquals(2, resultado.size());
+            assertTrue(resultado.get(0).isRecomendado());
+            assertTrue(resultado.get(1).isRecomendado());
+            assertEquals(hoy, resultado.get(0).getFechaPublicacion());
+            assertEquals(ayer, resultado.get(1).getFechaPublicacion());
+        }
+    }
+
+    // Método auxiliar para crear reseñas de prueba
+    private ResenaEntidad crearResena(long id, long idJuego, boolean recomendado, LocalDate fecha) {
+        return new ResenaEntidad(
+                id, 1L, idJuego, recomendado, "Texto de prueba", 10.5,
+                fecha, fecha, ResenaEstado.PUBLICADA
+        );
     }
 
     // -----------------------------------------------------------------

@@ -92,15 +92,19 @@ public class Mapper {
         if (compra == null)
             return null;
 
+        UsuarioEntidad usuario = usuarioRepo.obtenerPorId(compra.getUsuarioId()).orElse(null);
+        JuegoEntidad juego = juegoRepo.obtenerPorId(compra.getJuegoId()).orElse(null);
+
         return new CompraDTO(
                 compra.getId(),
                 compra.getUsuarioId(),
-                usuarioRepo.obtenerPorId(compra.getUsuarioId()),
+                usuario,
                 compra.getJuegoId(),
-                juegoRepo.obtenerPorId(compra.getJuegoId()),
+                juego,
                 compra.getFechaCompra(),
-                compra.getPrecioBase(),
-                compra.getDescuento(),
+                compra.getPrecioFinal(),
+                compra.getPorcentajeDescuento(),
+                compra.getPrecioOriginal(),
                 compra.getEstadoCompra(),
                 compra.getMetodoPago()
         );

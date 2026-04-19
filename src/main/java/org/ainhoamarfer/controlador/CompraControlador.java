@@ -2,10 +2,9 @@ package org.ainhoamarfer.controlador;
 
 import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.mapper.Mapper;
-import org.ainhoamarfer.modelo.dtos.BibliotecaDTO;
 import org.ainhoamarfer.modelo.dtos.CompraDTO;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
-import org.ainhoamarfer.modelo.dtos.JuegoDTO;
+import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
 import org.ainhoamarfer.modelo.entidad.CompraEntidad;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
@@ -21,7 +20,6 @@ import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,7 +129,7 @@ public class CompraControlador {
             if(juego.getPrecioBase() > usuario.getSaldoCartera()) {
                 errores.add(new ErrorDTO("Saldo insuficiente", ErrorType.SALDO_INSUFICIENTE));
             } else {
-                usuarioRepo.actualizarSaldoCartera(compra.getUsuarioId(), juego.getPrecioBase());
+                usuarioRepo.restarSaldoCartera(compra.getUsuarioId(), juego.getPrecioBase());
                 compraRepo.actualizarEstadoCompra(idCompra, CompraEstadoEnum.COMPLETADA);
             }
         }
@@ -208,28 +206,55 @@ public class CompraControlador {
             return new ExcepcionValidacion(errores);
         });
 
-        //Compra completada
+        //Ver si Compra completada
         if (compra.getEstadoCompra() != CompraEstadoEnum.COMPLETADA) {
             errores.add(new ErrorDTO("La compra aun no se completo, no puedes solicitar reenvolso", ErrorType.VALOR_NO_VALIDO));
             throw  new ExcepcionValidacion(errores);
         }
         //dentro del plazo
-        var fechaCompra = compra.getFechaCompra();
-        //if (fechaCompra.getMonth() > fechaCompra.getMonth() + 2)
+        LocalDate fechaCompra = compra.getFechaCompra();
+        LocalDate fechaLimite = fechaCompra.plusDays(20);
+        if (LocalDate.now().isAfter(fechaLimite)) {
+            errores.add(new ErrorDTO("plazoReembolso", ErrorType.PLAZO_REEMBOLSO_VENCIDO));
+            throw new ExcepcionValidacion(errores);
+        }
 
-        //pocas horas jugadas
-        //BibliotecaDTO biblioteca = bibliotecaRepo.obtenerPorIdUsuario(compra.getUsuarioId()).filter(b ->
-        //        b.getJuegoId() == compra.getJuegoId());
-        //
-        //if (biblioteca.getTiempoJuego() > 2){
-        //    errores.add(new ErrorDTO("Excediste tu tiempo de prueba", ErrorType.TIEMPO_EXPIRADO));
-        //    throw  new ExcepcionValidacion(errores);
-        //}
+        //horas jugadas (menos de 2), para esto hay que consultar la biblioteca del usuario y ver el tiempo de juego registrado para ese juego
+        BibliotecaEntidad biblioteca = bibliotecaRepo
+                .obtenerPorIdUsuarioYIdJuego(compra.getUsuarioId(), compra.getJuegoId())
+                .orElseThrow(() -> {
+                    errores.add(new ErrorDTO("biblioteca", ErrorType.NO_ENCONTRADO));
+                    return new ExcepcionValidacion(errores);
+                });
 
-        //Reintegrar dinero
-        //devolver compra con estado anulada
+        if (biblioteca.getTiempoJuego() >= 2.0) {
+            errores.add(new ErrorDTO("tiempoJuego", ErrorType.TIEMPO_EXPIRADO));
+            throw new ExcepcionValidacion(errores);
+        }
 
-        throw new UnsupportedOperationException("Not implemented");
+        if (!errores.isEmpty()) {
+            throw new ExcepcionValidacion(errores);
+        }
+
+        // PUEDE COMENZAR EL REENVOLSO ----------------------------------------------------------------------
+
+        //Devolver el dinero a la cartera del usuario
+        UsuarioEntidad usuario = usuarioRepo.obtenerPorId(compra.getUsuarioId())
+                .orElseThrow(() -> new ExcepcionValidacion(List.of(new ErrorDTO("usuario", ErrorType.NO_ENCONTRADO))));
+
+        double importeReembolso = compra.getPrecioFinal();
+        double nuevoSaldo = usuario.getSaldoCartera() + importeReembolso;
+
+        usuarioRepo.sumarSaldoCartera(usuario.getId(), nuevoSaldo);
+
+        //compra a REEMBOLSADA
+        compraRepo.actualizarEstadoCompra(idCompra, CompraEstadoEnum.REEMBOLSADA);
+
+
+        CompraEntidad compraReembolsada = compraRepo.obtenerPorId(idCompra)
+                .orElse(compra);
+
+        return Mapper.mapDeCompra(compraReembolsada);
     }
 
     /**

@@ -4,6 +4,7 @@ import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.form.UsuarioForm;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,7 @@ public class UsuarioRepo implements IUsuarioRepo {
         Long id = idContador;
         idContador = id + 1L;
         UsuarioEntidad usuario = new UsuarioEntidad(id, form.getNombreUsuario(), form.getEmail(), form.getContrasena(), form.getNombreReal(),
-                form.getPais(), form.getFechaNaci(), form.getAvatar(), form.getSaldoCartera());
+                form.getPais(), form.getFechaNaci(), LocalDate.now(), form.getAvatar(), form.getSaldoCartera());
         USUARIOS.add(usuario);
 
         return Optional.of(usuario);
@@ -39,10 +40,21 @@ public class UsuarioRepo implements IUsuarioRepo {
 
 
 
-    public void actualizarSaldoCartera(Long idUsuario, Double precioJuego) {
+    public void restarSaldoCartera(Long idUsuario, Double precioJuego) {
         Optional<UsuarioEntidad> usuarioOpt = obtenerPorId(idUsuario);
         UsuarioEntidad usuario = usuarioOpt.orElse(null);
         double nuevoSaldo = usuario.getSaldoCartera() - precioJuego;
+
+        UsuarioForm form = new UsuarioForm(usuario.getNombreUsuario(), usuario.getEmail(), usuario.getContrasena(), usuario.getNombreReal(),
+                usuario.getPais(), usuario.getFechaNaci(), usuario.getFechaRegistro(), usuario.getAvatar(), nuevoSaldo, usuario.getEstadoCuenta());
+        actualizar(idUsuario, form);
+    }
+
+    @Override
+    public void sumarSaldoCartera(Long idUsuario, Double precioJuego) {
+        Optional<UsuarioEntidad> usuarioOpt = obtenerPorId(idUsuario);
+        UsuarioEntidad usuario = usuarioOpt.orElse(null);
+        double nuevoSaldo = usuario.getSaldoCartera() + precioJuego;
 
         UsuarioForm form = new UsuarioForm(usuario.getNombreUsuario(), usuario.getEmail(), usuario.getContrasena(), usuario.getNombreReal(),
                 usuario.getPais(), usuario.getFechaNaci(), usuario.getFechaRegistro(), usuario.getAvatar(), nuevoSaldo, usuario.getEstadoCuenta());
@@ -62,7 +74,7 @@ public class UsuarioRepo implements IUsuarioRepo {
             throw new IllegalArgumentException("Usuario no encontrado");
         } else {
             UsuarioEntidad usuarioActualizado = new UsuarioEntidad(id, form.getNombreUsuario(), form.getEmail(), form.getContrasena(), form.getNombreReal(),
-                    form.getPais(), form.getFechaNaci(), form.getAvatar(), form.getSaldoCartera());
+                    form.getPais(), form.getFechaNaci(), form.getFechaRegistro(), form.getAvatar(), form.getSaldoCartera());
             USUARIOS.removeIf((u) -> id.equals(u.getId()));
             USUARIOS.add(usuarioActualizado);
             return Optional.of(usuarioActualizado);

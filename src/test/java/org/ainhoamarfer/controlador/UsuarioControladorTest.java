@@ -61,7 +61,7 @@ public class UsuarioControladorTest {
 
         usuarioEntidad = new UsuarioEntidad(
                 idUsuario, nombreUsuario, email, contrasena, nombreReal,
-                pais, fechaNaci, avatar, saldoInicial
+                pais, fechaNaci, fechaRegistro, avatar, saldoInicial
         );
 
         usuarioDTO = new UsuarioDTO(

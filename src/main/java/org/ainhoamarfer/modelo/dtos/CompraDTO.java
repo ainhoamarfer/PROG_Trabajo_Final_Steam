@@ -6,30 +6,31 @@ import org.ainhoamarfer.modelo.enums.CompraEstadoEnum;
 import org.ainhoamarfer.modelo.enums.CompraMetodoPagoEnum;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 public class CompraDTO {
 
     private long id;
     private long idUsuario;
-    private Optional<UsuarioEntidad> usuario;
+    private UsuarioEntidad usuario;
     private long idJuego;
-    private Optional<JuegoEntidad> juego;
+    private JuegoEntidad juego;
     private LocalDate fechaCompra;
-    private double precioSinDes;
-    private double descuento;
+    private double precioFinal;
+    private double porcentajeDescuento;
+    private double precioOriginal;
     private CompraEstadoEnum estadoCompra;
     private CompraMetodoPagoEnum metodoPago;
 
-    public CompraDTO(long id, long idUsuario, Optional<UsuarioEntidad> usuario, long idJuego, Optional<JuegoEntidad> juego, LocalDate fechaCompra, double precioSinDes, double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
+    public CompraDTO(long id, long idUsuario, UsuarioEntidad usuario, long idJuego, JuegoEntidad juego, LocalDate fechaCompra, double precioFinal, double porcentajeDescuento,double precioOriginal, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.usuario = usuario;
         this.idJuego = idJuego;
         this.juego = juego;
         this.fechaCompra = fechaCompra;
-        this.precioSinDes = precioSinDes;
-        this.descuento = descuento;
+        this.precioFinal = precioFinal;
+        this.porcentajeDescuento = porcentajeDescuento;
+        this.precioOriginal = precioOriginal;
         this.estadoCompra = estadoCompra;
         this.metodoPago = metodoPago;
     }
@@ -46,11 +47,11 @@ public class CompraDTO {
         return id;
     }
 
-    public Optional<UsuarioEntidad> getUsuario() {
+    public UsuarioEntidad getUsuario() {
         return usuario;
     }
 
-    public Optional<JuegoEntidad> getJuego() {
+    public JuegoEntidad getJuego() {
         return juego;
     }
 
@@ -58,12 +59,12 @@ public class CompraDTO {
         return fechaCompra;
     }
 
-    public double getPrecioSinDes() {
-        return precioSinDes;
+    public double getPrecioFinal() {
+        return precioFinal;
     }
 
-    public double getDescuento() {
-        return descuento;
+    public double getPorcentajeDescuento() {
+        return porcentajeDescuento;
     }
 
     public CompraEstadoEnum getEstadoCompra() {
@@ -72,5 +73,9 @@ public class CompraDTO {
 
     public CompraMetodoPagoEnum getMetodoPago() {
         return metodoPago;
+    }
+
+    public double getPrecioOriginal() {
+        return precioOriginal;
     }
 }

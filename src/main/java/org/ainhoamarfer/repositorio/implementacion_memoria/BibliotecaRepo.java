@@ -8,6 +8,7 @@ import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class BibliotecaRepo implements IBibliotecaRepo {
 
@@ -35,10 +36,10 @@ public class BibliotecaRepo implements IBibliotecaRepo {
     }
 
 
-    public Optional<BibliotecaEntidad> obtenerPorIdUsuario(Long idUsario) {
+    public List<BibliotecaEntidad> obtenerPorIdUsuario(Long idUsuario) {
         return BIBLIOTECAS.stream()
-                .filter(u -> idUsario.equals(u.getUsuarioId()))
-                .findFirst();
+                .filter(b -> b.getUsuarioId() == idUsuario)
+                .toList();
     }
 
     @Override

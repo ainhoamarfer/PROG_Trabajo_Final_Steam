@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface IBibliotecaRepo extends ICrud<BibliotecaEntidad, BibliotecaForm, Long> {
 
-    Optional<BibliotecaEntidad> obtenerPorIdUsuario(Long idUsario);
+    List<BibliotecaEntidad> obtenerPorIdUsuario(Long idUsuario);
 
     Optional<List<JuegoDTO>> anadirJuegoBiblioteca(Long idUsuario, Long idJuego);
 

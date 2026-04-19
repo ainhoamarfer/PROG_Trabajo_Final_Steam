@@ -8,11 +8,15 @@ import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
 import org.ainhoamarfer.modelo.form.BibliotecaForm;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
+import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
+import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class BibliotecaControlador {
 
@@ -27,10 +31,14 @@ public class BibliotecaControlador {
      */
 
 
-    private IBibliotecaRepo repo;
+    private IBibliotecaRepo biblioRepo;
+    private IJuegosRepo juegoRepo;
+    private final IUsuarioRepo usuarioRepo;
 
-    public BibliotecaControlador(IBibliotecaRepo repo) {
-        this.repo = repo;
+    public BibliotecaControlador(IBibliotecaRepo biblioRepo, IUsuarioRepo usuarioRepo, IJuegosRepo juegoRepo) {
+        this.biblioRepo = biblioRepo;
+        this.usuarioRepo = usuarioRepo;
+        this.juegoRepo = juegoRepo;
     }
 
     /**
@@ -44,10 +52,10 @@ public class BibliotecaControlador {
     public List<BibliotecaDTO> verBibliotecaPersonal(long idUsuario, String orden) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-      List<BibliotecaEntidad> bibliotecas = repo.obtenerPorIdUsuario(idUsuario)
+      List<BibliotecaEntidad> bibliotecas = biblioRepo.obtenerPorIdUsuario(idUsuario)
               .stream()
               .filter(b -> b.getUsuarioId() == idUsuario)
-              .toList();
+              .collect(Collectors.toCollection(ArrayList::new));
 
       if (bibliotecas.isEmpty()) {
           errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
@@ -85,17 +93,34 @@ public class BibliotecaControlador {
      * Descripción: Agregar un juego adquirido a la biblioteca del usuario
      * @param idUsuario ID del usuario
      * @param idJuego ID del juego
-     * @return Confirmación de adición a biblioteca o mensaje de error
+     * @return Biblioteca (antes era boolean pero creo que es mejor devolver la biblioteca con el nuevo juego añadido)
      * Validaciones: Usuario existe, juego existe, no duplicado, compra verificada
      */
-    public boolean anadirJuegoBiblioteca(long idUsuario, long idJuego) throws ExcepcionValidacion {
+    public BibliotecaDTO anadirJuegoBiblioteca(long idUsuario, long idJuego) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional <BibliotecaEntidad> bibliotecaOpt = repo.obtenerPorIdUsuario(idUsuario)
-                .filter(b -> b.getId() == idUsuario);
+        List<BibliotecaEntidad> bibliotecasUsuarioLista = biblioRepo.obtenerPorIdUsuario(idUsuario);
 
+        //ver si existe el juego
+        juegoRepo.obtenerPorId(idJuego).orElseThrow(() -> {
+            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+            return new ExcepcionValidacion(errores);
+        });
 
-        throw new UnsupportedOperationException("Not implemented");
+        //que no este ya en esta biblioteca
+        for (BibliotecaEntidad biblioteca : bibliotecasUsuarioLista) {
+            if (biblioteca.getJuegoId() == idJuego) {
+                errores.add(new ErrorDTO("Este juego ya existe en esta biblioteca", ErrorType.DUPLICADO));
+                throw new ExcepcionValidacion(errores);
+            }
+        }
+
+        BibliotecaForm nuevaBiblioteca = new BibliotecaForm(idUsuario, idJuego, LocalDate.now(), 0.0, null, false);
+
+        Optional<BibliotecaEntidad> biblioCreada = biblioRepo.crear(nuevaBiblioteca);
+        BibliotecaEntidad biblioteca = biblioCreada.orElse(null);
+
+        return Mapper.mapDeBiblioteca(biblioteca);
     }
 
     /**
@@ -108,13 +133,13 @@ public class BibliotecaControlador {
      */
     public String eliminarJuegoBiblioteca(long idUsuario, long idJuego) {
 
-        Optional <BibliotecaEntidad> bibliotecaOpt = repo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
+        Optional <BibliotecaEntidad> bibliotecaOpt = biblioRepo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
 
         if (bibliotecaOpt.isEmpty()) {
             return "Juego no encontrado en la biblioteca";
         } else {
             BibliotecaDTO bibliotecaMap = Mapper.mapDeBiblioteca(bibliotecaOpt.get());
-            repo.eliminar(bibliotecaOpt.get().getId());
+            biblioRepo.eliminar(bibliotecaOpt.get().getId());
             return "Juego eliminado de la biblioteca";
         }
     }
@@ -131,7 +156,7 @@ public class BibliotecaControlador {
     public BibliotecaDTO actualizarTiempoJuego(long idUsuario, long idJuego, double horasAAnadir) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional <BibliotecaEntidad> bibliotecaOpt = repo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
+        Optional <BibliotecaEntidad> bibliotecaOpt = biblioRepo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
 
         if (bibliotecaOpt.isEmpty()) {
             errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
@@ -146,9 +171,9 @@ public class BibliotecaControlador {
         double nuevoTiempoJuego = biblioteca.getTiempoJuego() + horasAAnadir;
 
         BibliotecaForm form = new BibliotecaForm(biblioteca.getUsuarioId(), biblioteca.getJuegoId(), biblioteca.getFechaAdquisicion(), nuevoTiempoJuego, biblioteca.getFechaUltimaJugado(), biblioteca.isInstalado());
-        repo.actualizar(biblioteca.getId(), form);
+        biblioRepo.actualizar(biblioteca.getId(), form);
 
-        return Mapper.mapDeBiblioteca(repo.obtenerPorId(biblioteca.getId()).orElse(null));}
+        return Mapper.mapDeBiblioteca(biblioRepo.obtenerPorId(biblioteca.getId()).orElse(null));}
     }
 
     /**
@@ -162,7 +187,7 @@ public class BibliotecaControlador {
     public BibliotecaDTO consultarUltimaSesion(long idUsuario, long idJuego) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional <BibliotecaEntidad> bibliotecaOpt = repo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
+        Optional <BibliotecaEntidad> bibliotecaOpt = biblioRepo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
 
         if (bibliotecaOpt.isEmpty()) {
             errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));

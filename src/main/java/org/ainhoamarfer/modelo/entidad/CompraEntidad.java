@@ -11,83 +11,66 @@ public class CompraEntidad {
     private long usuarioId;
     private long juegoId;
     private LocalDate fechaCompra;
-    private double precioBase;
-    private double descuento;
+    private double precioOriginal;
+    private double porcentajeDescuento;
+    private double precioFinal;
     private CompraEstadoEnum estadoCompra;
     private CompraMetodoPagoEnum metodoPago;
 
-    public CompraEntidad(long id, long usuarioId, long juegoId, LocalDate fechaCompra, double precioBase, double descuento, CompraMetodoPagoEnum metodoPago) {
+    public CompraEntidad(long id, long usuarioId, long juegoId, LocalDate fechaCompra, double precioOriginal, double porcentajeDescuento, CompraMetodoPagoEnum metodoPago) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
-        this.fechaCompra = LocalDate.now();
-        this.precioBase = precioBase;
-        this.descuento = descuento;
+        this.fechaCompra = fechaCompra != null ? fechaCompra : LocalDate.now();
+        this.precioOriginal = precioOriginal;
+        this.porcentajeDescuento = porcentajeDescuento;
+        this.precioFinal = calcularPrecioFinal(precioOriginal, porcentajeDescuento);
         this.estadoCompra = CompraEstadoEnum.PENDIENTE;
         this.metodoPago = metodoPago;
     }
 
-    public CompraMetodoPagoEnum getMetodoPago() {
-        return metodoPago;
-    }
-
-    public void setMetodoPago(CompraMetodoPagoEnum metodoPago) {
-        this.metodoPago = metodoPago;
-    }
-
-    public CompraEstadoEnum getEstadoCompra() {
-        return estadoCompra;
-    }
-
-    public void setEstadoCompra(CompraEstadoEnum estadoCompra) {
-        this.estadoCompra = estadoCompra;
+    private double calcularPrecioFinal(double precioOriginal, double descuento) {
+        if (descuento <= 0 || descuento > 100) {
+            return precioOriginal;
+        } else {
+            return precioOriginal * (1 - descuento / 100.0);
+        }
     }
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public long getUsuarioId() {
         return usuarioId;
-    }
-
-    public void setUsuarioId(int usuarioId) {
-        this.usuarioId = usuarioId;
     }
 
     public long getJuegoId() {
         return juegoId;
     }
 
-    public void setJuegoId(int juegoId) {
-        this.juegoId = juegoId;
-    }
-
     public LocalDate getFechaCompra() {
         return fechaCompra;
     }
 
-    public void setFechaCompra(LocalDate fechaCompra) {
-        this.fechaCompra = fechaCompra;
+    public double getPrecioFinal() {
+        return precioFinal;
     }
 
-    public double getPrecioBase() {
-        return precioBase;
+    public double getPorcentajeDescuento() {
+        return porcentajeDescuento;
     }
 
-    public void setPrecioBase(double precioBase) {
-        this.precioBase = precioBase;
+    public CompraEstadoEnum getEstadoCompra() {
+        return estadoCompra;
     }
 
-    public double getDescuento() {
-        return descuento;
+    public CompraMetodoPagoEnum getMetodoPago() {
+        return metodoPago;
     }
 
-    public void setDescuento(double descuento) {
-        this.descuento = descuento;
+    public double getPrecioOriginal() {
+        return precioOriginal;
     }
+
 }
