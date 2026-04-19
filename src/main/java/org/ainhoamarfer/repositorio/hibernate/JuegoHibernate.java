@@ -56,6 +56,7 @@ public class JuegoHibernate implements IJuegosRepo {
     @Override
     public List<JuegoEntidad> obtenerTodos() {
         Session session = sm.getSession();
+
         //query builder, para modificar la consulta base, es un select *, operación de lectura
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<JuegoEntidad> cq = cb.createQuery(JuegoEntidad.class);
@@ -84,6 +85,7 @@ public class JuegoHibernate implements IJuegosRepo {
     @Override
     public boolean eliminar(Long id) {
         Session session = sm.getSession();
+
         Optional<JuegoEntidad> juegoOpt = obtenerPorId(id);
         if (juegoOpt.isEmpty()) {
             return false;
