@@ -30,13 +30,14 @@ public class JuegosControlador {
 
     private IJuegosRepo juegosrRepo;
     private CriteriosBusquedaForm criteriosBusqueda;
-    private ITransactionManager tm;
+    //private ITransactionManager tm;
 
-    public JuegosControlador(IJuegosRepo JuegosrRepo, ITransactionManager tm) {
+    public JuegosControlador(IJuegosRepo JuegosrRepo) {
         this.juegosrRepo = JuegosrRepo;
-        this.tm = tm;
+        //this.tm = tm;
 
     }
+
 
     /**
      * Añadir juego al catálogo
@@ -50,15 +51,17 @@ public class JuegosControlador {
         List<ErrorDTO> errores = form.validar(form);
 
         //comienza aquí la transacción porque antes no se necesita la base de datos
-        Optional<JuegoEntidad> juegoCreado = tm.inTransaction(() -> {
+        //Optional<JuegoEntidad> juegoCreado = tm.inTransaction(() -> {
             Optional<JuegoEntidad> juegoOpt = juegosrRepo.obtenerPorTitulo(form.getTitulo());
             if (juegoOpt.isPresent()) {
                 errores.add(new ErrorDTO("juego", ErrorType.DUPLICADO));
                 //necesario lanzar esta excepcion para que se haga el rollback, si ocurre no ejecuta la lambda pero sigue el resto del métod
-                throw new IllegalStateException();
+                throw new ExcepcionValidacion(errores);
             }
-            return juegosrRepo.crear(form);
-        });
+
+            //return juegosrRepo.crear(form);
+        Optional <JuegoEntidad> juegoCreado = juegosrRepo.crear(form);
+        //});
 
         if (!errores.isEmpty()) {
             throw new ExcepcionValidacion(errores);

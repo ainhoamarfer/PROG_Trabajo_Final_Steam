@@ -5,6 +5,8 @@ import org.ainhoamarfer.mapper.Mapper;
 import org.ainhoamarfer.modelo.dtos.BibliotecaDTO;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
+import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
+import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
 import org.ainhoamarfer.modelo.form.BibliotecaForm;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
@@ -74,15 +76,24 @@ public class BibliotecaControlador {
           }
 
           List<BibliotecaDTO> bibliotecasOrdMap = new ArrayList<>();
+          BibliotecaEntidad unaBiblioteca = bibliotecasOrdenadas.get(0);
+          UsuarioEntidad usuario = usuarioRepo.obtenerPorId(unaBiblioteca.getUsuarioId()).orElse(null);
+          JuegoEntidad juego = juegoRepo.obtenerPorId(unaBiblioteca.getJuegoId()).orElse(null);
+
           for (BibliotecaEntidad biblioteca : bibliotecasOrdenadas) {
-              bibliotecasOrdMap.add(Mapper.mapDeBiblioteca(biblioteca));
+              bibliotecasOrdMap.add(Mapper.mapDeBiblioteca(biblioteca, Mapper.mapDeUsuario(usuario), Mapper.mapDeJuego(juego)));
+
           }
           return bibliotecasOrdMap;
 
       } else {
+          BibliotecaEntidad unaBiblioteca = bibliotecas.get(0);
+          UsuarioEntidad usuario = usuarioRepo.obtenerPorId(unaBiblioteca.getUsuarioId()).orElse(null);
+          JuegoEntidad juego = juegoRepo.obtenerPorId(unaBiblioteca.getJuegoId()).orElse(null);
+
           List<BibliotecaDTO> bibliotecasMap = new ArrayList<>();
           for (BibliotecaEntidad biblioteca : bibliotecas) {
-              bibliotecasMap.add(Mapper.mapDeBiblioteca(biblioteca));
+              bibliotecasMap.add(Mapper.mapDeBiblioteca(biblioteca, Mapper.mapDeUsuario(usuario), Mapper.mapDeJuego(juego)));
           }
           return bibliotecasMap;
       }
@@ -120,7 +131,10 @@ public class BibliotecaControlador {
         Optional<BibliotecaEntidad> biblioCreada = biblioRepo.crear(nuevaBiblioteca);
         BibliotecaEntidad biblioteca = biblioCreada.orElse(null);
 
-        return Mapper.mapDeBiblioteca(biblioteca);
+        UsuarioEntidad usuario = usuarioRepo.obtenerPorId(biblioteca.getUsuarioId()).orElse(null);
+        JuegoEntidad juego = juegoRepo.obtenerPorId(biblioteca.getJuegoId()).orElse(null);
+
+        return Mapper.mapDeBiblioteca(biblioteca, Mapper.mapDeUsuario(usuario), Mapper.mapDeJuego(juego));
     }
 
     /**
@@ -138,8 +152,13 @@ public class BibliotecaControlador {
         if (bibliotecaOpt.isEmpty()) {
             return "Juego no encontrado en la biblioteca";
         } else {
-            BibliotecaDTO bibliotecaMap = Mapper.mapDeBiblioteca(bibliotecaOpt.get());
-            biblioRepo.eliminar(bibliotecaOpt.get().getId());
+            BibliotecaEntidad biblioteca = bibliotecaOpt.get();
+            UsuarioEntidad usuario = usuarioRepo.obtenerPorId(biblioteca.getUsuarioId()).orElse(null);
+            JuegoEntidad juego = juegoRepo.obtenerPorId(biblioteca.getJuegoId()).orElse(null);
+
+            BibliotecaDTO biblio = Mapper.mapDeBiblioteca(biblioteca, Mapper.mapDeUsuario(usuario), Mapper.mapDeJuego(juego));
+
+            biblioRepo.eliminar(biblio.getId());
             return "Juego eliminado de la biblioteca";
         }
     }
@@ -173,7 +192,13 @@ public class BibliotecaControlador {
         BibliotecaForm form = new BibliotecaForm(biblioteca.getUsuarioId(), biblioteca.getJuegoId(), biblioteca.getFechaAdquisicion(), nuevoTiempoJuego, biblioteca.getFechaUltimaJugado(), biblioteca.isInstalado());
         biblioRepo.actualizar(biblioteca.getId(), form);
 
-        return Mapper.mapDeBiblioteca(biblioRepo.obtenerPorId(biblioteca.getId()).orElse(null));}
+
+        UsuarioEntidad usuario = usuarioRepo.obtenerPorId(biblioteca.getUsuarioId()).orElse(null);
+        JuegoEntidad juego = juegoRepo.obtenerPorId(biblioteca.getJuegoId()).orElse(null);
+
+        BibliotecaEntidad biblio = biblioRepo.obtenerPorId(biblioteca.getId()).orElse(null);
+
+        return Mapper.mapDeBiblioteca(biblio, Mapper.mapDeUsuario(usuario), Mapper.mapDeJuego(juego));}
     }
 
     /**
@@ -194,7 +219,10 @@ public class BibliotecaControlador {
             throw new ExcepcionValidacion(errores);
         } else {
             BibliotecaEntidad biblioteca = bibliotecaOpt.orElse(null);
-            return Mapper.mapDeBiblioteca(biblioteca);
+
+            UsuarioEntidad usuario = usuarioRepo.obtenerPorId(biblioteca.getUsuarioId()).orElse(null);
+            JuegoEntidad juego = juegoRepo.obtenerPorId(biblioteca.getJuegoId()).orElse(null);
+            return Mapper.mapDeBiblioteca(biblioteca, Mapper.mapDeUsuario(usuario), Mapper.mapDeJuego(juego));
         }
     }
 

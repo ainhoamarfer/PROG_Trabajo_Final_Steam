@@ -9,10 +9,6 @@ import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 
 public class Mapper {
 
-    private static ICompraRepo compraRepo;
-    private static IJuegosRepo juegoRepo;
-    private static IUsuarioRepo usuarioRepo;
-    private static IBibliotecaRepo bibliotecaRepo;
 
     public static UsuarioDTO mapDeUsuario(UsuarioEntidad entidad) {
         if (entidad == null)
@@ -68,12 +64,9 @@ public class Mapper {
         );
     }
 
-    public static BibliotecaDTO mapDeBiblioteca(BibliotecaEntidad biblioteca) {
+    public static BibliotecaDTO mapDeBiblioteca(BibliotecaEntidad biblioteca, UsuarioDTO usuario, JuegoDTO juego) {
         if (biblioteca == null)
             return null;
-
-        UsuarioEntidad usuario = usuarioRepo.obtenerPorId(biblioteca.getUsuarioId()).orElse(null);
-        JuegoEntidad juego = juegoRepo.obtenerPorId(biblioteca.getJuegoId()).orElse(null);
 
         return new BibliotecaDTO(
                 biblioteca.getId(),
@@ -88,12 +81,9 @@ public class Mapper {
         );
     }
 
-    public static CompraDTO mapDeCompra(CompraEntidad compra) {
+    public static CompraDTO mapDeCompra(CompraEntidad compra, UsuarioDTO usuario, JuegoDTO juego) {
         if (compra == null)
             return null;
-
-        UsuarioEntidad usuario = usuarioRepo.obtenerPorId(compra.getUsuarioId()).orElse(null);
-        JuegoEntidad juego = juegoRepo.obtenerPorId(compra.getJuegoId()).orElse(null);
 
         return new CompraDTO(
                 compra.getId(),

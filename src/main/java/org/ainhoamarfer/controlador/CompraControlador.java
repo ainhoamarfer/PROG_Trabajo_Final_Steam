@@ -1,22 +1,29 @@
 package org.ainhoamarfer.controlador;
 
+import jakarta.transaction.TransactionManager;
 import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.mapper.Mapper;
 import org.ainhoamarfer.modelo.dtos.CompraDTO;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
+import org.ainhoamarfer.modelo.dtos.JuegoDTO;
+import org.ainhoamarfer.modelo.dtos.UsuarioDTO;
 import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
 import org.ainhoamarfer.modelo.entidad.CompraEntidad;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
-import org.ainhoamarfer.modelo.enums.CompraEstadoEnum;
-import org.ainhoamarfer.modelo.enums.CompraMetodoPagoEnum;
-import org.ainhoamarfer.modelo.enums.ErrorType;
-import org.ainhoamarfer.modelo.enums.UsuarioEstadoCuenta;
+import org.ainhoamarfer.modelo.enums.*;
 import org.ainhoamarfer.modelo.form.CompraForm;
+import org.ainhoamarfer.modelo.form.JuegoForm;
+import org.ainhoamarfer.modelo.form.UsuarioForm;
+import org.ainhoamarfer.repositorio.implementacion_memoria.BibliotecaRepo;
+import org.ainhoamarfer.repositorio.implementacion_memoria.UsuarioRepo;
+import org.ainhoamarfer.repositorio.implementacionmemoria.CompraRepo;
+import org.ainhoamarfer.repositorio.implementacionmemoria.JuegoRepo;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
+import org.ainhoamarfer.transaction.ITransactionManager;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -39,11 +46,54 @@ public class CompraControlador {
     private IUsuarioRepo usuarioRepo;
     private IBibliotecaRepo bibliotecaRepo;
 
-    public CompraControlador(ICompraRepo compraRepo, IJuegosRepo juegoRepo, IUsuarioRepo usuarioRepo,  IBibliotecaRepo bibliotecaRepo) {
+    public CompraControlador(ICompraRepo compraRepo, IJuegosRepo juegoRepo, IUsuarioRepo usuarioRepo, IBibliotecaRepo bibliotecaRepo) {
         this.compraRepo = compraRepo;
         this.juegoRepo = juegoRepo;
         this.usuarioRepo = usuarioRepo;
         this.bibliotecaRepo = bibliotecaRepo;
+    }
+
+    static void main() throws ExcepcionValidacion {
+        ICompraRepo compraRepo = new CompraRepo();
+        IJuegosRepo juegoRepo = new JuegoRepo();
+        IUsuarioRepo usuarioRepo = new UsuarioRepo();
+        IBibliotecaRepo bibliotecaRepo = new BibliotecaRepo();
+
+        CompraControlador comContr = new CompraControlador(compraRepo, juegoRepo, usuarioRepo, bibliotecaRepo);
+        UsuarioControlador usuarioControlador = new UsuarioControlador(usuarioRepo);
+        JuegosControlador juegosControlador = new JuegosControlador(juegoRepo);
+
+        UsuarioForm usuformValido = new UsuarioForm(
+                "Ainhoa", "ainhoa3mf@gmail.com", "12A.%Kacefefg", "Ainhoa Mar",
+                "España", LocalDate.of(1990, 1, 1), LocalDate.now(), "avatar.jpg", 100.0, UsuarioEstadoCuenta.ACTIVA
+        );
+
+        JuegoForm juegoFormValido = new JuegoForm(
+                "The Witcher 3",
+                "Un juego de rol de acción",
+                "CD Projekt Red",
+                LocalDate.of(2015, 5, 19),
+                59.99,
+                50.0,
+                "RPG",
+                "Español,Inglés",
+                JuegoClasificacionEdad.PEGI_18,
+                JuegoEstado.DISPONIBLE
+        );
+
+        UsuarioDTO usuario = usuarioControlador.registrarNuevoUsuario(usuformValido);
+        JuegoDTO juego = juegosControlador.anadirJuego(juegoFormValido);
+
+        System.out.println(usuarioRepo.obtenerPorId(1L));
+
+
+        CompraDTO compra = comContr.realizarCompra(1, 1, CompraMetodoPagoEnum.CARTERA_STEAM);
+
+        System.out.println(compra.toString());
+        System.out.println(usuario.getNombreUsuario());
+        System.out.println(juego.getTitulo());
+        System.out.println(compra.getFechaCompra());
+        System.out.println(compra.getPorcentajeDescuento() + "%");
     }
 
     /**
@@ -65,37 +115,36 @@ public class CompraControlador {
                 .stream()
                 .filter(compra -> compra.getJuegoId() == idJuego)
                 .findFirst()
-                .ifPresentOrElse(compra -> errores.add(new ErrorDTO("compra", ErrorType.COMPRA_YA_EXISTENTE)),
-                        () -> {
-                            JuegoEntidad juegoAAdquirir = juegoRepo.obtenerPorId(idJuego).orElseThrow(NullPointerException::new);
-                            UsuarioEntidad usuarioComprador = usuarioRepo.obtenerPorId(idUsuario).orElseThrow(NullPointerException::new);
+                .ifPresent(compra -> errores.add(new ErrorDTO("compra", ErrorType.COMPRA_YA_EXISTENTE)));
 
-                            if (juegoAAdquirir.getPrecioBase() > usuarioComprador.getSaldoCartera() && metodoPago == CompraMetodoPagoEnum.CARTERA_STEAM) {
-                                errores.add(new ErrorDTO("precioBase", ErrorType.VALOR_NO_VALIDO));
-                            }
-                            if (usuarioComprador.getEstadoCuenta() != UsuarioEstadoCuenta.ACTIVA) {
-                                errores.add(new ErrorDTO("usuario", ErrorType.ESTADO_CUENTA));
-                            }
+        Optional<JuegoEntidad> juegoAAdquirirOpt = juegoRepo.obtenerPorId(idJuego);
+        Optional<UsuarioEntidad> usuarioCompradorOpt = usuarioRepo.obtenerPorId(idUsuario);
 
+        if (juegoAAdquirirOpt.isEmpty()) {
+            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+        }
+        if (usuarioCompradorOpt.isEmpty()) {
+            errores.add(new ErrorDTO("usuario", ErrorType.NO_ENCONTRADO));
+        }
 
-                            if (!errores.isEmpty()) {
-                                CompraForm form = new CompraForm(idUsuario, idJuego, LocalDate.now(), juegoAAdquirir.getPrecioBase(), juegoAAdquirir.getDescuentoActual(), CompraEstadoEnum.PENDIENTE, metodoPago);
-                                Optional<CompraEntidad> compra = compraRepo.crear(form);
-                            }
-                        });
+        JuegoEntidad juegoAAdquirir =  juegoAAdquirirOpt.get();
+        UsuarioEntidad usuarioComprador = usuarioCompradorOpt.get();
+
+        if (juegoAAdquirir.getPrecioBase() > usuarioComprador.getSaldoCartera() && metodoPago == CompraMetodoPagoEnum.CARTERA_STEAM) {
+            errores.add(new ErrorDTO("precioBase", ErrorType.VALOR_NO_VALIDO));
+        }
+        if (usuarioComprador.getEstadoCuenta() != UsuarioEstadoCuenta.ACTIVA) {
+            errores.add(new ErrorDTO("usuario", ErrorType.ESTADO_CUENTA));
+        }
 
         if (!errores.isEmpty()) {
             throw new ExcepcionValidacion(errores);
-        } else {
-            CompraEntidad nuevaCompra = compraRepo.obtenerPorIdUsuario(idUsuario)
-                    .stream()
-                    .filter(compra -> compra.getJuegoId() == idJuego && compra.getUsuarioId() == idUsuario)
-                    .findFirst()
-                    .orElse(null);
-
-            return Mapper.mapDeCompra(nuevaCompra);
         }
 
+        CompraForm form = new CompraForm(idUsuario, idJuego, LocalDate.now(), juegoAAdquirir.getPrecioBase(), juegoAAdquirir.getDescuentoActual(), CompraEstadoEnum.PENDIENTE, metodoPago);
+        Optional<CompraEntidad> compra = compraRepo.crear(form);
+
+        return Mapper.mapDeCompra(compra.get(), Mapper.mapDeUsuario(usuarioComprador), Mapper.mapDeJuego(juegoAAdquirir));
     }
 
     /**
@@ -126,14 +175,14 @@ public class CompraControlador {
 
 
         if (metodoPago == CompraMetodoPagoEnum.CARTERA_STEAM) {
-            if(juego.getPrecioBase() > usuario.getSaldoCartera()) {
+            if (juego.getPrecioBase() > usuario.getSaldoCartera()) {
                 errores.add(new ErrorDTO("Saldo insuficiente", ErrorType.SALDO_INSUFICIENTE));
             } else {
                 usuarioRepo.restarSaldoCartera(compra.getUsuarioId(), juego.getPrecioBase());
                 compraRepo.actualizarEstadoCompra(idCompra, CompraEstadoEnum.COMPLETADA);
             }
         }
-        if(metodoPago == CompraMetodoPagoEnum.PAYPAL) {
+        if (metodoPago == CompraMetodoPagoEnum.PAYPAL) {
 
         }
         if (metodoPago == CompraMetodoPagoEnum.TARJETA_CREDITO) {
@@ -147,7 +196,10 @@ public class CompraControlador {
             throw new ExcepcionValidacion(errores);
         }
 
-        return Mapper.mapDeCompra(compra);
+        UsuarioEntidad usuarioMap = usuarioRepo.obtenerPorId(compra.getUsuarioId()).orElse(null);
+        JuegoEntidad juegoMap = juegoRepo.obtenerPorId(compra.getJuegoId()).orElse(null);
+
+        return Mapper.mapDeCompra(compra, Mapper.mapDeUsuario(usuarioMap), Mapper.mapDeJuego(juegoMap));
     }
 
 
@@ -183,7 +235,10 @@ public class CompraControlador {
                     return new ExcepcionValidacion(errores);
                 });
 
-        return Mapper.mapDeCompra(compra);
+        UsuarioEntidad usuarioMap = usuarioRepo.obtenerPorId(compra.getUsuarioId()).orElse(null);
+        JuegoEntidad juegoMap = juegoRepo.obtenerPorId(compra.getJuegoId()).orElse(null);
+
+        return Mapper.mapDeCompra(compra, Mapper.mapDeUsuario(usuarioMap), Mapper.mapDeJuego(juegoMap));
     }
 
     /**
@@ -202,14 +257,14 @@ public class CompraControlador {
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> {
-            errores.add(new ErrorDTO("compra", ErrorType.NO_ENCONTRADO));
-            return new ExcepcionValidacion(errores);
-        });
+                    errores.add(new ErrorDTO("compra", ErrorType.NO_ENCONTRADO));
+                    return new ExcepcionValidacion(errores);
+                });
 
         //Ver si Compra completada
         if (compra.getEstadoCompra() != CompraEstadoEnum.COMPLETADA) {
             errores.add(new ErrorDTO("La compra aun no se completo, no puedes solicitar reenvolso", ErrorType.VALOR_NO_VALIDO));
-            throw  new ExcepcionValidacion(errores);
+            throw new ExcepcionValidacion(errores);
         }
         //dentro del plazo
         LocalDate fechaCompra = compra.getFechaCompra();
@@ -254,7 +309,10 @@ public class CompraControlador {
         CompraEntidad compraReembolsada = compraRepo.obtenerPorId(idCompra)
                 .orElse(compra);
 
-        return Mapper.mapDeCompra(compraReembolsada);
+        UsuarioEntidad usuarioMap = usuarioRepo.obtenerPorId(compraReembolsada.getUsuarioId()).orElse(null);
+        JuegoEntidad juegoMap = juegoRepo.obtenerPorId(compraReembolsada.getJuegoId()).orElse(null);
+
+        return Mapper.mapDeCompra(compraReembolsada, Mapper.mapDeUsuario(usuarioMap), Mapper.mapDeJuego(juegoMap));
     }
 
     /**

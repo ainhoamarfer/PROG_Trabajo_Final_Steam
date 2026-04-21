@@ -11,15 +11,15 @@ public class BibliotecaDTO {
 
     private long id;
     private long idUsuario;
-    private UsuarioEntidad usuario;
+    private UsuarioDTO usuario;
     private long idJuego;
-    private JuegoEntidad juego;
+    private JuegoDTO juego;
     private LocalDate fechaAdquisicion;
     private double tiempoJuego;
     private LocalDate fechaUltimaJugado;
     public boolean instalado = false;
 
-    public BibliotecaDTO(long id, long idUsuario, UsuarioEntidad usuario, long idJuego, JuegoEntidad juego, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado, boolean instalado) {
+    public BibliotecaDTO(long id, long idUsuario, UsuarioDTO usuario, long idJuego, JuegoDTO juego, LocalDate fechaAdquisicion, double tiempoJuego, LocalDate fechaUltimaJugado, boolean instalado) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.usuario = usuario;
@@ -39,7 +39,7 @@ public class BibliotecaDTO {
         return idUsuario;
     }
 
-    public UsuarioEntidad getUsuario() {
+    public UsuarioDTO getUsuario() {
         return usuario;
     }
 
@@ -47,7 +47,7 @@ public class BibliotecaDTO {
         return idJuego;
     }
 
-    public JuegoEntidad getJuego() {
+    public JuegoDTO getJuego() {
         return juego;
     }
 

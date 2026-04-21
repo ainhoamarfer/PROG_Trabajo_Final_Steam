@@ -11,9 +11,9 @@ public class CompraDTO {
 
     private long id;
     private long idUsuario;
-    private UsuarioEntidad usuario;
+    private UsuarioDTO usuario;
     private long idJuego;
-    private JuegoEntidad juego;
+    private JuegoDTO juego;
     private LocalDate fechaCompra;
     private double precioFinal;
     private double porcentajeDescuento;
@@ -21,7 +21,7 @@ public class CompraDTO {
     private CompraEstadoEnum estadoCompra;
     private CompraMetodoPagoEnum metodoPago;
 
-    public CompraDTO(long id, long idUsuario, UsuarioEntidad usuario, long idJuego, JuegoEntidad juego, LocalDate fechaCompra, double precioFinal, double porcentajeDescuento,double precioOriginal, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
+    public CompraDTO(long id, long idUsuario, UsuarioDTO usuario, long idJuego, JuegoDTO juego, LocalDate fechaCompra, double precioFinal, double porcentajeDescuento,double precioOriginal, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.usuario = usuario;
@@ -47,11 +47,11 @@ public class CompraDTO {
         return id;
     }
 
-    public UsuarioEntidad getUsuario() {
+    public UsuarioDTO getUsuario() {
         return usuario;
     }
 
-    public JuegoEntidad getJuego() {
+    public JuegoDTO getJuego() {
         return juego;
     }
 
