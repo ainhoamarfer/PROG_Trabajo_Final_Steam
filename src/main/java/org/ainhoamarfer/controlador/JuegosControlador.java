@@ -188,17 +188,26 @@ public class JuegosControlador {
 
         if (juegoOpt.isEmpty()) {
             errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+        }
+
+        if (porcentaje <= 0 || porcentaje > 100) {
+            errores.add(new ErrorDTO("porcentaje descuento", ErrorType.VALOR_NO_VALIDO));
+        }
+
+        if(!errores.isEmpty()) {
             throw new ExcepcionValidacion(errores);
         }
+
         JuegoEntidad juego = juegoOpt.orElse(null);
 
         double precioConDescuento = (juego.getPrecioBase() * porcentaje) / 100;
 
-        JuegoForm formConDescuento = new JuegoForm(juego.getTitulo(), juego.getDescripcion(), juego.getDesarrollador(), juego.getFechaLanzamiento(), juego.getPrecioBase(), precioConDescuento, juego.getCategoria(), juego.getIdiomas(), juego.getClasificacionEdad(), juego.getEstado());
+        JuegoForm formConDescuento = new JuegoForm(juego.getTitulo(), juego.getDescripcion(), juego.getDesarrollador(),
+                juego.getFechaLanzamiento(), juego.getPrecioBase(), precioConDescuento, juego.getCategoria(), juego.getIdiomas(),
+                juego.getClasificacionEdad(), juego.getEstado());
 
         Optional<JuegoEntidad> juegoConDescuentoOpt = juegosrRepo.actualizar(id, formConDescuento);
 
-        //Seguramente esto no debería repetirse aquí y arriba de esta manera pero ya no me da el cerebro
         if (juegoConDescuentoOpt.isEmpty()) {
             errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
             throw new ExcepcionValidacion(errores);

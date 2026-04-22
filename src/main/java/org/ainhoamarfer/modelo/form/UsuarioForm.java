@@ -38,7 +38,7 @@ public class UsuarioForm {
         this.fechaNaci = fechaNaci;
         this.fechaRegistro = fechaRegistro;
         this.avatar = avatar;
-        this.saldoCartera = saldoCartera;
+        this.saldoCartera = saldoCartera != null ? saldoCartera : 0;
         this.estadoCuenta = estadoCuenta;
     }
 
