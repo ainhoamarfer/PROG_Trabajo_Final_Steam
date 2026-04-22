@@ -134,5 +134,4 @@ public class UsuarioControlador {
             throw new ExcepcionValidacion(errores);
         }else return usuario;
     }
-
 }

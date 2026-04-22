@@ -1,4 +1,4 @@
-package org.ainhoamarfer.repositorio.implementacionmemoria;
+package org.ainhoamarfer.repositorio.implementacion_memoria;
 
 import org.ainhoamarfer.modelo.entidad.CompraEntidad;
 import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
