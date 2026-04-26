@@ -52,16 +52,32 @@ public class UsuarioControlador {
      * Consulta el perfil de un usuario.
      *
      * @param idUsuario identificador del usuario
+     * @param nombreUsuario nombre de usuario a consultar
      * @return UsuarioDTO con la información del usuario (Nombre de usuario, avatar, país, fecha de registro, biblioteca y
      *     estadísticas de juego)
      * @throws ExcepcionValidacion cuando el formulario no pasa las validaciones
      */
-    public UsuarioDTO consultarPerfil(long idUsuario) throws ExcepcionValidacion {
+    public UsuarioDTO consultarPerfil(long idUsuario, String nombreUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorId(idUsuario);
-        UsuarioEntidad usuario = usuarioOpt.orElse(null);
-        UsuarioEntidad usuarioValido = usuarioValido(idUsuario);
+        UsuarioEntidad usuarioValido = null;
+        if (nombreUsuario == null || nombreUsuario.isBlank()) {
+            Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorId(idUsuario);
+            if(usuarioOpt.isEmpty()){
+                errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
+                throw new ExcepcionValidacion(errores);
+            }
+            UsuarioEntidad usuario = usuarioOpt.orElse(null);
+            usuarioValido = usuarioValido(idUsuario);
+        } else {
+            Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorNombreUsuario(nombreUsuario);
+            if(usuarioOpt.isEmpty()){
+                errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
+                throw new ExcepcionValidacion(errores);
+            }
+            UsuarioEntidad usuario = usuarioOpt.orElse(null);
+            usuarioValido = usuarioValido(usuario.getId());
+        }
 
         return Mapper.mapDeUsuario(usuarioValido);
     }
