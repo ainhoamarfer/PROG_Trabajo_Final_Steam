@@ -38,6 +38,10 @@ public class UsuarioControlador {
         usuarioRepo.obtenerPorNombreUsuario(form.getNombreUsuario())
                 .ifPresent(u -> errores.add(new ErrorDTO("nombre", ErrorType.DUPLICADO)));
 
+        usuarioRepo.obtenerPorEmail(form.getEmail())
+                .ifPresent(u -> errores.add(new ErrorDTO("email", ErrorType.DUPLICADO)));
+
+
         if (!errores.isEmpty()) {
             throw new ExcepcionValidacion(errores);
         }

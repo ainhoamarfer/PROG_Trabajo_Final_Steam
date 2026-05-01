@@ -13,4 +13,6 @@ public interface IUsuarioRepo extends ICrud<UsuarioEntidad, UsuarioForm, Long> {
 
     void sumarSaldoCartera(Long idUsuario, Double precioJuego);
 
+    public Optional<UsuarioEntidad> obtenerPorEmail(String email);
+
 }

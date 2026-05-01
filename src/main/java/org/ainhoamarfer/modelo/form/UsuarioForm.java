@@ -118,7 +118,7 @@ public class UsuarioForm {
 
 
         //Nombre real
-        if(nombreReal== null || nombreUsuario.isBlank()) {
+        if(nombreReal == null || nombreReal.isBlank()) {
             errores.add(new ErrorDTO("nombreUsuario", ErrorType.REQUERIDO));
         } else if (nombreReal.length() < 2 || nombreReal.length() > 50) {
             errores.add(new ErrorDTO("nombreUsuario", ErrorType.LONGITUD_INVALIDA));
@@ -137,21 +137,22 @@ public class UsuarioForm {
         //Fecha nacimient
         if (fechaNaci == null) {
             errores.add(new ErrorDTO("fechaNaci", ErrorType.REQUERIDO));
-        }
-        LocalDate hoy = LocalDate.now();
-        if (fechaNaci.isAfter(hoy)) {
-            errores.add(new ErrorDTO("fechaNaci", ErrorType.VALOR_NO_VALIDO));
-        }
-        int edad = hoy.getYear() - fechaNaci.getYear();
-        if (edad < 13) {
-            errores.add(new ErrorDTO("fechaNaci", ErrorType.VALOR_NO_VALIDO));
+        } else {
+            LocalDate hoy = LocalDate.now();
+            if (fechaNaci.isAfter(hoy)) {
+                errores.add(new ErrorDTO("fechaNaci", ErrorType.VALOR_NO_VALIDO));
+            }
+            int edad = hoy.getYear() - fechaNaci.getYear();
+            if (edad < 13) {
+                errores.add(new ErrorDTO("fechaNaci", ErrorType.VALOR_NO_VALIDO));
+            }
         }
 
         //Fecha registro
 
 
         //Avatar
-        if(avatar != null || !avatar.isBlank()) {
+        if(avatar != null && !avatar.isBlank()) {
             if(avatar.length() > 100){
                 errores.add(new ErrorDTO("avatar", ErrorType.LONGITUD_INVALIDA));
             }
@@ -160,11 +161,13 @@ public class UsuarioForm {
         //Saldo
         if (saldoCartera < 0) {
             errores.add(new ErrorDTO("saldoCartera", ErrorType.VALOR_NO_VALIDO));
+        } else {
+            BigDecimal numeroDecimal = BigDecimal.valueOf(saldoCartera);
+            if (numeroDecimal.scale() > 2) {
+                errores.add(new ErrorDTO("saldoCartera", ErrorType.FORMATO_INVALIDO));
+            }
         }
-        BigDecimal numeroDecimal = BigDecimal.valueOf(saldoCartera);
-        if (numeroDecimal.scale() > 2) {
-            errores.add(new ErrorDTO("saldoCartera", ErrorType.FORMATO_INVALIDO));
-        }
+
 
         return errores;
     }

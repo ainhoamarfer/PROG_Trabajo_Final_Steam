@@ -33,7 +33,7 @@ public class SteamProgram {
             System.out.println("Saldo: " + usuarioRegistrado.getSaldoCartera());
 
             // Consultar usuario y saldo
-            UsuarioDTO usu = usuarioControlador.consultarPerfil("Ainhoa Martinez");
+            UsuarioDTO usu = usuarioControlador.consultarPerfil(1,"Ainhoa Martinez");
             System.out.println("El email del usuario 1 es: " + usu.getEmail());
             Double saldo = usuarioControlador.consultarSaldoCartera(usu.getId());
             System.out.println("Saldo consultado: " + saldo);

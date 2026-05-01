@@ -122,4 +122,10 @@ public class UsuarioHibernate implements IUsuarioRepo {
             session.merge(actualizado);
         }
     }
+
+    //TODO: implementar este método
+    @Override
+    public Optional<UsuarioEntidad> obtenerPorEmail(String email) {
+        return Optional.empty();
+    }
 }

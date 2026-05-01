@@ -60,11 +60,10 @@ public class BibliotecaControlador {
               .collect(Collectors.toCollection(ArrayList::new));
 
       if (bibliotecas.isEmpty()) {
-          errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
-          throw new ExcepcionValidacion(errores);
+          return new ArrayList<>();
       }
 
-      // Ordenar la biblioteca según el criterio seleccionado TODO: implementar orden alfabético, tiempo de juego y última sesión
+
       if (!orden.isEmpty()){
           List<BibliotecaEntidad> bibliotecasOrdenadas = bibliotecas.stream()
                   .sorted( (b1, b2) -> "fecha de adquisición".equalsIgnoreCase(orden) ? b2.getFechaAdquisicion().compareTo(b1.getFechaAdquisicion()) : 0) // Ordenar por fecha si se selecciona "recientes"
@@ -110,7 +109,13 @@ public class BibliotecaControlador {
     public BibliotecaDTO anadirJuegoBiblioteca(long idUsuario, long idJuego) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
+        if (usuarioRepo.obtenerPorId(idUsuario).isEmpty()) {
+            errores.add(new ErrorDTO("usuario", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }
+
         List<BibliotecaEntidad> bibliotecasUsuarioLista = biblioRepo.obtenerPorIdUsuario(idUsuario);
+
 
         //ver si existe el juego
         juegoRepo.obtenerPorId(idJuego).orElseThrow(() -> {
@@ -142,24 +147,19 @@ public class BibliotecaControlador {
      * Descripción: Quitar un juego de la biblioteca del usuario
      * @param idUsuario ID del usuario
      * @param idJuego ID del juego
-     * @return Confirmación de eliminación o cancelación
      * Validaciones: Entrada existe en la biblioteca
      */
-    public String eliminarJuegoBiblioteca(long idUsuario, long idJuego) {
+    public void eliminarJuegoBiblioteca(long idUsuario, long idJuego) throws ExcepcionValidacion {
 
         Optional <BibliotecaEntidad> bibliotecaOpt = biblioRepo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
 
         if (bibliotecaOpt.isEmpty()) {
-            return "Juego no encontrado en la biblioteca";
+            List<ErrorDTO> errores = new ArrayList<>();
+            errores.add(new ErrorDTO("biblioteca", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
         } else {
             BibliotecaEntidad biblioteca = bibliotecaOpt.get();
-            UsuarioEntidad usuario = usuarioRepo.obtenerPorId(biblioteca.getUsuarioId()).orElse(null);
-            JuegoEntidad juego = juegoRepo.obtenerPorId(biblioteca.getJuegoId()).orElse(null);
-
-            BibliotecaDTO biblio = Mapper.mapDeBiblioteca(biblioteca, Mapper.mapDeUsuario(usuario), Mapper.mapDeJuego(juego));
-
-            biblioRepo.eliminar(biblio.getId());
-            return "Juego eliminado de la biblioteca";
+            biblioRepo.eliminar(biblioteca.getId());
         }
     }
 

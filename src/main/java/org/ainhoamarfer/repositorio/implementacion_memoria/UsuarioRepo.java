@@ -62,6 +62,13 @@ public class UsuarioRepo implements IUsuarioRepo {
     }
 
     @Override
+    public Optional<UsuarioEntidad> obtenerPorEmail(String email) {
+        return USUARIOS.stream()
+                .filter(u -> email.equals(u.getEmail()))
+                .findFirst();
+    }
+
+    @Override
     public List<UsuarioEntidad> obtenerTodos() {
         return new ArrayList<>(USUARIOS);
     }
