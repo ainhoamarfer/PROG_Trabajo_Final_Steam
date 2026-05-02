@@ -46,8 +46,8 @@ public class CompraRepo implements ICompraRepo {
     }
 
     @Override
-    public void actualizarEstadoCompra(Long idCompra, CompraEstadoEnum estadoCompra) {
-
+    public void actualizarEstadoCompra(Long idCompra, CompraEstadoEnum nuevoEstado) {
+        obtenerPorId(idCompra).ifPresent(compra -> compra.setEstadoCompra(nuevoEstado));
     }
 
     @Override

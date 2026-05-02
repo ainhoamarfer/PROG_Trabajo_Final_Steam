@@ -13,7 +13,8 @@ public enum ErrorType {
     SALDO_INSUFICIENTE("El saldo en la cartera es insuficiente para realizar la compra"),
     NO_PERTENECE_AL_USUARIO("El elemento no pertenece al usuario"),
     PLAZO_REEMBOLSO_VENCIDO("El plazo de reenvolso expiro"),
-    TIEMPO_EXPIRADO("Superaste tu tiempo de prueba");
+    TIEMPO_EXPIRADO("Superaste tu tiempo de prueba"),
+    NO_DISPONIBLE("El juego no esta disponible");
 
 
     private final String mensaje;

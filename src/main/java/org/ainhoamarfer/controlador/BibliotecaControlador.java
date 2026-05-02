@@ -54,6 +54,10 @@ public class BibliotecaControlador {
     public List<BibliotecaDTO> verBibliotecaPersonal(long idUsuario, String orden) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
+        if (usuarioRepo.obtenerPorId(idUsuario).isEmpty()) {
+            throw new ExcepcionValidacion(List.of(new ErrorDTO("usuario", ErrorType.NO_ENCONTRADO)));
+        }
+
       List<BibliotecaEntidad> bibliotecas = biblioRepo.obtenerPorIdUsuario(idUsuario)
               .stream()
               .filter(b -> b.getUsuarioId() == idUsuario)
@@ -62,7 +66,6 @@ public class BibliotecaControlador {
       if (bibliotecas.isEmpty()) {
           return new ArrayList<>();
       }
-
 
       if (!orden.isEmpty()){
           List<BibliotecaEntidad> bibliotecasOrdenadas = bibliotecas.stream()

@@ -24,13 +24,10 @@ public class CompraEntidad {
     private LocalDate fechaCompra;
 
     @Column(name = "precio_original")
-    private double precioOriginal;
+    private double precioBase;
 
     @Column(name = "porcentaje_descuento")
-    private double porcentajeDescuento;
-
-    @Column(name = "precio_final")
-    private double precioFinal;
+    private int porcentajeDescuento;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_compra")
@@ -44,25 +41,17 @@ public class CompraEntidad {
     public CompraEntidad() {
     }
 
-    public CompraEntidad(long id, long usuarioId, long juegoId, LocalDate fechaCompra, double precioOriginal, double porcentajeDescuento, CompraMetodoPagoEnum metodoPago) {
+    public CompraEntidad(long id, long usuarioId, long juegoId, LocalDate fechaCompra, double precioBase, int porcentajeDescuento, CompraMetodoPagoEnum metodoPago) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
         this.fechaCompra = fechaCompra != null ? fechaCompra : LocalDate.now();
-        this.precioOriginal = precioOriginal;
+        this.precioBase = precioBase;
         this.porcentajeDescuento = porcentajeDescuento;
-        this.precioFinal = calcularPrecioFinal(precioOriginal, porcentajeDescuento);
         this.estadoCompra = CompraEstadoEnum.PENDIENTE;
         this.metodoPago = metodoPago;
     }
 
-    private double calcularPrecioFinal(double precioOriginal, double descuento) {
-        if (descuento <= 0 || descuento > 100) {
-            return precioOriginal;
-        } else {
-            return precioOriginal * (1 - descuento / 100.0);
-        }
-    }
 
     public long getId() {
         return id;
@@ -80,11 +69,7 @@ public class CompraEntidad {
         return fechaCompra;
     }
 
-    public double getPrecioFinal() {
-        return precioFinal;
-    }
-
-    public double getPorcentajeDescuento() {
+    public int getPorcentajeDescuento() {
         return porcentajeDescuento;
     }
 
@@ -96,16 +81,11 @@ public class CompraEntidad {
         return metodoPago;
     }
 
-    public double getPrecioOriginal() {
-        return precioOriginal;
+    public double getPrecioBase() {
+        return precioBase;
     }
 
     public void setEstadoCompra(CompraEstadoEnum estadoCompra) {
         this.estadoCompra = estadoCompra;
     }
-
-    public void setMetodoPago(CompraMetodoPagoEnum metodoPago) {
-        this.metodoPago = metodoPago;
-    }
-
 }

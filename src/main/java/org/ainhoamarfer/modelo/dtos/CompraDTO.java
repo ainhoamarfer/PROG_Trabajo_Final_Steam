@@ -1,7 +1,5 @@
 package org.ainhoamarfer.modelo.dtos;
 
-import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
-import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.CompraEstadoEnum;
 import org.ainhoamarfer.modelo.enums.CompraMetodoPagoEnum;
 
@@ -15,22 +13,20 @@ public class CompraDTO {
     private long idJuego;
     private JuegoDTO juego;
     private LocalDate fechaCompra;
-    private double precioFinal;
-    private double porcentajeDescuento;
-    private double precioOriginal;
+    private double precioBase;
+    private int porcentajeDescuento;
     private CompraEstadoEnum estadoCompra;
     private CompraMetodoPagoEnum metodoPago;
 
-    public CompraDTO(long id, long idUsuario, UsuarioDTO usuario, long idJuego, JuegoDTO juego, LocalDate fechaCompra, double precioFinal, double porcentajeDescuento,double precioOriginal, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
+    public CompraDTO(long id, long idUsuario, UsuarioDTO usuario, long idJuego, JuegoDTO juego, LocalDate fechaCompra, double precioBase, int porcentajeDescuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
         this.id = id;
         this.idUsuario = idUsuario;
         this.usuario = usuario;
         this.idJuego = idJuego;
         this.juego = juego;
         this.fechaCompra = fechaCompra;
-        this.precioFinal = precioFinal;
+        this.precioBase = precioBase;
         this.porcentajeDescuento = porcentajeDescuento;
-        this.precioOriginal = precioOriginal;
         this.estadoCompra = estadoCompra;
         this.metodoPago = metodoPago;
     }
@@ -59,11 +55,11 @@ public class CompraDTO {
         return fechaCompra;
     }
 
-    public double getPrecioFinal() {
-        return precioFinal;
+    public double getPrecioBase() {
+        return precioBase;
     }
 
-    public double getPorcentajeDescuento() {
+    public int getPorcentajeDescuento() {
         return porcentajeDescuento;
     }
 
@@ -75,7 +71,4 @@ public class CompraDTO {
         return metodoPago;
     }
 
-    public double getPrecioOriginal() {
-        return precioOriginal;
-    }
 }

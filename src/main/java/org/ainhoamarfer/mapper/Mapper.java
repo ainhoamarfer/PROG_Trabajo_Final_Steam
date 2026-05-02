@@ -2,10 +2,6 @@ package org.ainhoamarfer.mapper;
 
 import org.ainhoamarfer.modelo.dtos.*;
 import org.ainhoamarfer.modelo.entidad.*;
-import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
-import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
-import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
-import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 
 public class Mapper {
 
@@ -92,9 +88,8 @@ public class Mapper {
                 compra.getJuegoId(),
                 juego,
                 compra.getFechaCompra(),
-                compra.getPrecioFinal(),
+                compra.getPrecioBase(),
                 compra.getPorcentajeDescuento(),
-                compra.getPrecioOriginal(),
                 compra.getEstadoCompra(),
                 compra.getMetodoPago()
         );
