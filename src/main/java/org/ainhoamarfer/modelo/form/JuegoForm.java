@@ -17,13 +17,13 @@ public class JuegoForm {
     private String desarrollador;
     private LocalDate fechaLanzamiento;
     private Double precioBase;
-    private Double descuentoActual;
+    private int descuentoActual;
     private String categoria;
     private String idiomas;
     private JuegoClasificacionEdad clasificacionEdad;
     private JuegoEstado estado;
 
-    public JuegoForm(String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, Double precioBase, Double descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad, JuegoEstado estado) {
+    public JuegoForm(String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, Double precioBase, int descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad, JuegoEstado estado) {
 
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -53,7 +53,7 @@ public class JuegoForm {
         return categoria;
     }
 
-    public double getDescuentoActual() {
+    public int getDescuentoActual() {
         return descuentoActual;
     }
 
@@ -125,11 +125,10 @@ public class JuegoForm {
         }
 
         // Descuento actual: opcional, entero 0-100, valor por defecto 0
-        if (descuentoActual != null) {
-            if (descuentoActual < 0 || descuentoActual > 100) {
-                errores.add(new ErrorDTO("descuentoActual", ErrorType.VALOR_NO_VALIDO));
-            }
+        if (descuentoActual < 0 || descuentoActual > 100) {
+            errores.add(new ErrorDTO("descuentoActual", ErrorType.VALOR_NO_VALIDO));
         }
+
 
         // Clasificación por edad: obligatoria, Debe ser uno de: {PEGI_3, PEGI_7, PEGI_12, PEGI_16, PEGI_18}
         if (clasificacionEdad == null) {
@@ -137,8 +136,11 @@ public class JuegoForm {
         }
 
         // Idiomas: opcional; si se proporciona, al menos 1 idioma y longitud máxima 200
-        if (idiomas != null && !idiomas.isBlank()) {
-            if (idiomas.length() > 200) {
+        if (idiomas != null) {
+            if (idiomas.isBlank()) {
+                // Se proporcionó pero está vacío → array vacío no permitido
+                errores.add(new ErrorDTO("idiomas", ErrorType.LONGITUD_INVALIDA));
+            } else if (idiomas.length() > 200) {
                 errores.add(new ErrorDTO("idiomas", ErrorType.LONGITUD_INVALIDA));
             }
         }

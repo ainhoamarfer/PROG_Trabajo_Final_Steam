@@ -26,7 +26,7 @@ public class JuegoEntidad {
     @Column (name = "precio_base")
     private double precioBase;
     @Column (name = "descuento_Actual")
-    private double descuentoActual;
+    private int descuentoActual;
     @Column (name = "categoria")
     private String categoria;
     @Column (name = "idiomas")
@@ -39,7 +39,8 @@ public class JuegoEntidad {
     public JuegoEntidad() {
     }
 
-    public JuegoEntidad(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad) {
+    public JuegoEntidad(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, int descuentoActual,
+                        String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad, JuegoEstado estado) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -50,7 +51,7 @@ public class JuegoEntidad {
         this.categoria = categoria;
         this.idiomas = idiomas;
         this.clasificacionEdad = clasificacionEdad;
-        this.estado = JuegoEstado.DISPONIBLE;
+        this.estado = estado;
     }
 
     public long getId() {
@@ -77,7 +78,7 @@ public class JuegoEntidad {
         return precioBase;
     }
 
-    public double getDescuentoActual() {
+    public int getDescuentoActual() {
         return descuentoActual;
     }
 

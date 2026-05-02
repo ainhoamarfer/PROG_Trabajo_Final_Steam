@@ -15,16 +15,16 @@ public class CompraForm {
     private long usuarioId;
     private long juegoId;
     private LocalDate fechaCompra;
-    private Double precioSinDes;
-    private Double descuento;
+    private Double precioBase;
+    private int descuentoActual;
     private CompraEstadoEnum estadoCompra;
     private CompraMetodoPagoEnum metodoPago;
 
-    public CompraForm(long usuarioId, long juegoId, LocalDate fechaCompra, Double precioSinDes, Double descuento, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
+    public CompraForm(long usuarioId, long juegoId, LocalDate fechaCompra, Double precioBase, int descuentoActual, CompraEstadoEnum estadoCompra, CompraMetodoPagoEnum metodoPago) {
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
-        this.precioSinDes = precioSinDes;
-        this.descuento = descuento;
+        this.precioBase = precioBase;
+        this.descuentoActual = descuentoActual;
         this.estadoCompra = estadoCompra;
         this.metodoPago = metodoPago;
         this.fechaCompra = fechaCompra;
@@ -42,12 +42,12 @@ public class CompraForm {
         return juegoId;
     }
 
-    public Double getPrecioSinDes() {
-        return precioSinDes;
+    public Double getPrecioBase() {
+        return precioBase;
     }
 
-    public Double getDescuento() {
-        return descuento;
+    public int getDescuentoActual() {
+        return descuentoActual;
     }
 
     public CompraEstadoEnum getEstadoCompra() {
@@ -71,26 +71,26 @@ public class CompraForm {
         if (metodoPago == null) errores.add(new ErrorDTO("metodoPago", ErrorType.REQUERIDO));
 
         // Precio sin descuento: obligatorio, debe ser positivo, máximo 2 decimales
-        if (precioSinDes == null) {
+        if (precioBase == null) {
             errores.add(new ErrorDTO("precioSinDes", ErrorType.REQUERIDO));
         } else {
-            if (precioSinDes <= 0) {
+            if (precioBase <= 0) {
                 errores.add(new ErrorDTO("precioSinDes", ErrorType.VALOR_NO_VALIDO));
             }
-            BigDecimal bd = BigDecimal.valueOf(precioSinDes);
+            BigDecimal bd = BigDecimal.valueOf(precioBase);
             if (bd.scale() > 2) {
                 errores.add(new ErrorDTO("precioSinDes", ErrorType.FORMATO_INVALIDO));
             }
         }
 
         // Descuento aplicado: opcional, entero 0-100, valor por defecto 0
-        if (descuento != null) {
-            if (descuento < 0 || descuento > 100) {
-                errores.add(new ErrorDTO("descuento", ErrorType.VALOR_NO_VALIDO));
-            }
+
+        if (descuentoActual < 0 || descuentoActual > 100) {
+            errores.add(new ErrorDTO("descuento", ErrorType.VALOR_NO_VALIDO));
         } else {
-            descuento = 0.0;
+            descuentoActual = 0;
         }
+
 
         // Estado de la compra: por defecto PENDIENTE (asignado en constructor)
 

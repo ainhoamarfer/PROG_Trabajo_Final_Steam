@@ -18,6 +18,8 @@ import org.ainhoamarfer.modelo.dtos.JuegoDTO;
 import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 
 public class JuegosControlador {
+    public static final int MIN_PORCENTAJE = 0;
+    public static final int MAX_PORCENTAJE = 100;
 
     /*
     Añadir juego al catálogo
@@ -81,27 +83,30 @@ public class JuegosControlador {
      * @return Lista de JuegoDTO con información resumida que cumplen los criterios.
      */
     public List<JuegoDTO> buscarJuegos(CriteriosBusquedaForm criterios) throws ExcepcionValidacion {
-        List<ErrorDTO> errores = criteriosBusqueda.validar(criterios);
-
-        if (!errores.isEmpty()) {
-            throw new ExcepcionValidacion(errores);
-        }
-
         List<JuegoEntidad> juegos = juegosrRepo.obtenerTodos();
 
         List<JuegoEntidad> juegosCumplenCriterios = new ArrayList<>();
         for (JuegoEntidad juego : juegos) {
-            if (Objects.equals(criterios.getCategoria(), juego.getCategoria()) || Objects.equals(criterios.getDescripcion(), juego.getDescripcion()) || Objects.equals(criterios.getDesarrollador(), juego.getDesarrollador()) || criterios.getFechaLanzamiento() == juego.getFechaLanzamiento() || Objects.equals(criterios.getPrecioBase(), juego.getPrecioBase()) || Objects.equals(criterios.getTitulo(), juego.getTitulo())) {
-                juegosCumplenCriterios.add(juego);
+
+            boolean coincide = false;
+            if (criterios.getTitulo() != null && juego.getTitulo().toLowerCase().contains(criterios.getTitulo().toLowerCase())) {
+                coincide = true;
             }
+            if (criterios.getDescripcion() != null && juego.getDescripcion() != null && juego.getDescripcion().toLowerCase().contains(criterios.getDescripcion().toLowerCase())) {
+                coincide = true;
+            }
+            if (criterios.getDesarrollador() != null && juego.getDesarrollador().toLowerCase().contains(criterios.getDesarrollador().toLowerCase())) {
+                coincide = true;
+            }
+            if (criterios.getCategoria() != null && juego.getCategoria().equalsIgnoreCase(criterios.getCategoria())) {
+                coincide = true;
+            } // etc.
+            if (coincide) juegosCumplenCriterios.add(juego);
         }
 
-        List<JuegoDTO> juegosEncontrados = new ArrayList<>();
-        for (JuegoEntidad juego : juegosCumplenCriterios) {
-            juegosEncontrados.add(Mapper.mapDeJuego(juego));
-        }
-
-        return juegosEncontrados;
+        return juegosCumplenCriterios.stream()
+                .map(Mapper::mapDeJuego)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -181,18 +186,16 @@ public class JuegosControlador {
      * @return `JuegoDTO` con el descuento aplicado y el precio final calculado.
      * @throws ExcepcionValidacion si el juego no existe o el porcentaje está fuera del rango permitido.
      */
-    public JuegoDTO aplicarDescuento(Long id, double porcentaje) throws ExcepcionValidacion {
+    public JuegoDTO aplicarDescuento(Long id, int porcentaje) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
         Optional<JuegoEntidad> juegoOpt = juegosrRepo.obtenerPorId(id);
 
-        if (juegoOpt.isEmpty()) {
-            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
-        }
+        if (juegoOpt.isEmpty()) errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
 
-        if (porcentaje <= 0 || porcentaje > 100) {
-            errores.add(new ErrorDTO("porcentaje descuento", ErrorType.VALOR_NO_VALIDO));
-        }
+        if (porcentaje < MIN_PORCENTAJE || porcentaje > MAX_PORCENTAJE) errores.add(new ErrorDTO("porcentaje descuento", ErrorType.VALOR_NO_VALIDO));
+
+        if (porcentaje == MIN_PORCENTAJE) errores.add(new ErrorDTO("porcentaje descuento", ErrorType.VALOR_NO_VALIDO));
 
         if(!errores.isEmpty()) {
             throw new ExcepcionValidacion(errores);
@@ -200,10 +203,8 @@ public class JuegosControlador {
 
         JuegoEntidad juego = juegoOpt.orElse(null);
 
-        double precioConDescuento = (juego.getPrecioBase() * porcentaje) / 100;
-
         JuegoForm formConDescuento = new JuegoForm(juego.getTitulo(), juego.getDescripcion(), juego.getDesarrollador(),
-                juego.getFechaLanzamiento(), juego.getPrecioBase(), precioConDescuento, juego.getCategoria(), juego.getIdiomas(),
+                juego.getFechaLanzamiento(), juego.getPrecioBase(), porcentaje, juego.getCategoria(), juego.getIdiomas(),
                 juego.getClasificacionEdad(), juego.getEstado());
 
         Optional<JuegoEntidad> juegoConDescuentoOpt = juegosrRepo.actualizar(id, formConDescuento);
@@ -229,7 +230,7 @@ public class JuegosControlador {
      */
     public JuegoDTO cambiarEstadoJuego(Long id, String nuevoEstado) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
-
+        System.out.println("Cambiando estado a: " + nuevoEstado);
         Optional<JuegoEntidad> juegoOpt = juegosrRepo.obtenerPorId(id);
 
         if (juegoOpt.isEmpty()) {
@@ -239,8 +240,9 @@ public class JuegosControlador {
         JuegoEntidad juego = juegoOpt.orElse(null);
 
         JuegoEstado estado = JuegoEstado.valueOf(nuevoEstado);
-
-        JuegoForm formConDescuento = new JuegoForm(juego.getTitulo(), juego.getDescripcion(), juego.getDesarrollador(), juego.getFechaLanzamiento(), juego.getPrecioBase(), juego.getDescuentoActual(), juego.getCategoria(), juego.getIdiomas(), juego.getClasificacionEdad(), estado);
+        System.out.println("Nuevo estado enum: " + estado);
+        JuegoForm formConDescuento = new JuegoForm(juego.getTitulo(), juego.getDescripcion(), juego.getDesarrollador(), juego.getFechaLanzamiento(),
+                juego.getPrecioBase(), juego.getDescuentoActual(), juego.getCategoria(), juego.getIdiomas(), juego.getClasificacionEdad(), estado);
 
         Optional<JuegoEntidad> juegoConDescuentoOpt = juegosrRepo.actualizar(id, formConDescuento);
 
@@ -249,7 +251,7 @@ public class JuegosControlador {
             throw new ExcepcionValidacion(errores);
         }
         JuegoEntidad juegoConDescuento = juegoConDescuentoOpt.orElse(null);
-
+        System.out.println("Estado después de actualizar: " + juegoConDescuento.getEstado());
         return Mapper.mapDeJuego(juegoConDescuento);
     }
 }

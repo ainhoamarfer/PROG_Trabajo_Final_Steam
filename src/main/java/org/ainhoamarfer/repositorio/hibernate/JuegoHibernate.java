@@ -41,7 +41,7 @@ public class JuegoHibernate implements IJuegosRepo {
 
         //hibernate ignora el campo id porque se lo indicamos en juegoEntidad en los atributos, le decimos cualquier número
         JuegoEntidad juego = new JuegoEntidad(0, form.getTitulo(), form.getDescripcion(), form.getDesarrollador(), form.getFechaLanzamiento(), form.getPrecioBase(),
-                form.getDescuentoActual(), form.getCategoria(), form.getIdiomas(), form.getClasificacionEdad());
+                form.getDescuentoActual(), form.getCategoria(), form.getIdiomas(), form.getClasificacionEdad(), form.getEstado());
         session.persist(juego);
 
         return Optional.of(juego);
@@ -77,7 +77,7 @@ public class JuegoHibernate implements IJuegosRepo {
             return Optional.empty();
         } else {
             session.merge(new JuegoEntidad(id, form.getTitulo(), form.getDescripcion(), form.getDesarrollador(), form.getFechaLanzamiento(), form.getPrecioBase(),
-                    form.getDescuentoActual(), form.getCategoria(), form.getIdiomas(), form.getClasificacionEdad()));
+                    form.getDescuentoActual(), form.getCategoria(), form.getIdiomas(), form.getClasificacionEdad(), form.getEstado()));
             return obtenerPorId(id);
         }
     }

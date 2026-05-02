@@ -5,12 +5,16 @@ import org.ainhoamarfer.mapper.Mapper;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.dtos.ResenaDTO;
 import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
+import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
 import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
+import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
 import org.ainhoamarfer.modelo.enums.ResenaEstado;
 import org.ainhoamarfer.modelo.form.ResenaForm;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
+import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.repositorio.interfaz.IResenaRepo;
+import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,6 +24,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ResenasControlador {
+    public static final int MAX_LONG_RESENA = 8000;
+    public static final int MIN_LONG_RESENA = 50;
 
     /*
     Escribir reseña
@@ -32,11 +38,15 @@ public class ResenasControlador {
 
     private IResenaRepo repoResena;
     private IBibliotecaRepo repoBiblioteca;
+    private IJuegosRepo repoJuego;
+    private IUsuarioRepo repoUsuario;
 
 
-    public ResenasControlador(IResenaRepo repoResena, IBibliotecaRepo repoBiblioteca) {
+    public ResenasControlador(IResenaRepo repoResena, IBibliotecaRepo repoBiblioteca, IJuegosRepo repoJuego, IUsuarioRepo repoUsuario) {
         this.repoResena = repoResena;
         this.repoBiblioteca = repoBiblioteca;
+        this.repoJuego = repoJuego;
+        this.repoUsuario = repoUsuario;
     }
 
     /**
@@ -53,12 +63,23 @@ public class ResenasControlador {
     public ResenaDTO escribirResena(long idUsuario, long idJuego, boolean recomendado, String texto) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
+        Optional<ResenaEntidad> resenaExistenteOpt = repoResena.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
+        if (resenaExistenteOpt.isPresent()) errores.add(new ErrorDTO("Reseña", ErrorType.DUPLICADO));
+
+        if (texto == null || texto.isEmpty() || texto.length() < MIN_LONG_RESENA || texto.length() > MAX_LONG_RESENA) {
+            errores.add(new ErrorDTO("Texto", ErrorType.REQUERIDO));
+        }
+
+        if (!errores.isEmpty()){
+            throw new ExcepcionValidacion(errores);
+        }
+
         Optional<BibliotecaEntidad> BiblioOpt = repoBiblioteca.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
 
         if(BiblioOpt.isEmpty()){
             errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
             throw new ExcepcionValidacion(errores);
-        }else {
+        } else {
             BibliotecaEntidad Biblioteca = BiblioOpt.orElse(null);
             Optional<ResenaEntidad> resenaOpt = repoResena.crear(new ResenaForm(idUsuario, idJuego, recomendado, texto, Biblioteca.getTiempoJuego(),LocalDate.now(), LocalDate.now(), ResenaEstado.PUBLICADA));
             ResenaEntidad resena = resenaOpt.orElse(null);
@@ -110,13 +131,24 @@ public class ResenasControlador {
      * @return Lista de reseñas con estadísticas generales
      * Datos mostrados: Autor, recomendado, texto, horas jugadas, fecha
      */
-    public List<ResenaDTO> verResenasJuego(long idJuego, String filtroPosNeg, String orden) {
+    public List<ResenaDTO> verResenasJuego(long idJuego, String filtroPosNeg, String orden) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
+
+        Optional<JuegoEntidad> juegoOpt = repoJuego.obtenerPorId(idJuego);
+        if(juegoOpt.isEmpty()){
+            errores.add(new ErrorDTO("Juego", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }
 
         // Comprobar si publicada
         List<ResenaEntidad> resenas = repoResena.obtenerTodos().stream()
                 .filter(r -> r.getJuegoId() == idJuego && r.getEstado() == ResenaEstado.PUBLICADA)
                 .collect(Collectors.toCollection(ArrayList::new)); // al parecer si pongo to list me fallan los tests
+
+        if(resenas.isEmpty()){
+            return new ArrayList<>();
+        }
+
 
         // Filtrar positivas negativas
         if (filtroPosNeg != null && !filtroPosNeg.isEmpty()) {
@@ -191,37 +223,37 @@ public class ResenasControlador {
      *
      * @param idUsuario    ID del usuario
      * @param filtroEstado filtro de estado opcional
-     * @return Lista de reseñas del usuario con estadísticas
+     * @return Lista de reseñas del usuario
      * Datos mostrados: Juego, recomendado, texto (extracto), fecha, horas jugadas al momento
      */
     public List<ResenaDTO> verResenasUsuario(long idUsuario, String filtroEstado) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
+
+        Optional<UsuarioEntidad> usuarioOpt = repoUsuario.obtenerPorId(idUsuario);
+        if(usuarioOpt.isEmpty()){
+            errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }
 
         List<ResenaEntidad> resenas = repoResena.obtenerPorIdUsuario(idUsuario)
                 .stream()
                 .toList();
 
         if (resenas.isEmpty()) {
-            errores.add(new ErrorDTO("Reseñas", ErrorType.NO_ENCONTRADO));
-        }
+            return new ArrayList<>();
 
-        if (!errores.isEmpty()) {
-            throw new ExcepcionValidacion(errores);
-        }
+        } else {
 
-        List<ResenaEntidad> resenasFiltradas = new ArrayList<>();
-        for (ResenaEntidad resena : resenas) {
-            if (resena.getEstado().equals(filtroEstado)) {
-                resenasFiltradas.add(resena);
+            if (filtroEstado != null && !filtroEstado.isBlank()) {
+                resenas = resenas.stream()
+                        .filter(r -> r.getEstado().name().equalsIgnoreCase(filtroEstado))
+                        .toList();
             }
-        }
 
-        List<ResenaDTO> resenasEncontradasMap = new ArrayList<>();
-        for (ResenaEntidad resena : resenasFiltradas) {
-            ResenaDTO resenaDto = Mapper.mapDeResena(resena);
-            resenasEncontradasMap.add(resenaDto);
+            return resenas.stream()
+                    .map(Mapper::mapDeResena)
+                    .toList();
         }
-        return resenasEncontradasMap;
     }
 }
 

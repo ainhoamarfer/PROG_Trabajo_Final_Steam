@@ -74,7 +74,7 @@ public class CompraControlador {
                 "CD Projekt Red",
                 LocalDate.of(2015, 5, 19),
                 59.99,
-                50.0,
+                50,
                 "RPG",
                 "Español,Inglés",
                 JuegoClasificacionEdad.PEGI_18,
