@@ -20,6 +20,7 @@ import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
+import org.ainhoamarfer.transaction.ITransactionManager;
 
 import java.time.LocalDate;
 
@@ -31,9 +32,10 @@ public class MainPruebas {
         IJuegosRepo juegoRepo = new JuegoRepo();
         ICompraRepo compraRepo = new CompraRepo();
         IBibliotecaRepo bibliotecaRepo = new BibliotecaRepo();
+        ITransactionManager tm = null; // No se necesita para esta prueba de memoria, pero se puede implementar si se desea probar con Hibernate
 
         UsuarioControlador usuarioControlador = new UsuarioControlador(usuarioRepo);
-        JuegosControlador juegosControlador = new JuegosControlador(juegoRepo);
+        JuegosControlador juegosControlador = new JuegosControlador(juegoRepo, tm);
         CompraControlador compraControlador = new CompraControlador(compraRepo, juegoRepo, usuarioRepo, bibliotecaRepo);
 
         try {

@@ -32,12 +32,11 @@ public class JuegosControlador {
 
     private IJuegosRepo juegosrRepo;
     private CriteriosBusquedaForm criteriosBusqueda;
-    //private ITransactionManager tm;
+    private ITransactionManager tm;
 
-    public JuegosControlador(IJuegosRepo JuegosrRepo) {
+    public JuegosControlador(IJuegosRepo JuegosrRepo, ITransactionManager tm) {
         this.juegosrRepo = JuegosrRepo;
-        //this.tm = tm;
-
+        this.tm = tm;
     }
 
 
@@ -53,21 +52,18 @@ public class JuegosControlador {
         List<ErrorDTO> errores = form.validar(form);
 
         //comienza aquí la transacción porque antes no se necesita la base de datos
-        //Optional<JuegoEntidad> juegoCreado = tm.inTransaction(() -> {
+        Optional <JuegoEntidad> juegoCreado = tm.inTransaction(() -> {
             Optional<JuegoEntidad> juegoOpt = juegosrRepo.obtenerPorTitulo(form.getTitulo());
             if (juegoOpt.isPresent()) {
                 errores.add(new ErrorDTO("juego", ErrorType.DUPLICADO));
-                //necesario lanzar esta excepcion para que se haga el rollback, si ocurre no ejecuta la lambda pero sigue el resto del métod
-                throw new ExcepcionValidacion(errores);
+                //Necesario lanzar una Illegal para que HibernateTransactionManager haga el rollback, si ocurre no ejecuta la lambda pero si sigue el resto del métod,
+                // por eso se hace Excepcion validacion fuera de la lambda. Es excepcion de la lambda, no del métod
+                throw new IllegalArgumentException("Ya existe un juego con ese título");
             }
+            return juegosrRepo.crear(form);
+        });
 
-            //return juegosrRepo.crear(form);
-        Optional <JuegoEntidad> juegoCreado = juegosrRepo.crear(form);
-        //});
-
-        if (!errores.isEmpty()) {
-            throw new ExcepcionValidacion(errores);
-        }
+        if (!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
         JuegoEntidad juego = juegoCreado.orElse(null);
 

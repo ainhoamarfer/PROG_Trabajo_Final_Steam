@@ -2,9 +2,11 @@ package org.ainhoamarfer.transaction;
 
 
 import org.ainhoamarfer.dbconfig.HibernateUtil;
+import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -22,13 +24,24 @@ public class HibernateTransactionManager implements ITransactionManager, ISesion
         Transaction tx = null;
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
             session = s;
-            tx = s.beginTransaction();
-            T result = work.get();
-            tx.commit();
-            return result;
+            try {
+                tx = s.beginTransaction();
+                T result = work.get();
+                tx.commit();
+                return result;
+            } catch (Exception e) {
+                if (tx != null)
+                    tx.rollback();
+                throw e;
+            }
+        } catch (ExcepcionValidacion ve) {
+            throw ve;
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
-            throw e;
+            try {
+                return (T) Optional.empty();
+            } catch (ClassCastException ex) {
+                return null;
+            }
         } finally {
             session = null;
         }
