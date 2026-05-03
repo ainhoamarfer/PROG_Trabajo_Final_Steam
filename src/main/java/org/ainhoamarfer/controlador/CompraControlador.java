@@ -56,48 +56,7 @@ public class CompraControlador {
         this.bibliotecaRepo = bibliotecaRepo;
     }
 
-    static void main() throws ExcepcionValidacion {
-        ICompraRepo compraRepo = new CompraRepo();
-        IJuegosRepo juegoRepo = new JuegoRepo();
-        IUsuarioRepo usuarioRepo = new UsuarioRepo();
-        IBibliotecaRepo bibliotecaRepo = new BibliotecaRepo();
 
-        CompraControlador comContr = new CompraControlador(compraRepo, juegoRepo, usuarioRepo, bibliotecaRepo);
-        UsuarioControlador usuarioControlador = new UsuarioControlador(usuarioRepo);
-        JuegosControlador juegosControlador = new JuegosControlador(juegoRepo);
-
-        UsuarioForm usuformValido = new UsuarioForm(
-                "Ainhoa", "ainhoa3mf@gmail.com", "12A.%Kacefefg", "Ainhoa Mar",
-                "España", LocalDate.of(1990, 1, 1), LocalDate.now(), "avatar.jpg", 100.0, UsuarioEstadoCuenta.ACTIVA
-        );
-
-        JuegoForm juegoFormValido = new JuegoForm(
-                "The Witcher 3",
-                "Un juego de rol de acción",
-                "CD Projekt Red",
-                LocalDate.of(2015, 5, 19),
-                59.99,
-                50,
-                "RPG",
-                "Español,Inglés",
-                JuegoClasificacionEdad.PEGI_18,
-                JuegoEstado.DISPONIBLE
-        );
-
-        UsuarioDTO usuario = usuarioControlador.registrarNuevoUsuario(usuformValido);
-        JuegoDTO juego = juegosControlador.anadirJuego(juegoFormValido);
-
-        System.out.println(usuarioRepo.obtenerPorId(1L));
-
-
-        //CompraDTO compra = comContr.realizarCompra(new CompraForm(usuario.getId(), juego.getId(), LocalDate.now(), juego.getPrecioBase(), juego.getDescuentoActual(), CompraEstadoEnum.PENDIENTE, CompraMetodoPagoEnum.CARTERA_STEAM));
-
-        //System.out.println(compra.toString());
-        //System.out.println(usuario.getNombreUsuario());
-        //System.out.println(juego.getTitulo());
-        //System.out.println(compra.getFechaCompra());
-        //System.out.println(compra.getPorcentajeDescuento() + "%");
-    }//
 
     /**
      * Realizar compra
@@ -197,8 +156,10 @@ public class CompraControlador {
             if (precioFinal > usuario.getSaldoCartera()) {
                 errores.add(new ErrorDTO("saldo", ErrorType.SALDO_INSUFICIENTE));
                 throw new ExcepcionValidacion(errores);
+            } else {
+                usuarioRepo.restarSaldoCartera(usuario.getId(), precioFinal);
             }
-            usuarioRepo.restarSaldoCartera(usuario.getId(), precioFinal);
+
         }
         if (compra.getMetodoPago() == CompraMetodoPagoEnum.PAYPAL) {
 
@@ -322,7 +283,9 @@ public class CompraControlador {
                 .orElseThrow(() -> new ExcepcionValidacion(List.of(new ErrorDTO("usuario", ErrorType.NO_ENCONTRADO))));
 
         double importeReembolso = compra.getPrecioBase() * (100 - compra.getPorcentajeDescuento()) / 100;
+
         double nuevoSaldo = usuario.getSaldoCartera() + importeReembolso;
+
 
         usuarioRepo.sumarSaldoCartera(usuario.getId(), nuevoSaldo);
 

@@ -19,7 +19,8 @@ public class CompraRepo implements ICompraRepo {
     public Optional<CompraEntidad> crear(CompraForm form) {
         Long id = idContador;
         idContador = id + 1L;
-        CompraEntidad compra = new CompraEntidad(id, form.getUsuarioId(), form.getJuegoId(), LocalDate.now(), form.getPrecioBase(), form.getDescuentoActual(), form.getMetodoPago());
+        CompraEntidad compra = new CompraEntidad(id, form.getUsuarioId(), form.getJuegoId(), LocalDate.now(), form.getPrecioBase(), form.getDescuentoActual(),
+                form.getMetodoPago(), CompraEstadoEnum.PENDIENTE);
         COMPRAS.add(compra);
 
         return Optional.of(compra);
@@ -28,7 +29,7 @@ public class CompraRepo implements ICompraRepo {
     @Override
     public Optional<CompraEntidad> obtenerPorId(Long id) {
         return COMPRAS.stream()
-                .filter(c -> id == c.getUsuarioId())
+                .filter(c -> id == c.getId())
                 .findFirst();
     }
 
@@ -47,7 +48,17 @@ public class CompraRepo implements ICompraRepo {
 
     @Override
     public void actualizarEstadoCompra(Long idCompra, CompraEstadoEnum nuevoEstado) {
-        obtenerPorId(idCompra).ifPresent(compra -> compra.setEstadoCompra(nuevoEstado));
+        Optional<CompraEntidad> compraOpt = this.obtenerPorId(idCompra);
+
+        if (compraOpt.isEmpty()) {
+            throw new IllegalArgumentException("Compra no encontrada");
+        } else {
+            CompraEntidad c = compraOpt.get();
+            CompraEntidad compraActualizada = new CompraEntidad(idCompra, c.getUsuarioId(), c.getJuegoId(),
+                    c.getFechaCompra(), c.getPrecioBase(), c.getPorcentajeDescuento(), c.getMetodoPago(), nuevoEstado);
+            COMPRAS.removeIf((compra) -> idCompra.equals(compra.getId()));
+            COMPRAS.add(compraActualizada);
+        }
     }
 
     @Override
@@ -62,7 +73,8 @@ public class CompraRepo implements ICompraRepo {
         if (compraOpt.isEmpty()) {
             throw new IllegalArgumentException("Compra no encontrada");
         } else {
-            CompraEntidad CompraActualizada = new CompraEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.getFechaCompra(), form.getPrecioBase(), form.getDescuentoActual(), form.getMetodoPago());
+            CompraEntidad CompraActualizada = new CompraEntidad(id, form.getUsuarioId(), form.getJuegoId(), form.getFechaCompra(), form.getPrecioBase(), form.getDescuentoActual(),
+                    form.getMetodoPago(), form.getEstadoCompra());
             COMPRAS.removeIf((u) -> id.equals(u.getId()));
             COMPRAS.add(CompraActualizada);
             return Optional.of(CompraActualizada);

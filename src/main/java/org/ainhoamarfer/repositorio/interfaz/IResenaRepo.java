@@ -13,6 +13,6 @@ public interface IResenaRepo extends ICrud<ResenaEntidad, ResenaForm, Long> {
 
     Optional<ResenaEntidad> obtenerPorIdUsuario(Long idUsuario);
 
-    public Optional<ResenaEntidad> actualizarEstadoResena(Long id, ResenaEstado estado);
+    public void actualizarEstadoResena(Long id, ResenaEstado estado);
 
 }

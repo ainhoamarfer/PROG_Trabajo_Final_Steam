@@ -1,9 +1,10 @@
-package org.ainhoamarfer.repositorio.hibernate;
+package org.ainhoamarfer.repositorio.implementacion_hibernate;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
+import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.form.JuegoForm;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.transaction.ISesionManager;
@@ -12,11 +13,10 @@ import org.hibernate.Session;
 import java.util.List;
 import java.util.Optional;
 
-public class JuegoHibernate implements IJuegosRepo {
+public class JuegoRepoHibernate implements IJuegosRepo {
 
     private ISesionManager sm;
-
-    public JuegoHibernate(ISesionManager sm) {
+    public JuegoRepoHibernate(ISesionManager sm) {
         this.sm = sm;
     }
 
@@ -40,7 +40,7 @@ public class JuegoHibernate implements IJuegosRepo {
         Session session = sm.getSession();
 
         //hibernate ignora el campo id porque se lo indicamos en juegoEntidad en los atributos, le decimos cualquier número
-        JuegoEntidad juego = new JuegoEntidad(0, form.getTitulo(), form.getDescripcion(), form.getDesarrollador(), form.getFechaLanzamiento(), form.getPrecioBase(),
+        JuegoEntidad juego = new JuegoEntidad(-1, form.getTitulo(), form.getDescripcion(), form.getDesarrollador(), form.getFechaLanzamiento(), form.getPrecioBase(),
                 form.getDescuentoActual(), form.getCategoria(), form.getIdiomas(), form.getClasificacionEdad(), form.getEstado());
         session.persist(juego);
 
@@ -50,7 +50,10 @@ public class JuegoHibernate implements IJuegosRepo {
     @Override
     public Optional<JuegoEntidad> obtenerPorId(Long id) {
         Session session = sm.getSession();
-        return Optional.of(session.find(JuegoEntidad.class, id));
+
+        JuegoEntidad juego = session.find(JuegoEntidad.class, id);
+
+        return Optional.ofNullable(juego);
     }
 
     @Override
@@ -58,14 +61,15 @@ public class JuegoHibernate implements IJuegosRepo {
         Session session = sm.getSession();
 
         //query builder, para modificar la consulta base, es un select *, operación de lectura
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<JuegoEntidad> cq = cb.createQuery(JuegoEntidad.class);
-        Root<JuegoEntidad> root = cq.from(JuegoEntidad.class);
+        CriteriaBuilder cBuilder = session.getCriteriaBuilder();
+
+        CriteriaQuery<JuegoEntidad> cQuery = cBuilder.createQuery(JuegoEntidad.class);
+        Root<JuegoEntidad> root = cQuery.from(JuegoEntidad.class);
 
         //select * from Juegos, puedes quitar el order by
-        cq.select(root).orderBy(cb.asc(root.get("fechaLanzamiento")));
+        cQuery.select(root).orderBy(cBuilder.asc(root.get("titulo")));
 
-        return session.createQuery(cq).getResultList();
+        return session.createQuery(cQuery).getResultList();
     }
 
     @Override
@@ -85,8 +89,8 @@ public class JuegoHibernate implements IJuegosRepo {
     @Override
     public boolean eliminar(Long id) {
         Session session = sm.getSession();
-
         Optional<JuegoEntidad> juegoOpt = obtenerPorId(id);
+
         if (juegoOpt.isEmpty()) {
             return false;
         } else {

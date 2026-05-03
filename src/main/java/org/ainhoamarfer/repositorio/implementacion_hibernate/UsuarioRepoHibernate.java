@@ -1,8 +1,9 @@
-package org.ainhoamarfer.repositorio.hibernate;
+package org.ainhoamarfer.repositorio.implementacion_hibernate;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import org.ainhoamarfer.modelo.entidad.ResenaEntidad;
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.form.UsuarioForm;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
@@ -13,11 +14,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public class UsuarioHibernate implements IUsuarioRepo {
+public class UsuarioRepoHibernate implements IUsuarioRepo {
 
     private final ISesionManager sm;
 
-    public UsuarioHibernate(ISesionManager sm) {
+    public UsuarioRepoHibernate(ISesionManager sm) {
         this.sm = sm;
     }
 
@@ -26,7 +27,7 @@ public class UsuarioHibernate implements IUsuarioRepo {
         Session session = sm.getSession();
 
         UsuarioEntidad usuario = new UsuarioEntidad(
-                0L, form.getNombreUsuario(), form.getEmail(), form.getContrasena(), form.getNombreReal(), form.getPais(), form.getFechaNaci(),
+                -1, form.getNombreUsuario(), form.getEmail(), form.getContrasena(), form.getNombreReal(), form.getPais(), form.getFechaNaci(),
                 LocalDate.now(), form.getAvatar(), form.getSaldoCartera());
 
         session.persist(usuario);
@@ -37,7 +38,9 @@ public class UsuarioHibernate implements IUsuarioRepo {
     public Optional<UsuarioEntidad> obtenerPorId(Long id) {
         Session session = sm.getSession();
 
-        return Optional.ofNullable(session.find(UsuarioEntidad.class, id));
+        UsuarioEntidad usuario = session.find(UsuarioEntidad.class, id);
+
+        return Optional.ofNullable(usuario);
     }
 
     @Override
@@ -48,7 +51,7 @@ public class UsuarioHibernate implements IUsuarioRepo {
         CriteriaQuery<UsuarioEntidad> cq = cb.createQuery(UsuarioEntidad.class);
         Root<UsuarioEntidad> root = cq.from(UsuarioEntidad.class);
 
-        cq.select(root).where(cb.equal(root.get("nombreUsuario"), nombreUsuario));
+        cq.select(root).where(cb.equal(root.get("nombre_usuario"), nombreUsuario));
         return session.createQuery(cq).getResultStream().findFirst();
     }
 
@@ -58,23 +61,23 @@ public class UsuarioHibernate implements IUsuarioRepo {
 
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<UsuarioEntidad> cq = cb.createQuery(UsuarioEntidad.class);
-        cq.from(UsuarioEntidad.class);
+        Root<UsuarioEntidad> root = cq.from(UsuarioEntidad.class);
+
+        cq.select(root).orderBy(cb.asc(root.get("fecha_registro")));
         return session.createQuery(cq).getResultList();
     }
 
     @Override
     public Optional<UsuarioEntidad> actualizar(Long id, UsuarioForm form) {
         Session session = sm.getSession();
-
         Optional<UsuarioEntidad> usuarioOpt = this.obtenerPorId(id);
 
         if (usuarioOpt.isEmpty()) {
             return Optional.empty();
         } else {
-            UsuarioEntidad usuarioExistente = usuarioOpt.get();
             session.merge(new UsuarioEntidad(
                     id, form.getNombreUsuario(), form.getEmail(), form.getContrasena(), form.getNombreReal(), form.getPais(), form.getFechaNaci(),
-                    usuarioExistente.getFechaRegistro(), form.getAvatar(), form.getSaldoCartera()
+                    usuarioOpt.get().getFechaRegistro(), form.getAvatar(), form.getSaldoCartera()
             ));
             return obtenerPorId(id);
         }
@@ -83,12 +86,14 @@ public class UsuarioHibernate implements IUsuarioRepo {
     @Override
     public boolean eliminar(Long id) {
         Session session = sm.getSession();
+        Optional<UsuarioEntidad> usuarioOpt = this.obtenerPorId(id);
 
-        UsuarioEntidad usuario = session.find(UsuarioEntidad.class, id);
-        if (usuario == null) return false;
-
-        session.remove(usuario);
-        return true;
+        if (usuarioOpt.isEmpty()) {
+            return false;
+        } else {
+            session.remove(usuarioOpt.get());
+            return true;
+        }
     }
 
     @Override

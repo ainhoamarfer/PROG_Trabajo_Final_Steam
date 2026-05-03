@@ -75,7 +75,7 @@ public class ResenaRepo implements IResenaRepo {
     }
 
     @Override
-    public Optional<ResenaEntidad> actualizarEstadoResena(Long id, ResenaEstado estado) {
+    public void actualizarEstadoResena(Long id, ResenaEstado estado) {
         Optional<ResenaEntidad> resenaOpt = this.obtenerPorId(id);
 
         if (resenaOpt.isEmpty()) {
@@ -86,7 +86,6 @@ public class ResenaRepo implements IResenaRepo {
                     r.getFechaPublicacion(), r.getFechaUltEdicion(), estado);
             RESENAS.removeIf((u) -> id.equals(u.getId()));
             RESENAS.add(resenaActualizada);
-            return Optional.of(resenaActualizada);
         }
     }
 }

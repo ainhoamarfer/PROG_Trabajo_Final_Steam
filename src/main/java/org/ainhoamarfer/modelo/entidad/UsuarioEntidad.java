@@ -13,22 +13,30 @@ public class UsuarioEntidad {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id; //único
 
-    @Column(name = "nombre_usuario", unique = true, nullable = false)
+    @Column(name = "nombre_usuario")
     private String nombreUsuario; //único
-    @Column(name = "email", nullable = false)
+
+    @Column(name = "email")
     private String email;
-    @Column(name = "contrasena", nullable = false)
+
+    @Column(name = "contrasena")
     private String contrasena;
+
     @Column(name = "nombre_real")
     private String nombreReal;
+
     @Column(name = "pais")
     private String pais;
+
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNaci;
+
     @Column(name = "fecha_registro")
     private LocalDate fechaRegistro;
+
     @Column(name = "avatar")
     private String avatar;
+
     @Column(name = "saldo_cartera")
     private double saldoCartera;
 

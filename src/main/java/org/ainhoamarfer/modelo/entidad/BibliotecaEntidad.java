@@ -11,10 +11,10 @@ public class BibliotecaEntidad {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "usuario_id", nullable = false)
+    @Column(name = "usuario_id")
     private long usuarioId;
 
-    @Column(name = "juego_id", nullable = false)
+    @Column(name = "juego_id")
     private long juegoId;
 
     @Column(name = "fecha_adquisicion")

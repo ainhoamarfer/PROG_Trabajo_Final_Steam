@@ -43,18 +43,6 @@ public class BibliotecaRepo implements IBibliotecaRepo {
     }
 
     @Override
-    public Optional<List<JuegoDTO>> anadirJuegoBiblioteca(Long idUsuario, Long idJuego) {
-
-
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<List<JuegoDTO>> eliminarJuegoBiblioteca(Long idUsuario, Long idJuego) {
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<BibliotecaEntidad> obtenerPorIdUsuarioYIdJuego(Long idUsuario, Long idJuego) {
         return BIBLIOTECAS.stream()
                 .filter(u -> idUsuario.equals(u.getUsuarioId()) && idJuego.equals(u.getJuegoId()))

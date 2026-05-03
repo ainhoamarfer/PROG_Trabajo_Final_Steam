@@ -23,7 +23,7 @@ public class CompraEntidad {
     @Column(name = "fecha_compra")
     private LocalDate fechaCompra;
 
-    @Column(name = "precio_original")
+    @Column(name = "precio_base")
     private double precioBase;
 
     @Column(name = "porcentaje_descuento")
@@ -41,14 +41,14 @@ public class CompraEntidad {
     public CompraEntidad() {
     }
 
-    public CompraEntidad(long id, long usuarioId, long juegoId, LocalDate fechaCompra, double precioBase, int porcentajeDescuento, CompraMetodoPagoEnum metodoPago) {
+    public CompraEntidad(long id, long usuarioId, long juegoId, LocalDate fechaCompra, double precioBase, int porcentajeDescuento, CompraMetodoPagoEnum metodoPago, CompraEstadoEnum estadoCompra) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.juegoId = juegoId;
         this.fechaCompra = fechaCompra != null ? fechaCompra : LocalDate.now();
         this.precioBase = precioBase;
         this.porcentajeDescuento = porcentajeDescuento;
-        this.estadoCompra = CompraEstadoEnum.PENDIENTE;
+        this.estadoCompra = estadoCompra;
         this.metodoPago = metodoPago;
     }
 
@@ -83,9 +83,5 @@ public class CompraEntidad {
 
     public double getPrecioBase() {
         return precioBase;
-    }
-
-    public void setEstadoCompra(CompraEstadoEnum estadoCompra) {
-        this.estadoCompra = estadoCompra;
     }
 }

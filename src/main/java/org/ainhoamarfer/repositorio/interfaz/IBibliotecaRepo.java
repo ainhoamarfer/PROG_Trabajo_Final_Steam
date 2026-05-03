@@ -12,9 +12,9 @@ public interface IBibliotecaRepo extends ICrud<BibliotecaEntidad, BibliotecaForm
 
     List<BibliotecaEntidad> obtenerPorIdUsuario(Long idUsuario);
 
-    Optional<List<JuegoDTO>> anadirJuegoBiblioteca(Long idUsuario, Long idJuego);
+    //Optional<List<JuegoDTO>> anadirJuegoBiblioteca(Long idUsuario, Long idJuego);
 
-     Optional<List<JuegoDTO>> eliminarJuegoBiblioteca(Long idUsuario, Long idJuego);
+     //Optional<List<JuegoDTO>> eliminarJuegoBiblioteca(Long idUsuario, Long idJuego);
 
     Optional<BibliotecaEntidad> obtenerPorIdUsuarioYIdJuego(Long idUsuario, Long idJuego);
 

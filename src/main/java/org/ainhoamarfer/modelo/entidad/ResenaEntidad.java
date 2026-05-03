@@ -13,16 +13,16 @@ public class ResenaEntidad {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "usuario_id", nullable = false)
+    @Column(name = "usuario_id")
     private long usuarioId;
 
-    @Column(name = "juego_id", nullable = false)
+    @Column(name = "juego_id")
     private long juegoId;
 
     @Column(name = "recomendado")
     private boolean recomendado;
 
-    @Column(name = "texto", length = 8000)
+    @Column(name = "texto")
     private String texto;
 
     @Column(name = "horas_jugadas")

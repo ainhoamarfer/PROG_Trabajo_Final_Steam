@@ -13,13 +13,13 @@ public class JuegoDTO {
     private String desarrollador;
     private LocalDate fechaLanzamiento;
     private double precioBase;
-    private double descuentoActual;
+    private int descuentoActual;
     private String categoria;
     private String idiomas;
     private JuegoClasificacionEdad clasificacionEdad;
     private JuegoEstado estado;
 
-    public JuegoDTO(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, double descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad, JuegoEstado estado) {
+    public JuegoDTO(long id, String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase, int descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad, JuegoEstado estado) {
 
         this.id = id;
         this.titulo = titulo;
@@ -58,7 +58,7 @@ public class JuegoDTO {
         return precioBase;
     }
 
-    public double getDescuentoActual() {
+    public int getDescuentoActual() {
         return descuentoActual;
     }
 
