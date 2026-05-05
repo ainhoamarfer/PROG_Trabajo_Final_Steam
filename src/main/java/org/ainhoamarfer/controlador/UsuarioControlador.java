@@ -8,6 +8,7 @@ import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
 import org.ainhoamarfer.modelo.form.UsuarioForm;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
+import org.ainhoamarfer.transaction.ITransactionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +17,13 @@ import java.util.Optional;
 public class UsuarioControlador {
     
     private IUsuarioRepo usuarioRepo;
+    private ITransactionManager tm;
     //private SteamVista vista;
     private Util util;
 
-    public UsuarioControlador(IUsuarioRepo repo) {
+    public UsuarioControlador(IUsuarioRepo repo, ITransactionManager tm) {
         this.usuarioRepo = repo;
+        this.tm = tm;
     }
 
     /**
@@ -42,9 +45,7 @@ public class UsuarioControlador {
                 .ifPresent(u -> errores.add(new ErrorDTO("email", ErrorType.DUPLICADO)));
 
 
-        if (!errores.isEmpty()) {
-            throw new ExcepcionValidacion(errores);
-        }
+        if (!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
         Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.crear(form);
         UsuarioEntidad usuario = usuarioOpt.orElse(null);
@@ -64,26 +65,20 @@ public class UsuarioControlador {
     public UsuarioDTO consultarPerfil(long idUsuario, String nombreUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        UsuarioEntidad usuarioValido = null;
+        UsuarioEntidad usuarioAConsultar = null;
         if (nombreUsuario == null || nombreUsuario.isBlank()) {
-            Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorId(idUsuario);
-            if(usuarioOpt.isEmpty()){
-                errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
-                throw new ExcepcionValidacion(errores);
-            }
-            UsuarioEntidad usuario = usuarioOpt.orElse(null);
-            usuarioValido = usuarioValido(idUsuario);
+            usuarioAConsultar = comprobarUsuarioValidoPorId(idUsuario);
+
         } else {
             Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorNombreUsuario(nombreUsuario);
             if(usuarioOpt.isEmpty()){
                 errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
                 throw new ExcepcionValidacion(errores);
             }
-            UsuarioEntidad usuario = usuarioOpt.orElse(null);
-            usuarioValido = usuarioValido(usuario.getId());
+            usuarioAConsultar = usuarioOpt.orElse(null);
         }
 
-        return Mapper.mapDeUsuario(usuarioValido);
+        return Mapper.mapDeUsuario(usuarioAConsultar);
     }
 
     /**
@@ -100,17 +95,14 @@ public class UsuarioControlador {
     public Double anadirSaldoCartera(Double recarga, long idUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        UsuarioEntidad usuario = usuarioValido(idUsuario);
+        UsuarioEntidad usuario = comprobarUsuarioValidoPorId(idUsuario);
 
-        if(usuario.getEstadoCuenta().estadoBloqueado()){
-            errores.add(new ErrorDTO("Estado cuenta", ErrorType.ESTADO_CUENTA));
-            throw new ExcepcionValidacion(errores);
-        }
+        if(usuario.getEstadoCuenta().estadoBloqueado()) errores.add(new ErrorDTO("Estado cuenta", ErrorType.ESTADO_CUENTA));
 
-        if(!Util.validarRecargaCartera(recarga)){
-            errores.add(new ErrorDTO("Dinero recarga", ErrorType.VALOR_NO_VALIDO));
-            throw new ExcepcionValidacion(errores);
-        }
+        if(!Util.validarRecargaCartera(recarga)) errores.add(new ErrorDTO("Dinero recarga", ErrorType.VALOR_NO_VALIDO));
+
+
+        if(!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
         double nuevoSaldo = usuario.getSaldoCartera() + recarga;
 
@@ -131,7 +123,7 @@ public class UsuarioControlador {
      */
     public Double consultarSaldoCartera(long idUsuario) throws ExcepcionValidacion {
 
-        UsuarioEntidad usuario = usuarioValido(idUsuario);
+        UsuarioEntidad usuario = comprobarUsuarioValidoPorId(idUsuario);
 
         return usuario.getSaldoCartera();
     }
@@ -143,14 +135,14 @@ public class UsuarioControlador {
      * @return UsuarioEntidad encontrado
      * @throws ExcepcionValidacion si no se encuentra el usuario
      */
-    private UsuarioEntidad usuarioValido(long idUsuario) throws ExcepcionValidacion {
+    private UsuarioEntidad comprobarUsuarioValidoPorId(long idUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
         Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorId(idUsuario);
         UsuarioEntidad usuario = usuarioOpt.orElse(null);
 
         if(usuario == null){
-            errores.add(new ErrorDTO("Usuario", ErrorType.USUARIO_INVALIDO));
+            errores.add(new ErrorDTO("Usuario no existente", ErrorType.USUARIO_INVALIDO));
             throw new ExcepcionValidacion(errores);
         }else return usuario;
     }

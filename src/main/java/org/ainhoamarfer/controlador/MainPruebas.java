@@ -34,9 +34,9 @@ public class MainPruebas {
         IBibliotecaRepo bibliotecaRepo = new BibliotecaRepo();
         ITransactionManager tm = null; // No se necesita para esta prueba de memoria, pero se puede implementar si se desea probar con Hibernate
 
-        UsuarioControlador usuarioControlador = new UsuarioControlador(usuarioRepo);
-        JuegosControlador juegosControlador = new JuegosControlador(juegoRepo, tm);
-        CompraControlador compraControlador = new CompraControlador(compraRepo, juegoRepo, usuarioRepo, bibliotecaRepo);
+        UsuarioControlador usuarioControlador = new UsuarioControlador(usuarioRepo, null);
+        JuegosControlador juegosControlador = new JuegosControlador(juegoRepo, null);
+        CompraControlador compraControlador = new CompraControlador(compraRepo, juegoRepo, usuarioRepo, bibliotecaRepo, null);
 
         try {
             //usuario saldo suficiente

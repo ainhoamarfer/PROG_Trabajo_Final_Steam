@@ -1,11 +1,7 @@
 package org.ainhoamarfer.modelo.dtos;
 
-import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
-import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
-import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 public class BibliotecaDTO {
 

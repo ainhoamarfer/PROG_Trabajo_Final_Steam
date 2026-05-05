@@ -226,7 +226,7 @@ public class JuegosControlador {
      */
     public JuegoDTO cambiarEstadoJuego(Long id, String nuevoEstado) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
-        System.out.println("Cambiando estado a: " + nuevoEstado);
+
         Optional<JuegoEntidad> juegoOpt = juegosrRepo.obtenerPorId(id);
 
         if (juegoOpt.isEmpty()) {
@@ -236,7 +236,7 @@ public class JuegosControlador {
         JuegoEntidad juego = juegoOpt.orElse(null);
 
         JuegoEstado estado = JuegoEstado.valueOf(nuevoEstado);
-        System.out.println("Nuevo estado enum: " + estado);
+
         JuegoForm formConDescuento = new JuegoForm(juego.getTitulo(), juego.getDescripcion(), juego.getDesarrollador(), juego.getFechaLanzamiento(),
                 juego.getPrecioBase(), juego.getDescuentoActual(), juego.getCategoria(), juego.getIdiomas(), juego.getClasificacionEdad(), estado);
 
@@ -247,7 +247,7 @@ public class JuegosControlador {
             throw new ExcepcionValidacion(errores);
         }
         JuegoEntidad juegoConDescuento = juegoConDescuentoOpt.orElse(null);
-        System.out.println("Estado después de actualizar: " + juegoConDescuento.getEstado());
+
         return Mapper.mapDeJuego(juegoConDescuento);
     }
 }

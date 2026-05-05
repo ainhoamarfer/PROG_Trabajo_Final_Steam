@@ -11,26 +11,26 @@ import java.time.LocalDate;
 
 public class MainHibernate {
 
-    public static void main() {
-
-        ITransactionManager tm = new HibernateTransactionManager();
-        JuegosControlador jControler = new JuegosControlador(new JuegoRepoHibernate((ISesionManager) tm), tm);
-
-        JuegoForm validForm = new JuegoForm(
-                "Half-Life 3",
-                "El juego más esperado de la historia.",
-                "Valve",
-                LocalDate.now().minusDays(1),
-                29.99,
-                0,
-                "Acción",
-                "Inglés",
-                JuegoClasificacionEdad.PEGI_12,
-                JuegoEstado.DISPONIBLE);
-
-        var juego = jControler.anadirJuego(validForm);
-        var juego2 = jControler.anadirJuego(validForm);
-        System.out.println(juego);
-        System.out.println(juego2);
-    }
+    //public static void main() {
+//
+    //    ITransactionManager tm = new HibernateTransactionManager();
+    //    JuegosControlador jControler = new JuegosControlador(new JuegoRepoHibernate((ISesionManager) tm), tm);
+//
+    //    JuegoForm validForm = new JuegoForm(
+    //            "Half-Life 3",
+    //            "El juego más esperado de la historia.",
+    //            "Valve",
+    //            LocalDate.now().minusDays(1),
+    //            29.99,
+    //            0,
+    //            "Acción",
+    //            "Inglés",
+    //            JuegoClasificacionEdad.PEGI_12,
+    //            JuegoEstado.DISPONIBLE);
+//
+    //    var juego = jControler.anadirJuego(validForm);
+    //    var juego2 = jControler.anadirJuego(validForm);
+    //    System.out.println(juego);
+    //    System.out.println(juego2);
+    //}
 }

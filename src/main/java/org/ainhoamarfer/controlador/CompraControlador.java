@@ -34,6 +34,8 @@ import java.util.Optional;
 public class CompraControlador {
     public static final int MAX_DESCUENTO = 100;
     public static final int MIN_DESCUENTO = 0;
+    public static final double MAX_HORAS_PRUEBA_JUEGO = 2.0;
+    public static final int MAX_DIAS_PRUEBA_JUEGO = 20;
 
     /*
     Realizar compra
@@ -48,12 +50,14 @@ public class CompraControlador {
     private IJuegosRepo juegoRepo;
     private IUsuarioRepo usuarioRepo;
     private IBibliotecaRepo bibliotecaRepo;
+    private ITransactionManager tm;
 
-    public CompraControlador(ICompraRepo compraRepo, IJuegosRepo juegoRepo, IUsuarioRepo usuarioRepo, IBibliotecaRepo bibliotecaRepo) {
+    public CompraControlador(ICompraRepo compraRepo, IJuegosRepo juegoRepo, IUsuarioRepo usuarioRepo, IBibliotecaRepo bibliotecaRepo, ITransactionManager tm) {
         this.compraRepo = compraRepo;
         this.juegoRepo = juegoRepo;
         this.usuarioRepo = usuarioRepo;
         this.bibliotecaRepo = bibliotecaRepo;
+        this.tm = tm;
     }
 
 
@@ -253,7 +257,7 @@ public class CompraControlador {
         }
         //dentro del plazo
         LocalDate fechaCompra = compra.getFechaCompra();
-        LocalDate fechaLimite = fechaCompra.plusDays(20);
+        LocalDate fechaLimite = fechaCompra.plusDays(MAX_DIAS_PRUEBA_JUEGO);
         if (LocalDate.now().isAfter(fechaLimite)) {
             errores.add(new ErrorDTO("plazoReembolso", ErrorType.PLAZO_REEMBOLSO_VENCIDO));
             throw new ExcepcionValidacion(errores);
@@ -267,7 +271,7 @@ public class CompraControlador {
                     return new ExcepcionValidacion(errores);
                 });
 
-        if (biblioteca.getTiempoJuego() >= 2.0) {
+        if (biblioteca.getTiempoJuego() >= MAX_HORAS_PRUEBA_JUEGO) {
             errores.add(new ErrorDTO("tiempoJuego", ErrorType.TIEMPO_EXPIRADO));
             throw new ExcepcionValidacion(errores);
         }

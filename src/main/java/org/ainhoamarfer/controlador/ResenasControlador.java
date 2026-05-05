@@ -15,6 +15,7 @@ import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.repositorio.interfaz.IResenaRepo;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
+import org.ainhoamarfer.transaction.ITransactionManager;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -40,13 +41,15 @@ public class ResenasControlador {
     private IBibliotecaRepo repoBiblioteca;
     private IJuegosRepo repoJuego;
     private IUsuarioRepo repoUsuario;
+    private ITransactionManager tm;
 
 
-    public ResenasControlador(IResenaRepo repoResena, IBibliotecaRepo repoBiblioteca, IJuegosRepo repoJuego, IUsuarioRepo repoUsuario) {
+    public ResenasControlador(IResenaRepo repoResena, IBibliotecaRepo repoBiblioteca, IJuegosRepo repoJuego, IUsuarioRepo repoUsuario, ITransactionManager tm) {
         this.repoResena = repoResena;
         this.repoBiblioteca = repoBiblioteca;
         this.repoJuego = repoJuego;
         this.repoUsuario = repoUsuario;
+        this.tm = tm;
     }
 
     /**

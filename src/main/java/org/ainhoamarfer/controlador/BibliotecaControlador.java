@@ -12,6 +12,7 @@ import org.ainhoamarfer.modelo.form.BibliotecaForm;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
+import org.ainhoamarfer.transaction.ITransactionManager;
 
 
 import java.time.LocalDate;
@@ -36,11 +37,13 @@ public class BibliotecaControlador {
     private IBibliotecaRepo biblioRepo;
     private IJuegosRepo juegoRepo;
     private final IUsuarioRepo usuarioRepo;
+    private ITransactionManager tm;
 
-    public BibliotecaControlador(IBibliotecaRepo biblioRepo, IUsuarioRepo usuarioRepo, IJuegosRepo juegoRepo) {
+    public BibliotecaControlador(IBibliotecaRepo biblioRepo, IUsuarioRepo usuarioRepo, IJuegosRepo juegoRepo, ITransactionManager tm) {
         this.biblioRepo = biblioRepo;
         this.usuarioRepo = usuarioRepo;
         this.juegoRepo = juegoRepo;
+        this.tm = tm;
     }
 
     /**
