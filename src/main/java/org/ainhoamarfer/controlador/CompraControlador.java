@@ -52,6 +52,7 @@ public class CompraControlador {
     private IBibliotecaRepo bibliotecaRepo;
     private ITransactionManager tm;
 
+
     public CompraControlador(ICompraRepo compraRepo, IJuegosRepo juegoRepo, IUsuarioRepo usuarioRepo, IBibliotecaRepo bibliotecaRepo, ITransactionManager tm) {
         this.compraRepo = compraRepo;
         this.juegoRepo = juegoRepo;
@@ -83,6 +84,7 @@ public class CompraControlador {
         Optional<UsuarioEntidad> usuarioCompradorOpt = usuarioRepo.obtenerPorId(form.getUsuarioId());
 
         if (juegoAAdquirirOpt.isEmpty()) errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+
         if (usuarioCompradorOpt.isEmpty()) errores.add(new ErrorDTO("usuario", ErrorType.NO_ENCONTRADO));
 
         // Validar que el usuario no haya comprado ya el juego

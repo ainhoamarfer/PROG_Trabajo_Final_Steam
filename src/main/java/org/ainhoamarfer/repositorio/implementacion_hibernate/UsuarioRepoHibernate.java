@@ -27,7 +27,7 @@ public class UsuarioRepoHibernate implements IUsuarioRepo {
         Session session = sm.getSession();
 
         UsuarioEntidad usuario = new UsuarioEntidad(
-                -1, form.getNombreUsuario(), form.getEmail(), form.getContrasena(), form.getNombreReal(), form.getPais(), form.getFechaNaci(),
+                0, form.getNombreUsuario(), form.getEmail(), form.getContrasena(), form.getNombreReal(), form.getPais(), form.getFechaNaci(),
                 LocalDate.now(), form.getAvatar(), form.getSaldoCartera());
 
         session.persist(usuario);

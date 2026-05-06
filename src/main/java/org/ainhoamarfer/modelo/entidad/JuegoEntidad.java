@@ -65,6 +65,20 @@ public class JuegoEntidad {
         this.estado = estado;
     }
 
+    public JuegoEntidad(String titulo, String descripcion, String desarrollador, LocalDate fechaLanzamiento, double precioBase,
+                        int descuentoActual, String categoria, String idiomas, JuegoClasificacionEdad clasificacionEdad, JuegoEstado estado) {
+        this.titulo = titulo;
+        this.descripcion = descripcion;
+        this.desarrollador = desarrollador;
+        this.fechaLanzamiento = fechaLanzamiento;
+        this.precioBase = precioBase;
+        this.descuentoActual = descuentoActual;
+        this.categoria = categoria;
+        this.idiomas = idiomas;
+        this.clasificacionEdad = clasificacionEdad;
+        this.estado = estado;
+    }
+
     public long getId() {
         return id;
     }

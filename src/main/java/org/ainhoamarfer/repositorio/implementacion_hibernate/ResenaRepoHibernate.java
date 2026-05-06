@@ -83,7 +83,7 @@ public class ResenaRepoHibernate implements IResenaRepo {
     public Optional<ResenaEntidad> crear(ResenaForm form) {
 
         Session session = sm.getSession();
-        ResenaEntidad resena = new ResenaEntidad(-1, form.getUsuarioId(), form.getJuegoId(), form.isRecomendado(), form.getTexto(), form.getHorasJugadas(), form.getFechaPublicacion(),
+        ResenaEntidad resena = new ResenaEntidad(0, form.getUsuarioId(), form.getJuegoId(), form.isRecomendado(), form.getTexto(), form.getHorasJugadas(), form.getFechaPublicacion(),
                 form.getFechaUltEdicion(), form.getEstado());
         session.persist(resena);
         return Optional.empty();

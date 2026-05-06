@@ -18,8 +18,6 @@ public class UsuarioControlador {
     
     private IUsuarioRepo usuarioRepo;
     private ITransactionManager tm;
-    //private SteamVista vista;
-    private Util util;
 
     public UsuarioControlador(IUsuarioRepo repo, ITransactionManager tm) {
         this.usuarioRepo = repo;
@@ -67,7 +65,7 @@ public class UsuarioControlador {
 
         UsuarioEntidad usuarioAConsultar = null;
         if (nombreUsuario == null || nombreUsuario.isBlank()) {
-            usuarioAConsultar = comprobarUsuarioValidoPorId(idUsuario);
+            usuarioAConsultar = comprobarUsuarioExistePorId(idUsuario);
 
         } else {
             Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorNombreUsuario(nombreUsuario);
@@ -95,7 +93,7 @@ public class UsuarioControlador {
     public Double anadirSaldoCartera(Double recarga, long idUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        UsuarioEntidad usuario = comprobarUsuarioValidoPorId(idUsuario);
+        UsuarioEntidad usuario = comprobarUsuarioExistePorId(idUsuario);
 
         if(usuario.getEstadoCuenta().estadoBloqueado()) errores.add(new ErrorDTO("Estado cuenta", ErrorType.ESTADO_CUENTA));
 
@@ -109,7 +107,7 @@ public class UsuarioControlador {
         UsuarioForm form = new UsuarioForm(usuario.getNombreUsuario(), usuario.getEmail(), usuario.getContrasena(), usuario.getNombreReal(),
                 usuario.getPais(), usuario.getFechaNaci(), usuario.getFechaRegistro(), usuario.getAvatar(), nuevoSaldo, usuario.getEstadoCuenta());
 
-        Optional<UsuarioEntidad> usuarioSaldoActualizado = usuarioRepo.actualizar(idUsuario,form);
+        usuarioRepo.actualizar(idUsuario,form);
 
         return nuevoSaldo;
     }
@@ -123,8 +121,7 @@ public class UsuarioControlador {
      */
     public Double consultarSaldoCartera(long idUsuario) throws ExcepcionValidacion {
 
-        UsuarioEntidad usuario = comprobarUsuarioValidoPorId(idUsuario);
-
+        UsuarioEntidad usuario = comprobarUsuarioExistePorId(idUsuario);
         return usuario.getSaldoCartera();
     }
 
@@ -135,7 +132,7 @@ public class UsuarioControlador {
      * @return UsuarioEntidad encontrado
      * @throws ExcepcionValidacion si no se encuentra el usuario
      */
-    private UsuarioEntidad comprobarUsuarioValidoPorId(long idUsuario) throws ExcepcionValidacion {
+    private UsuarioEntidad comprobarUsuarioExistePorId(long idUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
         Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorId(idUsuario);

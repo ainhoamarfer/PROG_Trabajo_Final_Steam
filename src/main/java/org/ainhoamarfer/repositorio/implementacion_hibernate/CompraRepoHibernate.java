@@ -83,7 +83,7 @@ public class CompraRepoHibernate implements ICompraRepo {
     @Override
     public Optional<CompraEntidad> crear(CompraForm form) {
         Session session = sm.getSession();
-        CompraEntidad compra = new CompraEntidad(-1, form.getUsuarioId(), form.getJuegoId(), LocalDate.now(), form.getPrecioBase(),
+        CompraEntidad compra = new CompraEntidad(0, form.getUsuarioId(), form.getJuegoId(), LocalDate.now(), form.getPrecioBase(),
                 form.getDescuentoActual(), form.getMetodoPago(), CompraEstadoEnum.PENDIENTE);
         session.persist(compra);
 

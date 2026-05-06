@@ -40,7 +40,7 @@ public class JuegoRepoHibernate implements IJuegosRepo {
         Session session = sm.getSession();
 
         //hibernate ignora el campo id porque se lo indicamos en juegoEntidad en los atributos, le decimos cualquier número
-        JuegoEntidad juego = new JuegoEntidad(-1, form.getTitulo(), form.getDescripcion(), form.getDesarrollador(), form.getFechaLanzamiento(), form.getPrecioBase(),
+        JuegoEntidad juego = new JuegoEntidad(0, form.getTitulo(), form.getDescripcion(), form.getDesarrollador(), form.getFechaLanzamiento(), form.getPrecioBase(),
                 form.getDescuentoActual(), form.getCategoria(), form.getIdiomas(), form.getClasificacionEdad(), form.getEstado());
         session.persist(juego);
 

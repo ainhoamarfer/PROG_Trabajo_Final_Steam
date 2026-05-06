@@ -39,6 +39,7 @@ public class BibliotecaControlador {
     private final IUsuarioRepo usuarioRepo;
     private ITransactionManager tm;
 
+
     public BibliotecaControlador(IBibliotecaRepo biblioRepo, IUsuarioRepo usuarioRepo, IJuegosRepo juegoRepo, ITransactionManager tm) {
         this.biblioRepo = biblioRepo;
         this.usuarioRepo = usuarioRepo;

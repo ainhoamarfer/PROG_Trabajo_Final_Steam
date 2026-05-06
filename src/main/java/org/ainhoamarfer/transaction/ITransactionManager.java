@@ -1,5 +1,8 @@
 package org.ainhoamarfer.transaction;
 
+import org.ainhoamarfer.excepciones.ExcepcionValidacion;
+import org.hibernate.TransactionException;
+
 import java.util.function.Supplier;
 
 /**
@@ -12,5 +15,5 @@ public interface ITransactionManager {
      * Ejecuta {@code work} dentro de una unidad de trabajo atómica.
      * Si ocurre cualquier excepción, la unidad se deshace (rollback).
      */
-    <T> T inTransaction(Supplier<T> work);
+    <T> T inTransaction(ExceptionSupplier<T> work) throws ExcepcionValidacion;
 }

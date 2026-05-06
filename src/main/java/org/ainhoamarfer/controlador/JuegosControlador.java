@@ -34,6 +34,7 @@ public class JuegosControlador {
     private CriteriosBusquedaForm criteriosBusqueda;
     private ITransactionManager tm;
 
+
     public JuegosControlador(IJuegosRepo JuegosrRepo, ITransactionManager tm) {
         this.juegosrRepo = JuegosrRepo;
         this.tm = tm;
@@ -159,16 +160,8 @@ public class JuegosControlador {
      * @throws IllegalArgumentException si no existe un juego con el ID proporcionado.
      */
     public JuegoDTO consultarDetallesJuego(Long id) throws ExcepcionValidacion {
-        List<ErrorDTO> errores = new ArrayList<>();
-        Optional<JuegoEntidad> juego = juegosrRepo.obtenerPorId(id);
 
-        if (juego.isEmpty()) {
-            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
-            throw new ExcepcionValidacion(errores);
-        }
-
-        JuegoEntidad juegoAConsultar = juego.orElse(null);
-
+        JuegoEntidad juegoAConsultar = comprobarJuegoExistePorId(id);
         return Mapper.mapDeJuego(juegoAConsultar);
     }
 
@@ -185,31 +178,20 @@ public class JuegosControlador {
     public JuegoDTO aplicarDescuento(Long id, int porcentaje) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<JuegoEntidad> juegoOpt = juegosrRepo.obtenerPorId(id);
-
-        if (juegoOpt.isEmpty()) errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+        JuegoEntidad juego = comprobarJuegoExistePorId(id);
 
         if (porcentaje < MIN_PORCENTAJE || porcentaje > MAX_PORCENTAJE) errores.add(new ErrorDTO("porcentaje descuento", ErrorType.VALOR_NO_VALIDO));
 
         if (porcentaje == MIN_PORCENTAJE) errores.add(new ErrorDTO("porcentaje descuento", ErrorType.VALOR_NO_VALIDO));
 
-        if(!errores.isEmpty()) {
-            throw new ExcepcionValidacion(errores);
-        }
-
-        JuegoEntidad juego = juegoOpt.orElse(null);
+        if(!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
         JuegoForm formConDescuento = new JuegoForm(juego.getTitulo(), juego.getDescripcion(), juego.getDesarrollador(),
                 juego.getFechaLanzamiento(), juego.getPrecioBase(), porcentaje, juego.getCategoria(), juego.getIdiomas(),
                 juego.getClasificacionEdad(), juego.getEstado());
 
-        Optional<JuegoEntidad> juegoConDescuentoOpt = juegosrRepo.actualizar(id, formConDescuento);
-
-        if (juegoConDescuentoOpt.isEmpty()) {
-            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
-            throw new ExcepcionValidacion(errores);
-        }
-        JuegoEntidad juegoConDescuento = juegoConDescuentoOpt.orElse(null);
+        juegosrRepo.actualizar(id, formConDescuento);
+        JuegoEntidad juegoConDescuento = comprobarJuegoExistePorId(id);
 
         return Mapper.mapDeJuego(juegoConDescuento);
     }
@@ -227,27 +209,35 @@ public class JuegosControlador {
     public JuegoDTO cambiarEstadoJuego(Long id, String nuevoEstado) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<JuegoEntidad> juegoOpt = juegosrRepo.obtenerPorId(id);
-
-        if (juegoOpt.isEmpty()) {
-            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
-            throw new ExcepcionValidacion(errores);
-        }
-        JuegoEntidad juego = juegoOpt.orElse(null);
+        JuegoEntidad juego = comprobarJuegoExistePorId(id);
 
         JuegoEstado estado = JuegoEstado.valueOf(nuevoEstado);
 
         JuegoForm formConDescuento = new JuegoForm(juego.getTitulo(), juego.getDescripcion(), juego.getDesarrollador(), juego.getFechaLanzamiento(),
                 juego.getPrecioBase(), juego.getDescuentoActual(), juego.getCategoria(), juego.getIdiomas(), juego.getClasificacionEdad(), estado);
 
-        Optional<JuegoEntidad> juegoConDescuentoOpt = juegosrRepo.actualizar(id, formConDescuento);
+        juegosrRepo.actualizar(id, formConDescuento);
+        JuegoEntidad juegoEstadoCambiado = comprobarJuegoExistePorId(id);
 
-        if (juegoConDescuentoOpt.isEmpty()) {
-            errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+        return Mapper.mapDeJuego(juegoEstadoCambiado);
+    }
+
+    /**
+     * Obtiene la entidad de juego por su id y valida que exista.
+     *
+     * @param idJuego identificador del juego a buscar
+     * @return JuegoEntidad encontrado
+     * @throws ExcepcionValidacion si no se encuentra el usuario
+     */
+    private JuegoEntidad comprobarJuegoExistePorId(long idJuego) throws ExcepcionValidacion {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        Optional<JuegoEntidad> juegoOpt = juegosrRepo.obtenerPorId(idJuego);
+        JuegoEntidad juego = juegoOpt.orElse(null);
+
+        if(juego == null){
+            errores.add(new ErrorDTO("Juego no existente", ErrorType.NO_ENCONTRADO));
             throw new ExcepcionValidacion(errores);
-        }
-        JuegoEntidad juegoConDescuento = juegoConDescuentoOpt.orElse(null);
-
-        return Mapper.mapDeJuego(juegoConDescuento);
+        }else return juego;
     }
 }

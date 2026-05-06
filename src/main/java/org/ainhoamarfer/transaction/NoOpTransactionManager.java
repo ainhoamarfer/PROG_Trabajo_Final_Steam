@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 public class NoOpTransactionManager implements ITransactionManager {
 
     @Override
-    public <T> T inTransaction(Supplier<T> work) throws ExcepcionValidacion {
+    public <T> T inTransaction(ExceptionSupplier<T> work) throws ExcepcionValidacion {
         try {
             return work.get();
         }catch(ExcepcionValidacion e){

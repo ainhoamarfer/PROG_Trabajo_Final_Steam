@@ -16,11 +16,11 @@ import java.util.function.Supplier;
  * pueda acceder a la sesión activa durante el bloque de trabajo.
  */
 public class HibernateTransactionManager implements ITransactionManager, ISesionManager {
-
     private Session session;
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <T> T inTransaction(Supplier<T> work) {
+    public <T> T inTransaction(ExceptionSupplier<T> work) throws ExcepcionValidacion {
         Transaction tx = null;
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
             session = s;
@@ -34,20 +34,12 @@ public class HibernateTransactionManager implements ITransactionManager, ISesion
                     tx.rollback();
                 throw e;
             }
-        } catch (ExcepcionValidacion ve) {
-            throw ve;
-        } catch (Exception e) {
-            try {
-                return (T) Optional.empty();
-            } catch (ClassCastException ex) {
-                return null;
-            }
         } finally {
             session = null;
         }
     }
 
-    /** Devuelve la sesión activa dentro de un bloque {@link #inTransaction}. */
+    @Override
     public Session getSession() {
         return session;
     }

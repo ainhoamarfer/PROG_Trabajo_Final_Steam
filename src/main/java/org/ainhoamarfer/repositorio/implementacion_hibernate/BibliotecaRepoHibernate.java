@@ -55,7 +55,7 @@ public class BibliotecaRepoHibernate implements IBibliotecaRepo {
     @Override
     public Optional<BibliotecaEntidad> crear(BibliotecaForm form) {
         Session session = sm.getSession();
-        BibliotecaEntidad biblioteca = new BibliotecaEntidad(-1, form.getUsuarioId(), form.getJuegoId(), form.getFechaAdquisicion(), form.getTiempoJuego(), form.getFechaUltimaJugado());
+        BibliotecaEntidad biblioteca = new BibliotecaEntidad(0, form.getUsuarioId(), form.getJuegoId(), form.getFechaAdquisicion(), form.getTiempoJuego(), form.getFechaUltimaJugado());
         session.persist(biblioteca);
         return Optional.empty();
     }
