@@ -101,27 +101,29 @@ public class ResenasControlador {
      */
     public String eliminarResena(long idResena, long idUsuario) throws ExcepcionValidacion {
 
-        //reviaser con funcion de actualizar estado
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<ResenaEntidad> resenaOpt = repoResena.obtenerPorId(idResena);
+        return tm.inTransaction(() -> {
+            Optional<ResenaEntidad> resenaOpt = repoResena.obtenerPorId(idResena);
 
-        resenaOpt.filter(r -> idUsuario == r.getUsuarioId())
-                .ifPresentOrElse(r -> repoResena.eliminar(idResena), () -> {
+            resenaOpt.filter(r -> idUsuario == r.getUsuarioId())
+                    .ifPresentOrElse(r -> repoResena.eliminar(idResena), () -> {
 
-            if (resenaOpt.isEmpty()) {
-                errores.add(new ErrorDTO("reseña", ErrorType.NO_ENCONTRADO));
+                        if (resenaOpt.isEmpty()) {
+                            errores.add(new ErrorDTO("reseña", ErrorType.NO_ENCONTRADO));
 
+                        } else {
+                            errores.add(new ErrorDTO("reseña", ErrorType.NO_PERTENECE_AL_USUARIO));
+                        }
+                    });
+
+            if (!errores.isEmpty()) {
+                throw new ExcepcionValidacion(errores);
             } else {
-                errores.add(new ErrorDTO("reseña", ErrorType.NO_PERTENECE_AL_USUARIO));
+                return "Reseña eliminada exitosamente";
             }
         });
 
-        if (!errores.isEmpty()) {
-            throw new ExcepcionValidacion(errores);
-        } else {
-            return "Reseña eliminada exitosamente";
-        }
     }
 
     /**
@@ -192,20 +194,22 @@ public class ResenasControlador {
     public String ocultarResena(long idResena, long idUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<ResenaEntidad> resenaOpt = repoResena.obtenerPorId(idResena)
-                .filter(u -> idUsuario == u.getUsuarioId() && u.getEstado() != ResenaEstado.OCULTA);
+        return tm.inTransaction(() -> {
+            Optional<ResenaEntidad> resenaOpt = repoResena.obtenerPorId(idResena)
+                    .filter(u -> idUsuario == u.getUsuarioId() && u.getEstado() != ResenaEstado.OCULTA);
 
-        if(resenaOpt.isEmpty()){
-            errores.add(new ErrorDTO("Reseña", ErrorType.NO_ENCONTRADO));
-        }else {
-            repoResena.actualizarEstadoResena(idResena, ResenaEstado.OCULTA);
-        }
+            if(resenaOpt.isEmpty()){
+                errores.add(new ErrorDTO("Reseña", ErrorType.NO_ENCONTRADO));
+            }else {
+                repoResena.actualizarEstadoResena(idResena, ResenaEstado.OCULTA);
+            }
 
-        if (!errores.isEmpty()) {
-            throw new ExcepcionValidacion(errores);
-        } else {
-            return "Reseña cambiada a no visible";
-        }
+            if (!errores.isEmpty()) {
+                throw new ExcepcionValidacion(errores);
+            } else {
+                return "Reseña cambiada a no visible";
+            }
+        });
     }
 
     /**
@@ -232,31 +236,36 @@ public class ResenasControlador {
     public List<ResenaDTO> verResenasUsuario(long idUsuario, String filtroEstado) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<UsuarioEntidad> usuarioOpt = repoUsuario.obtenerPorId(idUsuario);
-        if(usuarioOpt.isEmpty()){
-            errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
-            throw new ExcepcionValidacion(errores);
-        }
+        List<ResenaDTO> resenasMappeadas = tm.inTransaction(() -> {
 
-        List<ResenaEntidad> resenas = repoResena.obtenerPorIdUsuario(idUsuario)
-                .stream()
-                .toList();
-
-        if (resenas.isEmpty()) {
-            return new ArrayList<>();
-
-        } else {
-
-            if (filtroEstado != null && !filtroEstado.isBlank()) {
-                resenas = resenas.stream()
-                        .filter(r -> r.getEstado().name().equalsIgnoreCase(filtroEstado))
-                        .toList();
+            Optional<UsuarioEntidad> usuarioOpt = repoUsuario.obtenerPorId(idUsuario);
+            if(usuarioOpt.isEmpty()){
+                errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
+                throw new ExcepcionValidacion(errores);
             }
 
-            return resenas.stream()
-                    .map(Mapper::mapDeResena)
+            List<ResenaEntidad> resenas = repoResena.obtenerPorIdUsuario(idUsuario)
+                    .stream()
                     .toList();
-        }
+
+            if (resenas.isEmpty()) {
+                return new ArrayList<>();
+
+            } else {
+
+                if (filtroEstado != null && !filtroEstado.isBlank()) {
+                    resenas = resenas.stream()
+                            .filter(r -> r.getEstado().name().equalsIgnoreCase(filtroEstado))
+                            .toList();
+                }
+
+                return resenas.stream()
+                        .map(Mapper::mapDeResena)
+                        .toList();
+            }
+        });
+
+        return resenasMappeadas;
     }
 }
 

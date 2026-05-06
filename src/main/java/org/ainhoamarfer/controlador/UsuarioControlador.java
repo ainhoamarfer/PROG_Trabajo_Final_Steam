@@ -4,8 +4,10 @@ import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.mapper.Mapper;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.dtos.UsuarioDTO;
+import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
+import org.ainhoamarfer.modelo.form.JuegoForm;
 import org.ainhoamarfer.modelo.form.UsuarioForm;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 import org.ainhoamarfer.transaction.ITransactionManager;
@@ -36,17 +38,21 @@ public class UsuarioControlador {
     public UsuarioDTO registrarNuevoUsuario(UsuarioForm form) throws ExcepcionValidacion {
         List<ErrorDTO> errores = form.validar(form);
 
-        usuarioRepo.obtenerPorNombreUsuario(form.getNombreUsuario())
-                .ifPresent(u -> errores.add(new ErrorDTO("nombre", ErrorType.DUPLICADO)));
+        UsuarioEntidad usuario = tm.inTransaction(() -> {
 
-        usuarioRepo.obtenerPorEmail(form.getEmail())
-                .ifPresent(u -> errores.add(new ErrorDTO("email", ErrorType.DUPLICADO)));
+            usuarioRepo.obtenerPorNombreUsuario(form.getNombreUsuario())
+                    .ifPresent(u -> errores.add(new ErrorDTO("nombre", ErrorType.DUPLICADO)));
+
+            usuarioRepo.obtenerPorEmail(form.getEmail())
+                    .ifPresent(u -> errores.add(new ErrorDTO("email", ErrorType.DUPLICADO)));
 
 
-        if (!errores.isEmpty()) throw new ExcepcionValidacion(errores);
+            if (!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
-        Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.crear(form);
-        UsuarioEntidad usuario = usuarioOpt.orElse(null);
+            Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.crear(form);
+
+            return usuarioOpt.orElse(null);
+        });
 
         return Mapper.mapDeUsuario(usuario);
     }
@@ -63,18 +69,19 @@ public class UsuarioControlador {
     public UsuarioDTO consultarPerfil(long idUsuario, String nombreUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        UsuarioEntidad usuarioAConsultar = null;
-        if (nombreUsuario == null || nombreUsuario.isBlank()) {
-            usuarioAConsultar = comprobarUsuarioExistePorId(idUsuario);
+        UsuarioEntidad usuarioAConsultar = tm.inTransaction(() -> {
+            if (nombreUsuario == null || nombreUsuario.isBlank()) {
+                return comprobarUsuarioExistePorId(idUsuario);
 
-        } else {
-            Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorNombreUsuario(nombreUsuario);
-            if(usuarioOpt.isEmpty()){
-                errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
-                throw new ExcepcionValidacion(errores);
+            } else {
+                Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorNombreUsuario(nombreUsuario);
+                if(usuarioOpt.isEmpty()){
+                    errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
+                    throw new ExcepcionValidacion(errores);
+                }
+                return usuarioOpt.orElse(null);
             }
-            usuarioAConsultar = usuarioOpt.orElse(null);
-        }
+        });
 
         return Mapper.mapDeUsuario(usuarioAConsultar);
     }
@@ -93,23 +100,27 @@ public class UsuarioControlador {
     public Double anadirSaldoCartera(Double recarga, long idUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        UsuarioEntidad usuario = comprobarUsuarioExistePorId(idUsuario);
+        Double nSaldo = tm.inTransaction(() -> {
 
-        if(usuario.getEstadoCuenta().estadoBloqueado()) errores.add(new ErrorDTO("Estado cuenta", ErrorType.ESTADO_CUENTA));
+            UsuarioEntidad usuario = comprobarUsuarioExistePorId(idUsuario);
 
-        if(!Util.validarRecargaCartera(recarga)) errores.add(new ErrorDTO("Dinero recarga", ErrorType.VALOR_NO_VALIDO));
+            if(usuario.getEstadoCuenta().estadoBloqueado()) errores.add(new ErrorDTO("Estado cuenta", ErrorType.ESTADO_CUENTA));
 
+            if(!Util.validarRecargaCartera(recarga)) errores.add(new ErrorDTO("Dinero recarga", ErrorType.VALOR_NO_VALIDO));
 
-        if(!errores.isEmpty()) throw new ExcepcionValidacion(errores);
+            if(!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
-        double nuevoSaldo = usuario.getSaldoCartera() + recarga;
+            double nuevoSaldo = usuario.getSaldoCartera() + recarga;
 
-        UsuarioForm form = new UsuarioForm(usuario.getNombreUsuario(), usuario.getEmail(), usuario.getContrasena(), usuario.getNombreReal(),
-                usuario.getPais(), usuario.getFechaNaci(), usuario.getFechaRegistro(), usuario.getAvatar(), nuevoSaldo, usuario.getEstadoCuenta());
+            UsuarioForm form = new UsuarioForm(usuario.getNombreUsuario(), usuario.getEmail(), usuario.getContrasena(), usuario.getNombreReal(),
+                    usuario.getPais(), usuario.getFechaNaci(), usuario.getFechaRegistro(), usuario.getAvatar(), nuevoSaldo, usuario.getEstadoCuenta());
 
-        usuarioRepo.actualizar(idUsuario,form);
+            usuarioRepo.actualizar(idUsuario,form);
 
-        return nuevoSaldo;
+            return nuevoSaldo;
+        });
+
+        return nSaldo;
     }
 
     /**
@@ -120,9 +131,10 @@ public class UsuarioControlador {
      * @throws ExcepcionValidacion si el usuario no existe
      */
     public Double consultarSaldoCartera(long idUsuario) throws ExcepcionValidacion {
-
-        UsuarioEntidad usuario = comprobarUsuarioExistePorId(idUsuario);
-        return usuario.getSaldoCartera();
+        return tm.inTransaction(() -> {
+            UsuarioEntidad usuario = comprobarUsuarioExistePorId(idUsuario);
+            return usuario.getSaldoCartera();
+        });
     }
 
     /**
