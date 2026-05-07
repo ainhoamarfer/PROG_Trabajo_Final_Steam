@@ -66,28 +66,30 @@ public class ResenasControlador {
     public ResenaDTO escribirResena(long idUsuario, long idJuego, boolean recomendado, String texto) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<ResenaEntidad> resenaExistenteOpt = repoResena.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
-        if (resenaExistenteOpt.isPresent()) errores.add(new ErrorDTO("Reseña", ErrorType.DUPLICADO));
+        return tm.inTransaction(() -> {
+            Optional<ResenaEntidad> resenaExistenteOpt = repoResena.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
+            if (resenaExistenteOpt.isPresent()) errores.add(new ErrorDTO("Reseña", ErrorType.DUPLICADO));
 
-        if (texto == null || texto.isEmpty() || texto.length() < MIN_LONG_RESENA || texto.length() > MAX_LONG_RESENA) {
-            errores.add(new ErrorDTO("Texto", ErrorType.REQUERIDO));
-        }
+            if (texto == null || texto.isEmpty() || texto.length() < MIN_LONG_RESENA || texto.length() > MAX_LONG_RESENA) {
+                errores.add(new ErrorDTO("Texto", ErrorType.REQUERIDO));
+            }
 
-        if (!errores.isEmpty()){
-            throw new ExcepcionValidacion(errores);
-        }
+            if (!errores.isEmpty()) {
+                throw new ExcepcionValidacion(errores);
+            }
 
-        Optional<BibliotecaEntidad> BiblioOpt = repoBiblioteca.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
+            Optional<BibliotecaEntidad> BiblioOpt = repoBiblioteca.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
 
-        if(BiblioOpt.isEmpty()){
-            errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
-            throw new ExcepcionValidacion(errores);
-        } else {
-            BibliotecaEntidad Biblioteca = BiblioOpt.orElse(null);
-            Optional<ResenaEntidad> resenaOpt = repoResena.crear(new ResenaForm(idUsuario, idJuego, recomendado, texto, Biblioteca.getTiempoJuego(),LocalDate.now(), LocalDate.now(), ResenaEstado.PUBLICADA));
-            ResenaEntidad resena = resenaOpt.orElse(null);
-            return Mapper.mapDeResena(resena);
-        }
+            if (BiblioOpt.isEmpty()) {
+                errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
+                throw new ExcepcionValidacion(errores);
+            } else {
+                BibliotecaEntidad Biblioteca = BiblioOpt.orElse(null);
+                Optional<ResenaEntidad> resenaOpt = repoResena.crear(new ResenaForm(idUsuario, idJuego, recomendado, texto, Biblioteca.getTiempoJuego(), LocalDate.now(), LocalDate.now(), ResenaEstado.PUBLICADA));
+                ResenaEntidad resena = resenaOpt.orElse(null);
+                return Mapper.mapDeResena(resena);
+            }
+        });
     }
 
     /**
@@ -139,47 +141,49 @@ public class ResenasControlador {
     public List<ResenaDTO> verResenasJuego(long idJuego, String filtroPosNeg, String orden) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<JuegoEntidad> juegoOpt = repoJuego.obtenerPorId(idJuego);
-        if(juegoOpt.isEmpty()){
-            errores.add(new ErrorDTO("Juego", ErrorType.NO_ENCONTRADO));
-            throw new ExcepcionValidacion(errores);
-        }
-
-        // Comprobar si publicada
-        List<ResenaEntidad> resenas = repoResena.obtenerTodos().stream()
-                .filter(r -> r.getJuegoId() == idJuego && r.getEstado() == ResenaEstado.PUBLICADA)
-                .collect(Collectors.toCollection(ArrayList::new)); // al parecer si pongo to list me fallan los tests
-
-        if(resenas.isEmpty()){
-            return new ArrayList<>();
-        }
-
-
-        // Filtrar positivas negativas
-        if (filtroPosNeg != null && !filtroPosNeg.isEmpty()) {
-            if ("positivas".equalsIgnoreCase(filtroPosNeg)) {
-                resenas = resenas.stream()
-                        .filter(ResenaEntidad::isRecomendado)
-                        .collect(Collectors.toCollection(ArrayList::new)); // para el test
-            } else if ("negativas".equalsIgnoreCase(filtroPosNeg)) {
-                resenas = resenas.stream()
-                        .filter(r -> !r.isRecomendado())
-                        .collect(Collectors.toCollection(ArrayList::new)); // para el test
+        return tm.inTransaction(() -> {
+            Optional<JuegoEntidad> juegoOpt = repoJuego.obtenerPorId(idJuego);
+            if (juegoOpt.isEmpty()) {
+                errores.add(new ErrorDTO("Juego", ErrorType.NO_ENCONTRADO));
+                throw new ExcepcionValidacion(errores);
             }
-        }
 
-        // Ordenar según criterio
-        if ("recientes".equalsIgnoreCase(orden)) {
-            resenas.sort(Comparator.comparing(ResenaEntidad::getFechaPublicacion).reversed());
-        }
+            // Comprobar si publicada
+            List<ResenaEntidad> resenas = repoResena.obtenerTodos().stream()
+                    .filter(r -> r.getJuegoId() == idJuego && r.getEstado() == ResenaEstado.PUBLICADA)
+                    .collect(Collectors.toCollection(ArrayList::new)); // al parecer si pongo to list me fallan los tests
 
-        if ("mas antiguas".equalsIgnoreCase(orden)) {
-            resenas.sort(Comparator.comparing(ResenaEntidad::getFechaPublicacion));
-        }
+            if (resenas.isEmpty()) {
+                return new ArrayList<>();
+            }
 
-        return resenas.stream()
-                .map(Mapper::mapDeResena)
-                .toList();
+
+            // Filtrar positivas negativas
+            if (filtroPosNeg != null && !filtroPosNeg.isEmpty()) {
+                if ("positivas".equalsIgnoreCase(filtroPosNeg)) {
+                    resenas = resenas.stream()
+                            .filter(ResenaEntidad::isRecomendado)
+                            .collect(Collectors.toCollection(ArrayList::new)); // para el test
+                } else if ("negativas".equalsIgnoreCase(filtroPosNeg)) {
+                    resenas = resenas.stream()
+                            .filter(r -> !r.isRecomendado())
+                            .collect(Collectors.toCollection(ArrayList::new)); // para el test
+                }
+            }
+
+            // Ordenar según criterio
+            if ("recientes".equalsIgnoreCase(orden)) {
+                resenas.sort(Comparator.comparing(ResenaEntidad::getFechaPublicacion).reversed());
+            }
+
+            if ("mas antiguas".equalsIgnoreCase(orden)) {
+                resenas.sort(Comparator.comparing(ResenaEntidad::getFechaPublicacion));
+            }
+
+            return resenas.stream()
+                    .map(Mapper::mapDeResena)
+                    .toList();
+        });
     }
 
     /**

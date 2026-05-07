@@ -120,38 +120,40 @@ public class JuegosControlador {
      * @return Lista de `JuegoDTO` con información básica. Metadatos de paginación
      */
     public List<JuegoDTO> consultarCatalogo(CriterioOrdenacionJuegosEnum criterioOrdenacion) {
-        List<JuegoEntidad> juegos = juegosrRepo.obtenerTodos();
+        return tm.inTransaction(() -> {
+            List<JuegoEntidad> juegos = juegosrRepo.obtenerTodos();
 
-        if (criterioOrdenacion != null) {
-            switch (criterioOrdenacion) {
-                case ALFABETICO_A_Z:
-                    juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getTitulo)).toList();
-                    break;
+            if (criterioOrdenacion != null) {
+                switch (criterioOrdenacion) {
+                    case ALFABETICO_A_Z:
+                        juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getTitulo)).toList();
+                        break;
 
-                case ALFABETICO_Z_A:
-                    juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getTitulo).reversed()).toList();
-                    break;
+                    case ALFABETICO_Z_A:
+                        juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getTitulo).reversed()).toList();
+                        break;
 
-                case PRECIO_MENOR_A_MAYOR:
-                    juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getPrecioBase)).toList();
-                    break;
+                    case PRECIO_MENOR_A_MAYOR:
+                        juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getPrecioBase)).toList();
+                        break;
 
-                case PRECIO_MAYOR_A_MENOR:
-                    juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getPrecioBase).reversed()).toList();
-                    break;
+                    case PRECIO_MAYOR_A_MENOR:
+                        juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getPrecioBase).reversed()).toList();
+                        break;
 
-                case FECHA_MAS_RECIENTE:
-                    juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getFechaLanzamiento).reversed()).toList();
-                    break;
+                    case FECHA_MAS_RECIENTE:
+                        juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getFechaLanzamiento).reversed()).toList();
+                        break;
 
-                case FECHA_MAS_ANTIGUA:
-                    juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getFechaLanzamiento)).collect(Collectors.toList());
-                    break;
+                    case FECHA_MAS_ANTIGUA:
+                        juegos = juegos.stream().sorted(Comparator.comparing(JuegoEntidad::getFechaLanzamiento)).collect(Collectors.toList());
+                        break;
+                }
             }
-        }
-        return juegos.stream()
-                .map(Mapper::mapDeJuego)
-                .toList();
+            return juegos.stream()
+                    .map(Mapper::mapDeJuego)
+                    .toList();
+        });
     }
 
 
