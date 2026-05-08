@@ -63,7 +63,7 @@ public class UsuarioRepoHibernate implements IUsuarioRepo {
         CriteriaQuery<UsuarioEntidad> cq = cb.createQuery(UsuarioEntidad.class);
         Root<UsuarioEntidad> root = cq.from(UsuarioEntidad.class);
 
-        cq.select(root).orderBy(cb.asc(root.get("fecha_registro")));
+        cq.select(root).orderBy(cb.asc(root.get("fechaRegistro")));
         return session.createQuery(cq).getResultList();
     }
 
@@ -131,6 +131,13 @@ public class UsuarioRepoHibernate implements IUsuarioRepo {
     //TODO: implementar este método
     @Override
     public Optional<UsuarioEntidad> obtenerPorEmail(String email) {
-        return Optional.empty();
+        Session session = sm.getSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<UsuarioEntidad> cq = cb.createQuery(UsuarioEntidad.class);
+        Root<UsuarioEntidad> root = cq.from(UsuarioEntidad.class);
+
+        cq.select(root).where(cb.equal(root.get("email"), email));
+        return session.createQuery(cq).getResultStream().findFirst();
     }
 }

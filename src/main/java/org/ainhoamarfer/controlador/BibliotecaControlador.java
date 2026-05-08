@@ -143,6 +143,7 @@ public class BibliotecaControlador {
                 }
             }
 
+            //todo quwpasa que no se creala biblioteca
             BibliotecaForm nuevaBiblioteca = new BibliotecaForm(idUsuario, idJuego, LocalDate.now(), 0.0, null, false);
 
             Optional<BibliotecaEntidad> biblioCreada = biblioRepo.crear(nuevaBiblioteca);
@@ -164,17 +165,19 @@ public class BibliotecaControlador {
      */
     public void eliminarJuegoBiblioteca(long idUsuario, long idJuego) throws ExcepcionValidacion {
 
+        tm.inTransaction(() -> {
+            Optional<BibliotecaEntidad> bibliotecaOpt = biblioRepo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
 
-        Optional <BibliotecaEntidad> bibliotecaOpt = biblioRepo.obtenerPorIdUsuarioYIdJuego(idUsuario, idJuego);
-
-        if (bibliotecaOpt.isEmpty()) {
-            List<ErrorDTO> errores = new ArrayList<>();
-            errores.add(new ErrorDTO("biblioteca", ErrorType.NO_ENCONTRADO));
-            throw new ExcepcionValidacion(errores);
-        } else {
-            BibliotecaEntidad biblioteca = bibliotecaOpt.get();
-            biblioRepo.eliminar(biblioteca.getId());
-        }
+            if (bibliotecaOpt.isEmpty()) {
+                List<ErrorDTO> errores = new ArrayList<>();
+                errores.add(new ErrorDTO("biblioteca", ErrorType.NO_ENCONTRADO));
+                throw new ExcepcionValidacion(errores);
+            } else {
+                BibliotecaEntidad biblioteca = bibliotecaOpt.get();
+                biblioRepo.eliminar(biblioteca.getId());
+            }
+            return null;
+        });
     }
 
     /**
@@ -263,11 +266,20 @@ public class BibliotecaControlador {
      * Ver estadísticas de biblioteca
      * Descripción: Mostrar métricas generales de la biblioteca del usuario
      * @param idUsuario ID del usuario
-     * @return Objeto con todas las estadísticas calculadas
+     * @return EstadisticaBibliotecaEntidad con todas las estadísticas calculadas
      * Estadísticas: Total juegos, horas totales, juegos instalados, juego más jugado, valor total, juegos nunca jugados
      */
     public EstadisticaBibliotecaEntidad verEstadisticasBiblioteca(long idUsuario) {
         List<ErrorDTO> errores = new ArrayList<>();
+
+        Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorId(idUsuario);
+        if (usuarioOpt.isEmpty()) {
+            errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
+            throw new ExcepcionValidacion(errores);
+        }
+
+
+
         throw new UnsupportedOperationException("Not implemented");
     }
 }

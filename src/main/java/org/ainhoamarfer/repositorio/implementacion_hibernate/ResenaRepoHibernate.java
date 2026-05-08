@@ -34,8 +34,8 @@ public class ResenaRepoHibernate implements IResenaRepo {
 
 
         cq.select(root).where(cb.and(
-                        cb.equal(root.get("usuario_id"), idUsuario),
-                        cb.equal(root.get("juego_id"), idJuego)
+                        cb.equal(root.get("usuarioId"), idUsuario),
+                        cb.equal(root.get("juegoId"), idJuego)
                 )
         );
 
@@ -51,7 +51,7 @@ public class ResenaRepoHibernate implements IResenaRepo {
         Root<ResenaEntidad> root = cq.from(ResenaEntidad.class);
 
 
-        cq.select(root).where(cb.equal(root.get("usuario_id"), idUsuario));
+        cq.select(root).where(cb.equal(root.get("usuarioId"), idUsuario));
 
         return session.createQuery(cq).getResultStream().findFirst();
     }
@@ -86,7 +86,7 @@ public class ResenaRepoHibernate implements IResenaRepo {
         ResenaEntidad resena = new ResenaEntidad(0, form.getUsuarioId(), form.getJuegoId(), form.isRecomendado(), form.getTexto(), form.getHorasJugadas(), form.getFechaPublicacion(),
                 form.getFechaUltEdicion(), form.getEstado());
         session.persist(resena);
-        return Optional.empty();
+        return Optional.of(resena);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class ResenaRepoHibernate implements IResenaRepo {
 
         ResenaEntidad resena = session.find(ResenaEntidad.class, id);
 
-        return Optional.ofNullable(resena);
+        return Optional.of(resena);
     }
 
     @Override

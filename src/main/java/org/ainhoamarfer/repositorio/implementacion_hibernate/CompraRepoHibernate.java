@@ -34,7 +34,7 @@ public class CompraRepoHibernate implements ICompraRepo {
         Root<CompraEntidad> root = cq.from(CompraEntidad.class);
 
 
-        cq.select(root).where(cb.equal(root.get("usuario_id"), idUsuario));
+        cq.select(root).where(cb.equal(root.get("usuarioId"), idUsuario));
 
         return session.createQuery(cq).getResultStream().findFirst();
     }
@@ -49,7 +49,7 @@ public class CompraRepoHibernate implements ICompraRepo {
 
 
         cq.select(root).where(cb.and(
-                        cb.equal(root.get("usuario_id"), idUsuario),
+                        cb.equal(root.get("usuarioId"), idUsuario),
                         cb.equal(root.get("id"), id)
                 )
         );
@@ -108,7 +108,7 @@ public class CompraRepoHibernate implements ICompraRepo {
         CriteriaQuery<CompraEntidad> cQuery = cBuilder.createQuery(CompraEntidad.class);
         Root<CompraEntidad> root = cQuery.from(CompraEntidad.class);
 
-        cQuery.select(root).orderBy(cBuilder.asc(root.get("fecha_compra")));
+        cQuery.select(root).orderBy(cBuilder.asc(root.get("fechaCompra")));
 
         return session.createQuery(cQuery).getResultList();
     }

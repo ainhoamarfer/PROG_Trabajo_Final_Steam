@@ -29,7 +29,7 @@ public class BibliotecaRepoHibernate implements IBibliotecaRepo {
         Root<BibliotecaEntidad> root = cq.from(BibliotecaEntidad.class);
 
 
-        cq.select(root).where(cb.equal(root.get("usuario_id"), idUsuario));
+        cq.select(root).where(cb.equal(root.get("usuarioId"), idUsuario));
 
         return session.createQuery(cq).getResultStream().toList();
     }
@@ -44,8 +44,8 @@ public class BibliotecaRepoHibernate implements IBibliotecaRepo {
 
 
         cq.select(root).where(cb.and(
-                        cb.equal(root.get("usuario_id"), idUsuario),
-                        cb.equal(root.get("juego_id"), idJuego)
+                        cb.equal(root.get("usuarioId"), idUsuario),
+                        cb.equal(root.get("juegoId"), idJuego)
                 )
         );
 
@@ -55,7 +55,8 @@ public class BibliotecaRepoHibernate implements IBibliotecaRepo {
     @Override
     public Optional<BibliotecaEntidad> crear(BibliotecaForm form) {
         Session session = sm.getSession();
-        BibliotecaEntidad biblioteca = new BibliotecaEntidad(0, form.getUsuarioId(), form.getJuegoId(), form.getFechaAdquisicion(), form.getTiempoJuego(), form.getFechaUltimaJugado());
+        BibliotecaEntidad biblioteca = new BibliotecaEntidad(0, form.getUsuarioId(), form.getJuegoId(), form.getFechaAdquisicion(),
+                form.getTiempoJuego(), form.getFechaUltimaJugado());
         session.persist(biblioteca);
         return Optional.empty();
     }

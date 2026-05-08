@@ -167,9 +167,10 @@ public class JuegosControlador {
      * @throws IllegalArgumentException si no existe un juego con el ID proporcionado.
      */
     public JuegoDTO consultarDetallesJuego(Long id) throws ExcepcionValidacion {
-
-        JuegoEntidad juegoAConsultar = comprobarJuegoExistePorId(id);
-        return Mapper.mapDeJuego(juegoAConsultar);
+        return tm.inTransaction(() -> {
+            JuegoEntidad juegoAConsultar = comprobarJuegoExistePorId(id);
+            return Mapper.mapDeJuego(juegoAConsultar);
+        });
     }
 
     /**
