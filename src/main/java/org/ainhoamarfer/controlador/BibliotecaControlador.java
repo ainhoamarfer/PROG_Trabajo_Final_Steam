@@ -272,14 +272,51 @@ public class BibliotecaControlador {
     public EstadisticaBibliotecaEntidad verEstadisticasBiblioteca(long idUsuario) {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorId(idUsuario);
-        if (usuarioOpt.isEmpty()) {
-            errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
-            throw new ExcepcionValidacion(errores);
-        }
+        return tm.inTransaction(() -> {
+            Optional<UsuarioEntidad> usuarioOpt = usuarioRepo.obtenerPorId(idUsuario);
+            if (usuarioOpt.isEmpty()) {
+                errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
+                throw new ExcepcionValidacion(errores);
+            }
 
+            List<BibliotecaEntidad> bibliotecas = biblioRepo.obtenerPorIdUsuario(idUsuario).stream().toList();
+            if (bibliotecas.isEmpty()) {
+                errores.add(new ErrorDTO("Biblioteca", ErrorType.NO_ENCONTRADO));
+                throw new ExcepcionValidacion(errores);
+            }
 
+            int totalJuegos = bibliotecas.size();
+            double horasTotales = 0.0;
+            int juegosInstalados = 0;
+            int juegosNuncaJugados = 0;
+            double valorTotal = 0.0;
+            long idJuegoMasJugado = 0;
+            double maxTiempo = -1.0;
 
-        throw new UnsupportedOperationException("Not implemented");
+            for (BibliotecaEntidad biblio : bibliotecas) {
+                //Tiempo juego
+                double tiempo = biblio.getTiempoJuego();
+                horasTotales = horasTotales + tiempo;
+                if (tiempo == 0.0) juegosNuncaJugados++;
+                if (tiempo > maxTiempo) {
+                    maxTiempo = tiempo;
+                    idJuegoMasJugado = biblio.getJuegoId();
+                }
+
+                //Instalación
+                if (biblio.isInstalado()) juegosInstalados++;
+
+                //valor del juego con descuento
+                Optional<JuegoEntidad> juegoOpt = juegoRepo.obtenerPorId(biblio.getJuegoId());
+                if (juegoOpt.isPresent()) {
+                    JuegoEntidad juego = juegoOpt.get();
+                    double precioFinal = juego.getPrecioBase() * (100 - juego.getDescuentoActual()) / 100.0;
+                    valorTotal = valorTotal + precioFinal;
+                }
+            }
+
+            return new EstadisticaBibliotecaEntidad(idUsuario, totalJuegos, horasTotales, juegosInstalados, idJuegoMasJugado, valorTotal, juegosNuncaJugados);
+
+        });
     }
 }

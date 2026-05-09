@@ -20,6 +20,10 @@ public class EstadisticaBibliotecaEntidad {
         this.juegosNuncaJugados = juegosNuncaJugados;
     }
 
+    public long getIdUsuario() {
+        return idUsuario;
+    }
+
     public int getTotalJuegos() {
         return totalJuegos;
     }
