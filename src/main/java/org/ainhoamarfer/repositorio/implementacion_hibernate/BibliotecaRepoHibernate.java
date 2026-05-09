@@ -58,7 +58,7 @@ public class BibliotecaRepoHibernate implements IBibliotecaRepo {
         BibliotecaEntidad biblioteca = new BibliotecaEntidad(0, form.getUsuarioId(), form.getJuegoId(), form.getFechaAdquisicion(),
                 form.getTiempoJuego(), form.getFechaUltimaJugado());
         session.persist(biblioteca);
-        return Optional.empty();
+        return Optional.of(biblioteca);
     }
 
     @Override
@@ -105,7 +105,8 @@ public class BibliotecaRepoHibernate implements IBibliotecaRepo {
         if (bibliotecaOpt.isEmpty()) {
             return false;
         } else {
-            session.remove(bibliotecaOpt);
+            BibliotecaEntidad biblioteca = bibliotecaOpt.get();
+            session.remove(biblioteca);
             return true;
         }
     }

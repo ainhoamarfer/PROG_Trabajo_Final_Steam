@@ -59,24 +59,15 @@ public class ResenaRepoHibernate implements IResenaRepo {
     @Override
     public void actualizarEstadoResena(Long id, ResenaEstado estado) {
         Session session = sm.getSession();
-        Transaction tx = session.beginTransaction();
-        try (session) {
-            ResenaEntidad resenaActual = session.get(ResenaEntidad.class, id);
-            if (resenaActual == null) {
-                throw new IllegalArgumentException("Compra no encontrada");
-            }
-
-            ResenaEntidad resenaMod = new ResenaEntidad(resenaActual.getId(), resenaActual.getUsuarioId(), resenaActual.getJuegoId(), resenaActual.isRecomendado(),
-                    resenaActual.getTexto(), resenaActual.getHorasJugadas(), resenaActual.getFechaPublicacion(), resenaActual.getFechaUltEdicion(), estado
-            );
-
-            // merge actualiza la fila existente o inserta si no existe
-            session.merge(resenaMod);
-            tx.commit();
-        } catch (Exception e) {
-            tx.rollback();
-            throw e;
+        ResenaEntidad resenaActual = session.get(ResenaEntidad.class, id);
+        if (resenaActual == null) {
+            throw new IllegalArgumentException("Reseña no encontrada");
         }
+        ResenaEntidad resenaMod = new ResenaEntidad(
+                resenaActual.getId(), resenaActual.getUsuarioId(), resenaActual.getJuegoId(), resenaActual.isRecomendado(), resenaActual.getTexto(),
+                resenaActual.getHorasJugadas(), resenaActual.getFechaPublicacion(), resenaActual.getFechaUltEdicion(), estado
+        );
+        session.merge(resenaMod);
     }
 
     @Override
@@ -95,7 +86,7 @@ public class ResenaRepoHibernate implements IResenaRepo {
 
         ResenaEntidad resena = session.find(ResenaEntidad.class, id);
 
-        return Optional.of(resena);
+        return Optional.ofNullable(resena);
     }
 
     @Override

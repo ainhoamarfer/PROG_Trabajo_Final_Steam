@@ -60,24 +60,15 @@ public class CompraRepoHibernate implements ICompraRepo {
     @Override
     public void actualizarEstadoCompra(Long idCompra, CompraEstadoEnum estadoCompra) {
         Session session = sm.getSession();
-        Transaction tx = session.beginTransaction();
-        try (session) {
-            CompraEntidad compraActual = session.get(CompraEntidad.class, idCompra);
-            if (compraActual == null) {
-                throw new IllegalArgumentException("Compra no encontrada");
-            }
-
-            CompraEntidad compraModificada = new CompraEntidad(compraActual.getId(), compraActual.getUsuarioId(), compraActual.getJuegoId(),
-                    compraActual.getFechaCompra(), compraActual.getPrecioBase(), compraActual.getPorcentajeDescuento(), compraActual.getMetodoPago(), estadoCompra
-            );
-
-            // merge actualiza la fila existente o inserta si no existe
-            session.merge(compraModificada);
-            tx.commit();
-        } catch (Exception e) {
-            tx.rollback();
-            throw e;
+        CompraEntidad compra = session.get(CompraEntidad.class, idCompra);
+        if (compra == null) {
+            throw new IllegalArgumentException("Compra no encontrada");
         }
+
+        CompraEntidad compraMod = new CompraEntidad(
+                compra.getId(), compra.getUsuarioId(), compra.getJuegoId(), compra.getFechaCompra(), compra.getPrecioBase(), compra.getPorcentajeDescuento(), compra.getMetodoPago(), estadoCompra
+        );
+        session.merge(compraMod);
     }
 
     @Override
@@ -87,7 +78,7 @@ public class CompraRepoHibernate implements ICompraRepo {
                 form.getDescuentoActual(), form.getMetodoPago(), CompraEstadoEnum.PENDIENTE);
         session.persist(compra);
 
-        return Optional.empty();
+        return Optional.of(compra);
     }
 
     @Override
@@ -130,11 +121,12 @@ public class CompraRepoHibernate implements ICompraRepo {
     @Override
     public boolean eliminar(Long id) {
         Session session = sm.getSession();
-        Optional<CompraEntidad> compraEntidad = this.obtenerPorId(id);
+        Optional<CompraEntidad> compraEntidadOpt = this.obtenerPorId(id);
 
-        if (compraEntidad.isEmpty()) {
+        if (compraEntidadOpt.isEmpty()) {
             return false;
         } else {
+            CompraEntidad compraEntidad = compraEntidadOpt.get();
             session.remove(compraEntidad);
             return true;
         }

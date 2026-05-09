@@ -73,12 +73,13 @@ public class CompraControlador {
      */
     public CompraDTO realizarCompra(CompraForm form) throws ExcepcionValidacion {
 
-        List<ErrorDTO> errores = new ArrayList<>();
+        List<ErrorDTO> errores = form.validar(form);
 
         int descuento = form.getDescuentoActual();
         if (descuento < MIN_DESCUENTO || descuento > MAX_DESCUENTO || form.getPrecioBase() < 0 || form.getMetodoPago() == null) {
             errores.add(new ErrorDTO("descuentoActual", ErrorType.VALOR_NO_VALIDO));
         }
+        if (!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
         return tm.inTransaction(() -> {
 
@@ -254,8 +255,9 @@ public class CompraControlador {
     public CompraDTO solicitarReembolso(long idCompra) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
+
         return tm.inTransaction(() -> {
-            CompraEntidad compra = compraRepo.obtenerPorIdUsuario(idCompra)
+            CompraEntidad compra = compraRepo.obtenerPorId(idCompra)
                     .stream()
                     .findFirst()
                     .orElseThrow(() -> {
@@ -265,15 +267,13 @@ public class CompraControlador {
 
             //Ver si Compra completada
             if (compra.getEstadoCompra() != CompraEstadoEnum.COMPLETADA) {
-                errores.add(new ErrorDTO("La compra aun no se completo, no puedes solicitar reenvolso", ErrorType.VALOR_NO_VALIDO));
-                throw new ExcepcionValidacion(errores);
+                errores.add(new ErrorDTO("La compra aun no se completo, no puedes solicitar reembolso", ErrorType.VALOR_NO_VALIDO));
             }
             //dentro del plazo
             LocalDate fechaCompra = compra.getFechaCompra();
             LocalDate fechaLimite = fechaCompra.plusDays(MAX_DIAS_PRUEBA_JUEGO);
             if (LocalDate.now().isAfter(fechaLimite)) {
                 errores.add(new ErrorDTO("plazoReembolso", ErrorType.PLAZO_REEMBOLSO_VENCIDO));
-                throw new ExcepcionValidacion(errores);
             }
 
             //horas jugadas (menos de 2), para esto hay que consultar la biblioteca del usuario y ver el tiempo de juego registrado para ese juego
@@ -281,12 +281,11 @@ public class CompraControlador {
                     .obtenerPorIdUsuarioYIdJuego(compra.getUsuarioId(), compra.getJuegoId())
                     .orElseThrow(() -> {
                         errores.add(new ErrorDTO("biblioteca", ErrorType.NO_ENCONTRADO));
-                        return new ExcepcionValidacion(errores);
+                        throw new ExcepcionValidacion(errores);
                     });
 
             if (biblioteca.getTiempoJuego() >= MAX_HORAS_PRUEBA_JUEGO) {
                 errores.add(new ErrorDTO("tiempoJuego", ErrorType.TIEMPO_EXPIRADO));
-                throw new ExcepcionValidacion(errores);
             }
 
             if (!errores.isEmpty()) {

@@ -10,10 +10,7 @@ public class MainPruebasHibernate {
 
 
     static void main() {
-
         Session session = HibernateUtil.getSessionFactory().openSession();
         session.close();
-
-
     }
 }

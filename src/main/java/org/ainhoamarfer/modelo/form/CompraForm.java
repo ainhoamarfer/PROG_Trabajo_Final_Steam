@@ -74,7 +74,7 @@ public class CompraForm {
         if (precioBase == null) {
             errores.add(new ErrorDTO("precioSinDes", ErrorType.REQUERIDO));
         } else {
-            if (precioBase <= 0) {
+            if (precioBase < 0) {
                 errores.add(new ErrorDTO("precioSinDes", ErrorType.VALOR_NO_VALIDO));
             }
             BigDecimal bd = BigDecimal.valueOf(precioBase);

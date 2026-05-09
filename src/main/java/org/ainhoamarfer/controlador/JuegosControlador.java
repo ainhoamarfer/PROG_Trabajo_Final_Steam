@@ -51,6 +51,7 @@ public class JuegosControlador {
      */
     public JuegoDTO anadirJuego(JuegoForm form) throws ExcepcionValidacion {
         List<ErrorDTO> errores = form.validar(form);
+        if (!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
         //comienza aquí la transacción porque antes no se necesita la base de datos
         Optional <JuegoEntidad> juegoCreado = tm.inTransaction(() -> {
@@ -59,7 +60,7 @@ public class JuegosControlador {
                 errores.add(new ErrorDTO("juego", ErrorType.DUPLICADO));
                 //Necesario lanzar una Illegal para que HibernateTransactionManager haga el rollback, si ocurre no ejecuta la lambda pero si sigue el resto del métod,
                 // por eso se hace Excepcion validacion fuera de la lambda. Es excepcion de la lambda, no del métod
-                throw new IllegalArgumentException("Ya existe un juego con ese título");
+                throw new ExcepcionValidacion(errores);
             }
             return juegosrRepo.crear(form);
         });

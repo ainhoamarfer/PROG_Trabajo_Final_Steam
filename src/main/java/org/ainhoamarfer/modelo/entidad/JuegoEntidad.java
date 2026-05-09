@@ -18,7 +18,7 @@ public class JuegoEntidad {
     @Column (name = "titulo")
     private String titulo;
 
-    @Column (name = "descripcion")
+    @Column (name = "descripcion", length = 2000)
     private String descripcion;
 
     @Column (name = "desarrollador")

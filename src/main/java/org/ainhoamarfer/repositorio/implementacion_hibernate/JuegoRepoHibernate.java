@@ -94,7 +94,8 @@ public class JuegoRepoHibernate implements IJuegosRepo {
         if (juegoOpt.isEmpty()) {
             return false;
         } else {
-            session.remove(juegoOpt);
+            JuegoEntidad juego = juegoOpt.get();
+            session.remove(juego);
             return true;
         }
     }

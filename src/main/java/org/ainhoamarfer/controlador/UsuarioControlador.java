@@ -37,6 +37,7 @@ public class UsuarioControlador {
      */
     public UsuarioDTO registrarNuevoUsuario(UsuarioForm form) throws ExcepcionValidacion {
         List<ErrorDTO> errores = form.validar(form);
+        if (!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
         UsuarioEntidad usuario = tm.inTransaction(() -> {
 

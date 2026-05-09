@@ -80,7 +80,7 @@ public class JuegoForm {
     public List<ErrorDTO> validar (JuegoForm form){
         List<ErrorDTO> errores = new ArrayList<>();
 
-        // Título: obligatorio, longitud 1-100, único - TODO: validar que el título sea único en el sistema
+        // Título: obligatorio, longitud 1-100, único -
         if (titulo == null || titulo.isBlank()) {
             errores.add(new ErrorDTO("titulo", ErrorType.REQUERIDO));
         } else {
