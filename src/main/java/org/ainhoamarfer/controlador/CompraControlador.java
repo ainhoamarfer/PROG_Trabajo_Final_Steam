@@ -1,12 +1,9 @@
 package org.ainhoamarfer.controlador;
 
-import jakarta.transaction.TransactionManager;
 import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.mapper.Mapper;
 import org.ainhoamarfer.modelo.dtos.CompraDTO;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
-import org.ainhoamarfer.modelo.dtos.JuegoDTO;
-import org.ainhoamarfer.modelo.dtos.UsuarioDTO;
 import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
 import org.ainhoamarfer.modelo.entidad.CompraEntidad;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
@@ -14,18 +11,16 @@ import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.*;
 import org.ainhoamarfer.modelo.form.BibliotecaForm;
 import org.ainhoamarfer.modelo.form.CompraForm;
-import org.ainhoamarfer.modelo.form.JuegoForm;
-import org.ainhoamarfer.modelo.form.UsuarioForm;
-import org.ainhoamarfer.repositorio.implementacion_memoria.BibliotecaRepo;
-import org.ainhoamarfer.repositorio.implementacion_memoria.UsuarioRepo;
-import org.ainhoamarfer.repositorio.implementacion_memoria.CompraRepo;
-import org.ainhoamarfer.repositorio.implementacion_memoria.JuegoRepo;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 import org.ainhoamarfer.transaction.ITransactionManager;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +47,8 @@ public class CompraControlador {
     private IBibliotecaRepo bibliotecaRepo;
     private ITransactionManager tm;
 
+    private static final Path RUTA_FICHERO = Path.of("src/main/resources/factura.txt");
+
 
     public CompraControlador(ICompraRepo compraRepo, IJuegosRepo juegoRepo, IUsuarioRepo usuarioRepo, IBibliotecaRepo bibliotecaRepo, ITransactionManager tm) {
         this.compraRepo = compraRepo;
@@ -60,8 +57,6 @@ public class CompraControlador {
         this.bibliotecaRepo = bibliotecaRepo;
         this.tm = tm;
     }
-
-
 
     /**
      * Realizar compra
@@ -327,8 +322,57 @@ public class CompraControlador {
      * @return Archivo txt de factura o mensaje de error
      * Validaciones: Compra completada
      */
-    public String generarFactura(long idCompra) {
-        throw new UnsupportedOperationException("Not implemented");
+    public String generarFactura(long idCompra) throws IOException {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        CompraEntidad compra = compraRepo.obtenerPorId(idCompra)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> {
+                    errores.add(new ErrorDTO("compra", ErrorType.NO_ENCONTRADO));
+                    return new ExcepcionValidacion(errores);
+                });
+
+        if (compra.getEstadoCompra() != CompraEstadoEnum.COMPLETADA) {
+            errores.add(new ErrorDTO("El estado tiene que ser completado", ErrorType.ESTADO_CUENTA));
+            throw new ExcepcionValidacion(errores);
+        }
+
+        UsuarioEntidad usuario = usuarioRepo.obtenerPorId(compra.getUsuarioId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> {
+                    errores.add(new ErrorDTO("compra", ErrorType.NO_ENCONTRADO));
+                    return new ExcepcionValidacion(errores);
+                });
+
+
+        String contenido =
+                "    //FACTURA #" + idCompra + "\n" +
+                "    //Fecha: " + compra.getFechaCompra() + "\n" +
+                "    //Cliente: " + usuario.getNombreUsuario() + "\n" +
+                "    //--------------------------------\n" +
+                "    //Producto                Precio\n" +
+                "    //Widget B                 5.00€\n" +
+                "    //--------------------------------\n" +
+                "    //Base imponible:         25.00€\n" +
+                "    //IVA (21%):               5.25€\n" +
+                "    //TOTAL:                  30.25€";
+
+        Files.writeString(RUTA_FICHERO, contenido, StandardCharsets.UTF_8);
+
+        if (Files.notExists(RUTA_FICHERO)) {
+            Files.writeString(RUTA_FICHERO, contenido);
+        }
+
+        return contenido;
+    }
+
+    static void main() throws IOException {
+
+        if (Files.notExists(RUTA_FICHERO)) {
+            Files.writeString(RUTA_FICHERO, "hola que tal");
+        }
     }
 
 }
