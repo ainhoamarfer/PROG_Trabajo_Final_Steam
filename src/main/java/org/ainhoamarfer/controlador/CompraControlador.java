@@ -11,6 +11,7 @@ import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.*;
 import org.ainhoamarfer.modelo.form.BibliotecaForm;
 import org.ainhoamarfer.modelo.form.CompraForm;
+import org.ainhoamarfer.modelo.form.JuegoForm;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
@@ -346,33 +347,69 @@ public class CompraControlador {
                     return new ExcepcionValidacion(errores);
                 });
 
+        JuegoEntidad juego = juegoRepo.obtenerPorId(compra.getJuegoId())
+                .stream().findFirst()
+                .orElseThrow(() -> {
+                        errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+                return new ExcepcionValidacion(errores);
+                });
 
-        String contenido =
-                "    //FACTURA #" + idCompra + "\n" +
-                "    //Fecha: " + compra.getFechaCompra() + "\n" +
-                "    //Cliente: " + usuario.getNombreUsuario() + "\n" +
-                "    //--------------------------------\n" +
-                "    //Producto                Precio\n" +
-                "    //Widget B                 5.00€\n" +
-                "    //--------------------------------\n" +
-                "    //Base imponible:         25.00€\n" +
-                "    //IVA (21%):               5.25€\n" +
-                "    //TOTAL:                  30.25€";
 
-        Files.writeString(RUTA_FICHERO, contenido, StandardCharsets.UTF_8);
 
-        if (Files.notExists(RUTA_FICHERO)) {
-            Files.writeString(RUTA_FICHERO, contenido);
+        double precioBase = compra.getPrecioBase();
+        int descuento = compra.getPorcentajeDescuento();
+        double precioFinal = precioBase * (100 - descuento) / 100;
+        double iva = precioFinal * 0.21;
+        double totalConIva = precioFinal + iva;
+
+        // 5. Construir contenido de la factura
+        String contenido = String.format("""
+            ===============================================
+                         FACTURA DE COMPRA
+            ===============================================
+            Nº Factura : %d
+            Fecha      : %s
+            Cliente    : %s (%s)
+            -----------------------------------------------
+            Producto               Precio base    Descuento
+            %-20s %12.2f€       %d%%
+            -----------------------------------------------
+            Subtotal               %12.2f€
+            IVA (21%%)             %12.2f€
+            -----------------------------------------------
+            TOTAL                  %12.2f€
+            ===============================================
+            Método de pago: %s
+            Estado: %s
+            Gracias por tu compra.
+            """,
+                compra.getId(),
+                compra.getFechaCompra(),
+                usuario.getNombreUsuario(), usuario.getEmail(),
+                juego.getTitulo(), precioBase, descuento,
+                precioFinal,
+                iva,
+                totalConIva,
+                compra.getMetodoPago(),
+                compra.getEstadoCompra()
+        );
+
+        // 6. Crear directorio de facturas si no existe
+        Path dirFacturas = Path.of("src/main/resources");
+        if (Files.notExists(dirFacturas)) {
+            Files.createDirectories(dirFacturas);
         }
 
-        return contenido;
+        // 7. Nombre de archivo único
+        Path rutaFactura = dirFacturas.resolve("factura_" + idCompra + ".txt");
+
+        // 8. Escribir el archivo (usando UTF-8)
+        Files.writeString(rutaFactura, contenido, StandardCharsets.UTF_8);
+
+        // 9. Devolver la ruta absoluta (o el contenido según prefieras)
+        return rutaFactura.toAbsolutePath().toString();
     }
 
-    static void main() throws IOException {
 
-        if (Files.notExists(RUTA_FICHERO)) {
-            Files.writeString(RUTA_FICHERO, "hola que tal");
-        }
-    }
 
 }
