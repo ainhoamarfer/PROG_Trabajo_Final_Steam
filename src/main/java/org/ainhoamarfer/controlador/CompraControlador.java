@@ -11,7 +11,6 @@ import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.*;
 import org.ainhoamarfer.modelo.form.BibliotecaForm;
 import org.ainhoamarfer.modelo.form.CompraForm;
-import org.ainhoamarfer.modelo.form.JuegoForm;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
@@ -63,7 +62,7 @@ public class CompraControlador {
      * Realizar compra
      * Descripción: Crear una nueva transacción para adquirir un juego
      *
-     * @param form  formulario con los datos de la compra
+     * @param form formulario con los datos de la compra
      * @return CompraDTO
      * Validaciones: Usuario activo, juego comprable, no duplicado, saldo suficiente si usa cartera
      */
@@ -132,7 +131,7 @@ public class CompraControlador {
      * Procesar pago
      * Descripción: Completar la transacción con el métod de pago seleccionado
      *
-     * @param idCompra   ID de compra
+     * @param idCompra ID de compra
      * @return CompraDTO
      * Validaciones: Compra existe, estado válido para procesar, pago válido
      */
@@ -244,7 +243,6 @@ public class CompraControlador {
      * Descripción: Devolver una compra y reintegrar el dinero a la cartera
      *
      * @param idCompra ID de compra
-
      * @return CompraDTO
      * Validaciones: Compra completada, dentro del plazo, pocas horas jugadas
      */
@@ -348,12 +346,12 @@ public class CompraControlador {
                 });
 
         JuegoEntidad juego = juegoRepo.obtenerPorId(compra.getJuegoId())
-                .stream().findFirst()
+                .stream()
+                .findFirst()
                 .orElseThrow(() -> {
-                        errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
-                return new ExcepcionValidacion(errores);
+                    errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+                    return new ExcepcionValidacion(errores);
                 });
-
 
 
         double precioBase = compra.getPrecioBase();
@@ -362,27 +360,27 @@ public class CompraControlador {
         double iva = precioFinal * 0.21;
         double totalConIva = precioFinal + iva;
 
-        // 5. Construir contenido de la factura
+
         String contenido = String.format("""
-            ===============================================
-                         FACTURA DE COMPRA
-            ===============================================
-            Nº Factura : %d
-            Fecha      : %s
-            Cliente    : %s (%s)
-            -----------------------------------------------
-            Producto               Precio base    Descuento
-            %-20s %12.2f€       %d%%
-            -----------------------------------------------
-            Subtotal               %12.2f€
-            IVA (21%%)             %12.2f€
-            -----------------------------------------------
-            TOTAL                  %12.2f€
-            ===============================================
-            Método de pago: %s
-            Estado: %s
-            Gracias por tu compra.
-            """,
+                        ===============================================
+                                     FACTURA DE COMPRA
+                        ===============================================
+                        Nº Factura : %d
+                        Fecha      : %s
+                        Cliente    : %s (%s)
+                        -----------------------------------------------
+                        Producto               Precio base    Descuento
+                        %-20s %12.2f€       %d%%
+                        -----------------------------------------------
+                        Subtotal               %12.2f€
+                        IVA (21%%)             %12.2f€
+                        -----------------------------------------------
+                        TOTAL                  %12.2f€
+                        ===============================================
+                        Método de pago: %s
+                        Estado: %s
+                        Gracias por tu compra.
+                        """,
                 compra.getId(),
                 compra.getFechaCompra(),
                 usuario.getNombreUsuario(), usuario.getEmail(),
@@ -394,22 +392,16 @@ public class CompraControlador {
                 compra.getEstadoCompra()
         );
 
-        // 6. Crear directorio de facturas si no existe
         Path dirFacturas = Path.of("src/main/resources");
         if (Files.notExists(dirFacturas)) {
             Files.createDirectories(dirFacturas);
         }
 
-        // 7. Nombre de archivo único
         Path rutaFactura = dirFacturas.resolve("factura_" + idCompra + ".txt");
-
-        // 8. Escribir el archivo (usando UTF-8)
         Files.writeString(rutaFactura, contenido, StandardCharsets.UTF_8);
 
-        // 9. Devolver la ruta absoluta (o el contenido según prefieras)
         return rutaFactura.toAbsolutePath().toString();
     }
-
 
 
 }

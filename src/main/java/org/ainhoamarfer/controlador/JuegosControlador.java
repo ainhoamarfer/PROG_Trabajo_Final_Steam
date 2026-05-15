@@ -100,7 +100,7 @@ public class JuegosControlador {
                 }
                 if (criterios.getCategoria() != null && juego.getCategoria().equalsIgnoreCase(criterios.getCategoria())) {
                     coincide = true;
-                } // etc.
+                }
                 if (coincide) juegosCumplenCriterios.add(juego);
             }
 

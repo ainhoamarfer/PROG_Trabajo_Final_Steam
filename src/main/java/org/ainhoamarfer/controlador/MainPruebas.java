@@ -58,7 +58,6 @@ public class MainPruebas {
             System.out.println("Usuario registrado: " + usuario.getNombreUsuario() +
                     " (ID: " + usuario.getId() + ", Saldo: " + usuario.getSaldoCartera() + ")");
 
-            // 4. Registrar un juego de prueba
             JuegoForm juegoForm = new JuegoForm(
                     "The Legend of Testing",
                     "Un juego de prueba para validar compras.",
@@ -76,7 +75,7 @@ public class MainPruebas {
                     " (ID: " + juego.getId() + ", Precio base: " + juego.getPrecioBase() +
                     ", Descuento: " + juego.getDescuentoActual() + "%)");
 
-            // 5. Realizar la compra con método de pago Cartera Steam
+            //Realizar la compra con método de pago Cartera Steam
             CompraForm compraForm = new CompraForm(
                     usuario.getId(),
                     juego.getId(),
@@ -86,6 +85,7 @@ public class MainPruebas {
                     CompraEstadoEnum.PENDIENTE,
                     CompraMetodoPagoEnum.CARTERA_STEAM
             );
+
             CompraDTO compraRealizada = compraControlador.realizarCompra(compraForm);
             System.out.println("Compra creada - ID: " + compraRealizada.getId() +
                     ", Estado: " + compraRealizada.getEstadoCompra() +

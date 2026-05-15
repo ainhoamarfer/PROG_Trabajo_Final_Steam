@@ -4,10 +4,8 @@ import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.mapper.Mapper;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
 import org.ainhoamarfer.modelo.dtos.UsuarioDTO;
-import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
 import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.ErrorType;
-import org.ainhoamarfer.modelo.form.JuegoForm;
 import org.ainhoamarfer.modelo.form.UsuarioForm;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 import org.ainhoamarfer.transaction.ITransactionManager;
@@ -101,7 +99,7 @@ public class UsuarioControlador {
     public Double anadirSaldoCartera(Double recarga, long idUsuario) throws ExcepcionValidacion {
         List<ErrorDTO> errores = new ArrayList<>();
 
-        Double nSaldo = tm.inTransaction(() -> {
+        return tm.inTransaction(() -> {
 
             UsuarioEntidad usuario = comprobarUsuarioExistePorId(idUsuario);
 
@@ -120,8 +118,6 @@ public class UsuarioControlador {
 
             return nuevoSaldo;
         });
-
-        return nSaldo;
     }
 
     /**

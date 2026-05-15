@@ -1,7 +1,5 @@
 package org.ainhoamarfer.controlador;
 
-import jakarta.transaction.TransactionManager;
-import org.ainhoamarfer.controlador.CompraControlador;
 import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.modelo.dtos.CompraDTO;
 import org.ainhoamarfer.modelo.entidad.*;
@@ -14,17 +12,13 @@ import org.ainhoamarfer.repositorio.implementacion_memoria.CompraRepo;
 import org.ainhoamarfer.repositorio.implementacion_memoria.JuegoRepo;
 import org.ainhoamarfer.repositorio.implementacion_memoria.UsuarioRepo;
 import org.ainhoamarfer.repositorio.interfaz.*;
-import org.ainhoamarfer.transaction.ExceptionSupplier;
-import org.ainhoamarfer.transaction.ITransactionManager;
 import org.ainhoamarfer.transaction.NoOpTransactionManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
+
 
 public class PruebaFactura {
 
@@ -42,7 +36,6 @@ public class PruebaFactura {
         CompraControlador controlador = new CompraControlador(compraRepo, juegoRepo, usuarioRepo, bibliotecaRepo, tm);
 
         try {
-            // ----- Crear usuario de prueba -----
             UsuarioForm usuarioForm = new UsuarioForm(
                     "testUser",            // nombreUsuario
                     "test@steam.com",      // email
@@ -59,8 +52,6 @@ public class PruebaFactura {
                     .orElseThrow(() -> new RuntimeException("No se pudo crear usuario"));
             System.out.println("✅ Usuario creado - ID: " + usuario.getId() + ", Saldo: " + usuario.getSaldoCartera());
 
-            // ----- Crear juego de prueba -----
-            // Nota: Los valores de CategoriaEnum, ClasificacionEdadEnum deben ser los tuyos reales
             JuegoForm juegoForm = new JuegoForm(
                     "The Legend of Testing",
                     "Un juego de prueba para validar compras.",
@@ -77,8 +68,6 @@ public class PruebaFactura {
                     .orElseThrow(() -> new RuntimeException("No se pudo crear juego"));
             System.out.println("✅ Juego creado - ID: " + juego.getId() + ", Título: " + juego.getTitulo());
 
-            // ----- Crear compra (estado PENDIENTE) -----
-            // CompraForm sin estado (el repo asigna PENDIENTE)
             CompraForm compraForm = new CompraForm(
                     usuario.getId(),
                     juego.getId(),
@@ -89,15 +78,15 @@ public class PruebaFactura {
                     CompraMetodoPagoEnum.CARTERA_STEAM
             );
             CompraDTO compraPendiente = controlador.realizarCompra(compraForm);
-            System.out.println("✅ Compra creada - ID: " + compraPendiente.getId() + ", Estado: " + compraPendiente.getEstadoCompra());
+            System.out.println("Compra creada - ID: " + compraPendiente.getId() + ", Estado: " + compraPendiente.getEstadoCompra());
 
             // ----- Procesar pago (COMPLETADA y añade a biblioteca) -----
             CompraDTO compraCompletada = controlador.procesarPago(compraPendiente.getId());
-            System.out.println("✅ Pago procesado - Estado: " + compraCompletada.getEstadoCompra());
+            System.out.println("Pago procesado - Estado: " + compraCompletada.getEstadoCompra());
 
             // ----- Generar factura -----
             String rutaFactura = controlador.generarFactura(compraCompletada.getId());
-            System.out.println("\n📄 Factura generada en: " + rutaFactura);
+            System.out.println("\n  Factura generada en: " + rutaFactura);
 
             // ----- Leer y mostrar contenido -----
             String contenido = Files.readString(Path.of(rutaFactura));
@@ -105,13 +94,13 @@ public class PruebaFactura {
             System.out.println(contenido);
 
         } catch (ExcepcionValidacion e) {
-            System.err.println("❌ Error de validación: " + e.getErrores());
+            System.err.println("Error de validación: " + e.getErrores());
             e.printStackTrace();
         } catch (IOException e) {
-            System.err.println("❌ Error de E/S: " + e.getMessage());
+            System.err.println("Error de E/S: " + e.getMessage());
             e.printStackTrace();
         } catch (Exception e) {
-            System.err.println("❌ Error inesperado: " + e.getMessage());
+            System.err.println("Error inesperado: " + e.getMessage());
             e.printStackTrace();
         }
     }
