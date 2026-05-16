@@ -1,12 +1,9 @@
 package org.ainhoamarfer.controlador;
 
-import jakarta.transaction.TransactionManager;
 import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.mapper.Mapper;
 import org.ainhoamarfer.modelo.dtos.CompraDTO;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
-import org.ainhoamarfer.modelo.dtos.JuegoDTO;
-import org.ainhoamarfer.modelo.dtos.UsuarioDTO;
 import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
 import org.ainhoamarfer.modelo.entidad.CompraEntidad;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
@@ -14,18 +11,16 @@ import org.ainhoamarfer.modelo.entidad.UsuarioEntidad;
 import org.ainhoamarfer.modelo.enums.*;
 import org.ainhoamarfer.modelo.form.BibliotecaForm;
 import org.ainhoamarfer.modelo.form.CompraForm;
-import org.ainhoamarfer.modelo.form.JuegoForm;
-import org.ainhoamarfer.modelo.form.UsuarioForm;
-import org.ainhoamarfer.repositorio.implementacion_memoria.BibliotecaRepo;
-import org.ainhoamarfer.repositorio.implementacion_memoria.UsuarioRepo;
-import org.ainhoamarfer.repositorio.implementacion_memoria.CompraRepo;
-import org.ainhoamarfer.repositorio.implementacion_memoria.JuegoRepo;
 import org.ainhoamarfer.repositorio.interfaz.IBibliotecaRepo;
 import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 import org.ainhoamarfer.transaction.ITransactionManager;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +47,8 @@ public class CompraControlador {
     private IBibliotecaRepo bibliotecaRepo;
     private ITransactionManager tm;
 
+    private static final Path RUTA_FICHERO = Path.of("src/main/resources/factura.txt");
+
 
     public CompraControlador(ICompraRepo compraRepo, IJuegosRepo juegoRepo, IUsuarioRepo usuarioRepo, IBibliotecaRepo bibliotecaRepo, ITransactionManager tm) {
         this.compraRepo = compraRepo;
@@ -61,13 +58,11 @@ public class CompraControlador {
         this.tm = tm;
     }
 
-
-
     /**
      * Realizar compra
      * Descripción: Crear una nueva transacción para adquirir un juego
      *
-     * @param form  formulario con los datos de la compra
+     * @param form formulario con los datos de la compra
      * @return CompraDTO
      * Validaciones: Usuario activo, juego comprable, no duplicado, saldo suficiente si usa cartera
      */
@@ -136,7 +131,7 @@ public class CompraControlador {
      * Procesar pago
      * Descripción: Completar la transacción con el métod de pago seleccionado
      *
-     * @param idCompra   ID de compra
+     * @param idCompra ID de compra
      * @return CompraDTO
      * Validaciones: Compra existe, estado válido para procesar, pago válido
      */
@@ -248,7 +243,6 @@ public class CompraControlador {
      * Descripción: Devolver una compra y reintegrar el dinero a la cartera
      *
      * @param idCompra ID de compra
-
      * @return CompraDTO
      * Validaciones: Compra completada, dentro del plazo, pocas horas jugadas
      */
@@ -327,8 +321,87 @@ public class CompraControlador {
      * @return Archivo txt de factura o mensaje de error
      * Validaciones: Compra completada
      */
-    public String generarFactura(long idCompra) {
-        throw new UnsupportedOperationException("Not implemented");
+    public String generarFactura(long idCompra) throws IOException {
+        List<ErrorDTO> errores = new ArrayList<>();
+
+        CompraEntidad compra = compraRepo.obtenerPorId(idCompra)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> {
+                    errores.add(new ErrorDTO("compra", ErrorType.NO_ENCONTRADO));
+                    return new ExcepcionValidacion(errores);
+                });
+
+        if (compra.getEstadoCompra() != CompraEstadoEnum.COMPLETADA) {
+            errores.add(new ErrorDTO("El estado tiene que ser completado", ErrorType.ESTADO_CUENTA));
+            throw new ExcepcionValidacion(errores);
+        }
+
+        UsuarioEntidad usuario = usuarioRepo.obtenerPorId(compra.getUsuarioId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> {
+                    errores.add(new ErrorDTO("compra", ErrorType.NO_ENCONTRADO));
+                    return new ExcepcionValidacion(errores);
+                });
+
+        JuegoEntidad juego = juegoRepo.obtenerPorId(compra.getJuegoId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> {
+                    errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+                    return new ExcepcionValidacion(errores);
+                });
+
+
+        double precioBase = compra.getPrecioBase();
+        int descuento = compra.getPorcentajeDescuento();
+        double precioFinal = precioBase * (100 - descuento) / 100;
+        double iva = precioFinal * 0.21;
+        double totalConIva = precioFinal + iva;
+
+
+        String contenido = String.format("""
+                        ===============================================
+                                     FACTURA DE COMPRA
+                        ===============================================
+                        Nº Factura : %d
+                        Fecha      : %s
+                        Cliente    : %s (%s)
+                        -----------------------------------------------
+                        Producto               Precio base    Descuento
+                        %-20s %12.2f€       %d%%
+                        -----------------------------------------------
+                        Subtotal               %12.2f€
+                        IVA (21%%)             %12.2f€
+                        -----------------------------------------------
+                        TOTAL                  %12.2f€
+                        ===============================================
+                        Método de pago: %s
+                        Estado: %s
+                        Gracias por tu compra.
+                        """,
+                compra.getId(),
+                compra.getFechaCompra(),
+                usuario.getNombreUsuario(), usuario.getEmail(),
+                juego.getTitulo(), precioBase, descuento,
+                precioFinal,
+                iva,
+                totalConIva,
+                compra.getMetodoPago(),
+                compra.getEstadoCompra()
+        );
+
+        Path dirFacturas = Path.of("src/main/resources");
+        if (Files.notExists(dirFacturas)) {
+            Files.createDirectories(dirFacturas);
+        }
+
+        Path rutaFactura = dirFacturas.resolve("factura_" + idCompra + ".txt");
+        Files.writeString(rutaFactura, contenido, StandardCharsets.UTF_8);
+
+        return rutaFactura.toAbsolutePath().toString();
     }
+
 
 }

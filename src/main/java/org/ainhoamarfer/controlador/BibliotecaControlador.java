@@ -4,7 +4,6 @@ import org.ainhoamarfer.excepciones.ExcepcionValidacion;
 import org.ainhoamarfer.mapper.Mapper;
 import org.ainhoamarfer.modelo.dtos.BibliotecaDTO;
 import org.ainhoamarfer.modelo.dtos.ErrorDTO;
-import org.ainhoamarfer.modelo.dtos.EstadisticaBibliotecaDTO;
 import org.ainhoamarfer.modelo.entidad.BibliotecaEntidad;
 import org.ainhoamarfer.modelo.entidad.EstadisticaBibliotecaEntidad;
 import org.ainhoamarfer.modelo.entidad.JuegoEntidad;
@@ -122,18 +121,17 @@ public class BibliotecaControlador {
 
         return tm.inTransaction(() -> {
             if (usuarioRepo.obtenerPorId(idUsuario).isEmpty()) {
-                errores.add(new ErrorDTO("usuario", ErrorType.NO_ENCONTRADO));
+                errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
                 throw new ExcepcionValidacion(errores);
             }
-
-            List<BibliotecaEntidad> bibliotecasUsuarioLista = biblioRepo.obtenerPorIdUsuario(idUsuario);
-
 
             //ver si existe el juego
             juegoRepo.obtenerPorId(idJuego).orElseThrow(() -> {
                 errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
                 return new ExcepcionValidacion(errores);
             });
+
+            List<BibliotecaEntidad> bibliotecasUsuarioLista = biblioRepo.obtenerPorIdUsuario(idUsuario);
 
             //que no este ya en esta biblioteca
             for (BibliotecaEntidad biblioteca : bibliotecasUsuarioLista) {
@@ -147,7 +145,10 @@ public class BibliotecaControlador {
             BibliotecaForm nuevaBiblioteca = new BibliotecaForm(idUsuario, idJuego, LocalDate.now(), 0.0, null, false);
 
             Optional<BibliotecaEntidad> biblioCreada = biblioRepo.crear(nuevaBiblioteca);
-            BibliotecaEntidad biblioteca = biblioCreada.orElse(null);
+            BibliotecaEntidad biblioteca = biblioCreada.orElseThrow(() -> {
+                errores.add(new ErrorDTO("juego", ErrorType.NO_ENCONTRADO));
+                return new ExcepcionValidacion(errores);
+            });
 
             UsuarioEntidad usuario = usuarioRepo.obtenerPorId(biblioteca.getUsuarioId()).orElse(null);
             JuegoEntidad juego = juegoRepo.obtenerPorId(biblioteca.getJuegoId()).orElse(null);
