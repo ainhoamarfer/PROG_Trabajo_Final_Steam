@@ -34,12 +34,10 @@ public class BibliotecaControlador {
     Ver estadísticas de biblioteca
      */
 
-
     private IBibliotecaRepo biblioRepo;
     private IJuegosRepo juegoRepo;
     private final IUsuarioRepo usuarioRepo;
     private ITransactionManager tm;
-
 
     public BibliotecaControlador(IBibliotecaRepo biblioRepo, IUsuarioRepo usuarioRepo, IJuegosRepo juegoRepo, ITransactionManager tm) {
         this.biblioRepo = biblioRepo;
@@ -141,7 +139,6 @@ public class BibliotecaControlador {
                 }
             }
 
-            //todo quwpasa que no se creala biblioteca
             BibliotecaForm nuevaBiblioteca = new BibliotecaForm(idUsuario, idJuego, LocalDate.now(), 0.0, null, false);
 
             Optional<BibliotecaEntidad> biblioCreada = biblioRepo.crear(nuevaBiblioteca);

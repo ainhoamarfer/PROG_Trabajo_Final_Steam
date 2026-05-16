@@ -115,7 +115,7 @@ public class CompraControlador {
             if (!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
             CompraForm formNuevaCompra = new CompraForm(form.getUsuarioId(), form.getJuegoId(), LocalDate.now(), juegoAAdquirir.getPrecioBase(), juegoAAdquirir.getDescuentoActual(), CompraEstadoEnum.PENDIENTE, form.getMetodoPago());
-            Optional<CompraEntidad> compraOpt = compraRepo.crear(form);
+            Optional<CompraEntidad> compraOpt = compraRepo.crear(formNuevaCompra);
             if (compraOpt.isEmpty()) {
                 errores.add(new ErrorDTO("compra", ErrorType.NO_ENCONTRADO));
                 throw new ExcepcionValidacion(errores);
@@ -146,20 +146,23 @@ public class CompraControlador {
                 throw new ExcepcionValidacion(errores);
             }
 
-            CompraEntidad compra = compraOpt.orElse(null);
+            CompraEntidad compra = compraOpt.get();
 
             if (compra.getEstadoCompra() != CompraEstadoEnum.PENDIENTE || compra.getEstadoCompra() == null) {
                 errores.add(new ErrorDTO("Compra en estado realizada", ErrorType.VALOR_NO_VALIDO));
             }
-            if (!errores.isEmpty()) {
-                throw new ExcepcionValidacion(errores);
-            }
+            if (!errores.isEmpty()) throw new ExcepcionValidacion(errores);
 
-            JuegoEntidad juego = juegoRepo.obtenerPorId(compra.getJuegoId()).orElseThrow(NullPointerException::new);
-            UsuarioEntidad usuario = usuarioRepo.obtenerPorId(compra.getUsuarioId()).orElseThrow(NullPointerException::new);
+            JuegoEntidad juego = juegoRepo.obtenerPorId(compra.getJuegoId()).orElseThrow(() -> {
+                errores.add(new ErrorDTO("Juego", ErrorType.NO_ENCONTRADO));
+                return new ExcepcionValidacion(errores);
+            });
+            UsuarioEntidad usuario = usuarioRepo.obtenerPorId(compra.getUsuarioId()).orElseThrow(() -> {
+                errores.add(new ErrorDTO("Usuario", ErrorType.NO_ENCONTRADO));
+                return new ExcepcionValidacion(errores);
+            });;
 
             double precioFinal = compra.getPrecioBase() * (100 - compra.getPorcentajeDescuento()) / 100;
-
 
             if (compra.getMetodoPago() == CompraMetodoPagoEnum.CARTERA_STEAM) {
                 if (precioFinal > usuario.getSaldoCartera()) {
@@ -180,9 +183,6 @@ public class CompraControlador {
 
             }
 
-            if (!errores.isEmpty()) {
-                throw new ExcepcionValidacion(errores);
-            }
 
             compraRepo.actualizarEstadoCompra(idCompra, CompraEstadoEnum.COMPLETADA);
 
@@ -191,7 +191,10 @@ public class CompraControlador {
 
             UsuarioEntidad usuarioMap = usuarioRepo.obtenerPorId(compra.getUsuarioId()).orElse(null);
             JuegoEntidad juegoMap = juegoRepo.obtenerPorId(compra.getJuegoId()).orElse(null);
-            CompraEntidad compraCompletada = compraRepo.obtenerPorId(idCompra).orElseThrow();
+            CompraEntidad compraCompletada = compraRepo.obtenerPorId(idCompra).orElseThrow( () -> {
+                errores.add(new ErrorDTO("compra", ErrorType.NO_ENCONTRADO));
+                return new ExcepcionValidacion(errores);
+            });
 
             return Mapper.mapDeCompra(compraCompletada, Mapper.mapDeUsuario(usuarioMap), Mapper.mapDeJuego(juegoMap));
         });
@@ -270,21 +273,20 @@ public class CompraControlador {
                 errores.add(new ErrorDTO("plazoReembolso", ErrorType.PLAZO_REEMBOLSO_VENCIDO));
             }
 
-            //horas jugadas (menos de 2), para esto hay que consultar la biblioteca del usuario y ver el tiempo de juego registrado para ese juego
+            //horas jugadas tienen que ser menos de 2, para esto hay que consultar la biblioteca del usuario y ver el tiempo de juego registrado para ese juego
             BibliotecaEntidad biblioteca = bibliotecaRepo
                     .obtenerPorIdUsuarioYIdJuego(compra.getUsuarioId(), compra.getJuegoId())
                     .orElseThrow(() -> {
                         errores.add(new ErrorDTO("biblioteca", ErrorType.NO_ENCONTRADO));
-                        throw new ExcepcionValidacion(errores);
+                        return new ExcepcionValidacion(errores);
                     });
 
             if (biblioteca.getTiempoJuego() >= MAX_HORAS_PRUEBA_JUEGO) {
                 errores.add(new ErrorDTO("tiempoJuego", ErrorType.TIEMPO_EXPIRADO));
             }
 
-            if (!errores.isEmpty()) {
-                throw new ExcepcionValidacion(errores);
-            }
+            if (!errores.isEmpty()) throw new ExcepcionValidacion(errores);
+
 
             // PUEDE COMENZAR EL REENVOLSO ----------------------------------------------------------------------
 
@@ -295,7 +297,6 @@ public class CompraControlador {
             double importeReembolso = compra.getPrecioBase() * (100 - compra.getPorcentajeDescuento()) / 100;
 
             double nuevoSaldo = usuario.getSaldoCartera() + importeReembolso;
-
 
             usuarioRepo.sumarSaldoCartera(usuario.getId(), nuevoSaldo);
 
@@ -392,14 +393,16 @@ public class CompraControlador {
                 compra.getEstadoCompra()
         );
 
-        Path dirFacturas = Path.of("src/main/resources");
-        if (Files.notExists(dirFacturas)) {
-            Files.createDirectories(dirFacturas);
+        Path carpetaFacturas = Path.of("src/main/resources");
+        if (Files.notExists(carpetaFacturas)) {
+            Files.createDirectories(carpetaFacturas);
         }
 
-        Path rutaFactura = dirFacturas.resolve("factura_" + idCompra + ".txt");
+        Path rutaFactura = carpetaFacturas.resolve("factura" + idCompra + ".txt");
         Files.writeString(rutaFactura, contenido, StandardCharsets.UTF_8);
 
+        //Vale revisando esto me di cuenta que la primera parte del absolute path lo vi en tus apuntes pero que la idea de ponerlo asi me la dio Claude,
+        //asi que aunque si puse originalmente que devolviese String no tenía en la mente que fuese para la ruta.
         return rutaFactura.toAbsolutePath().toString();
     }
 

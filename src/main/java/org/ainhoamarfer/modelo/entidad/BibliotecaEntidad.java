@@ -29,7 +29,6 @@ public class BibliotecaEntidad {
     @Column(name = "instalado")
     private boolean instalado;
 
-    // Constructor sin argumentos
     public BibliotecaEntidad() {
     }
 

@@ -21,6 +21,7 @@ import org.ainhoamarfer.repositorio.interfaz.ICompraRepo;
 import org.ainhoamarfer.repositorio.interfaz.IJuegosRepo;
 import org.ainhoamarfer.repositorio.interfaz.IUsuarioRepo;
 import org.ainhoamarfer.transaction.ITransactionManager;
+import org.ainhoamarfer.transaction.NoOpTransactionManager;
 
 import java.time.LocalDate;
 
@@ -32,15 +33,14 @@ public class MainPruebas {
         IJuegosRepo juegoRepo = new JuegoRepo();
         ICompraRepo compraRepo = new CompraRepo();
         IBibliotecaRepo bibliotecaRepo = new BibliotecaRepo();
-        ITransactionManager tm = null; // No se necesita para esta prueba de memoria, pero se puede implementar si se desea probar con Hibernate
+        NoOpTransactionManager tm = new NoOpTransactionManager();
         Util util = new Util();
 
-        UsuarioControlador usuarioControlador = new UsuarioControlador(usuarioRepo, null);
-        JuegosControlador juegosControlador = new JuegosControlador(juegoRepo, null);
-        CompraControlador compraControlador = new CompraControlador(compraRepo, juegoRepo, usuarioRepo, bibliotecaRepo, null);
+        UsuarioControlador usuarioControlador = new UsuarioControlador(usuarioRepo, tm);
+        JuegosControlador juegosControlador = new JuegosControlador(juegoRepo, tm);
+        CompraControlador compraControlador = new CompraControlador(compraRepo, juegoRepo, usuarioRepo, bibliotecaRepo, tm);
 
         try {
-            //usuario saldo suficiente
             UsuarioForm usuarioForm = new UsuarioForm(
                     "testUser",            // nombreUsuario
                     "test@steam.com",      // email
@@ -58,7 +58,7 @@ public class MainPruebas {
             System.out.println("Usuario registrado: " + usuario.getNombreUsuario() +
                     " (ID: " + usuario.getId() + ", Saldo: " + usuario.getSaldoCartera() + ")");
 
-            // 4. Registrar un juego de prueba
+
             JuegoForm juegoForm = new JuegoForm(
                     "The Legend of Testing",
                     "Un juego de prueba para validar compras.",
@@ -76,7 +76,7 @@ public class MainPruebas {
                     " (ID: " + juego.getId() + ", Precio base: " + juego.getPrecioBase() +
                     ", Descuento: " + juego.getDescuentoActual() + "%)");
 
-            // 5. Realizar la compra con método de pago Cartera Steam
+
             CompraForm compraForm = new CompraForm(
                     usuario.getId(),
                     juego.getId(),
@@ -91,20 +91,18 @@ public class MainPruebas {
                     ", Estado: " + compraRealizada.getEstadoCompra() +
                     ", Precio final: " + compraRealizada.getPrecioBase());
 
-            // 6. Procesar el pago
+
             CompraDTO compraCompletada = compraControlador.procesarPago(compraRealizada.getId());
             System.out.println("Pago procesado. Nuevo estado: " + compraCompletada.getEstadoCompra() +
                     ", Saldo del usuario tras compra: " +
                     usuarioControlador.consultarSaldoCartera(usuario.getId()));
 
-            // 7. Consultar detalles de la compra
             CompraDTO detalles = compraControlador.consultarDetallesCompra(compraCompletada.getId(), usuario.getId());
             System.out.println("Detalles de la compra: " +
                     "Juego: " + detalles.getJuego().getTitulo() +
                     ", Fecha: " + detalles.getFechaCompra() +
                     ", Método de pago: " + detalles.getMetodoPago());
 
-            // 8. Solicitar reembolso (horas jugadas = 0, dentro del plazo)
             CompraDTO compraReembolsada = compraControlador.solicitarReembolso(compraCompletada.getId());
             System.out.println("Reembolso solicitado. Nuevo estado: " + compraReembolsada.getEstadoCompra() +
                     ", Saldo del usuario tras reembolso: " +

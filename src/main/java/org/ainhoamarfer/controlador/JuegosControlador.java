@@ -58,7 +58,7 @@ public class JuegosControlador {
             Optional<JuegoEntidad> juegoOpt = juegosrRepo.obtenerPorTitulo(form.getTitulo());
             if (juegoOpt.isPresent()) {
                 errores.add(new ErrorDTO("juego", ErrorType.DUPLICADO));
-                //Necesario lanzar una Illegal para que HibernateTransactionManager haga el rollback, si ocurre no ejecuta la lambda pero si sigue el resto del métod,
+                //Necesario lanzar una excepcion para que HibernateTransactionManager haga el rollback, si ocurre no ejecuta la lambda pero si sigue el resto del métod,
                 // por eso se hace Excepcion validacion fuera de la lambda. Es excepcion de la lambda, no del métod
                 throw new ExcepcionValidacion(errores);
             }

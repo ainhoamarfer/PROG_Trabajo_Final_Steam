@@ -23,16 +23,13 @@ import java.time.LocalDate;
 public class PruebaFactura {
 
     public static void main(String[] args) {
-        // 1. Repositorios en memoria
         IUsuarioRepo usuarioRepo = new UsuarioRepo();
         IJuegosRepo juegoRepo = new JuegoRepo();
         ICompraRepo compraRepo = new CompraRepo();
         IBibliotecaRepo bibliotecaRepo = new BibliotecaRepo();
-
-        // 2. TransactionManager no-op (para pruebas)
         NoOpTransactionManager tm = new NoOpTransactionManager();
 
-        // 3. Controlador
+
         CompraControlador controlador = new CompraControlador(compraRepo, juegoRepo, usuarioRepo, bibliotecaRepo, tm);
 
         try {
